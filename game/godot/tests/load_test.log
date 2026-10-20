@@ -1,0 +1,26 @@
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+teahouse built in 39 ms; JSON placements=110, loader placed=110, skipped=[]
+PASS  JSON has 110 placements (got 110)
+PASS  110 pieces instanced as children (placed=110, children=110)
+PASS  no placement skipped for a missing GLB
+mesh instances=110, static bodies=110, collision shapes=119 (trimesh=100, convex=10, box blockers=9)
+PASS  StaticBody3D count 110 == non-fx placements 110
+PASS  pond blockers 9 == floors with walkable:false 9
+PASS  10 convex (prop+tree) and 100 trimesh shapes (got 10, 100)
+stone path rot 0 at (2.5, 0, 5.5), rot 1 at (2.5, 0, 6.5): max vertex error vs counter-clockwise 0.0000 m, vs clockwise 1.4142 m
+PASS  rotation_degrees.y = rot * 90 matches Blender's counter-clockwise rot
+  stone quadrants rot 0: { "SW": 15, "NE": 18, "SE": 3, "NW": 0 }   rot 1: { "SW": 0, "NE": 3, "SE": 15, "NW": 18 }   (Blender layout: rot 0 SW+NE, rot 1 SE+NW)
+  roof eave at rot 1 spans x [-1.20, 0.00], z [-0.50, 0.50]
+PASS  roof eave at rot 1 extends west (Blender -X), as a counter-clockwise quarter turn must
+palette: res://kit/glb/sakura_floor_tatami_sakura_palette.png (128, 64) filter=2 (0 nearest, 2 nearest+mipmaps) mipmaps=false
+PASS  palette is 128 x 64
+PASS  palette has no mipmaps
+PASS  palette sampled nearest
+PASS  palette uncompressed (format 4)
+sun direction (-0.439385, -0.642788, -0.627507), elevation 40.0 deg; expected (-0.4394, -0.6428, -0.6275) (elevation 40, azimuth 35)
+PASS  sun matches the contract sun
+PASS  main.tscn's Teahouse also built 110 pieces
+ambient source=2 (2 = colour) colour=(0.93, 0.92, 0.9, 1) energy=0.90; sun energy=1.50 shadows=true
+PASS  warm ambient light is on (contract AMBIENT colour)
+RESULT: 0 failure(s)

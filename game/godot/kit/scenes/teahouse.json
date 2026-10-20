@@ -1,0 +1,944 @@
+{
+ "contract_version": "0.2",
+ "units": "metres, z up",
+ "grid": 1.0,
+ "placements": [
+  {
+   "piece": "sakura_floor_tatami",
+   "x": 0.5,
+   "y": 0.5,
+   "z": 0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_tatami",
+   "x": 0.5,
+   "y": 1.5,
+   "z": 0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_tatami",
+   "x": 1.5,
+   "y": 0.5,
+   "z": 0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_tatami",
+   "x": 1.5,
+   "y": 1.5,
+   "z": 0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_tatami",
+   "x": 2.5,
+   "y": 0.5,
+   "z": 0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_tatami",
+   "x": 2.5,
+   "y": 1.5,
+   "z": 0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_wood",
+   "x": 0.5,
+   "y": -0.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_wood",
+   "x": 1.5,
+   "y": -0.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_wood",
+   "x": 2.5,
+   "y": -0.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_wall_plain_1m",
+   "x": 0.5,
+   "y": 2.0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "wall"
+  },
+  {
+   "piece": "sakura_door_shoji_1m",
+   "x": 0.5,
+   "y": 0.0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "door"
+  },
+  {
+   "piece": "sakura_wall_plain_1m",
+   "x": 1.5,
+   "y": 2.0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "wall"
+  },
+  {
+   "piece": "sakura_door_shoji_1m_open",
+   "x": 1.5,
+   "y": 0.0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "door"
+  },
+  {
+   "piece": "sakura_wall_plain_1m",
+   "x": 2.5,
+   "y": 2.0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "wall"
+  },
+  {
+   "piece": "sakura_door_shoji_1m",
+   "x": 2.5,
+   "y": 0.0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "door"
+  },
+  {
+   "piece": "sakura_wall_plain_1m",
+   "x": 0.0,
+   "y": 0.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "wall"
+  },
+  {
+   "piece": "sakura_wall_plain_1m",
+   "x": 0.0,
+   "y": 1.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "wall"
+  },
+  {
+   "piece": "sakura_wall_plain_1m",
+   "x": 3.0,
+   "y": 1.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "wall"
+  },
+  {
+   "piece": "sakura_door_shoji_1m",
+   "x": 3.0,
+   "y": 0.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "door"
+  },
+  {
+   "piece": "sakura_pillar_post",
+   "x": 0,
+   "y": 0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "pillar"
+  },
+  {
+   "piece": "sakura_pillar_post",
+   "x": 3,
+   "y": 0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "pillar"
+  },
+  {
+   "piece": "sakura_pillar_post",
+   "x": 0,
+   "y": 2,
+   "z": 0.0,
+   "rot": 0,
+   "category": "pillar"
+  },
+  {
+   "piece": "sakura_pillar_post",
+   "x": 3,
+   "y": 2,
+   "z": 0.0,
+   "rot": 0,
+   "category": "pillar"
+  },
+  {
+   "piece": "sakura_roof_eave_1m",
+   "x": -0.5,
+   "y": 1.0,
+   "z": 2.5,
+   "rot": 0,
+   "category": "roof"
+  },
+  {
+   "piece": "sakura_roof_eave_1m",
+   "x": -0.5,
+   "y": 1.0,
+   "z": 2.5,
+   "rot": 2,
+   "category": "roof"
+  },
+  {
+   "piece": "sakura_roof_eave_1m",
+   "x": 0.5,
+   "y": 1.0,
+   "z": 2.5,
+   "rot": 0,
+   "category": "roof"
+  },
+  {
+   "piece": "sakura_roof_eave_1m",
+   "x": 0.5,
+   "y": 1.0,
+   "z": 2.5,
+   "rot": 2,
+   "category": "roof"
+  },
+  {
+   "piece": "sakura_roof_eave_1m",
+   "x": 1.5,
+   "y": 1.0,
+   "z": 2.5,
+   "rot": 0,
+   "category": "roof"
+  },
+  {
+   "piece": "sakura_roof_eave_1m",
+   "x": 1.5,
+   "y": 1.0,
+   "z": 2.5,
+   "rot": 2,
+   "category": "roof"
+  },
+  {
+   "piece": "sakura_roof_eave_1m",
+   "x": 2.5,
+   "y": 1.0,
+   "z": 2.5,
+   "rot": 0,
+   "category": "roof"
+  },
+  {
+   "piece": "sakura_roof_eave_1m",
+   "x": 2.5,
+   "y": 1.0,
+   "z": 2.5,
+   "rot": 2,
+   "category": "roof"
+  },
+  {
+   "piece": "sakura_roof_eave_1m",
+   "x": 3.5,
+   "y": 1.0,
+   "z": 2.5,
+   "rot": 0,
+   "category": "roof"
+  },
+  {
+   "piece": "sakura_roof_eave_1m",
+   "x": 3.5,
+   "y": 1.0,
+   "z": 2.5,
+   "rot": 2,
+   "category": "roof"
+  },
+  {
+   "piece": "sakura_prop_table_low",
+   "x": 1.5,
+   "y": 1.0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "prop"
+  },
+  {
+   "piece": "sakura_prop_tea_set",
+   "x": 1.5,
+   "y": 1.0,
+   "z": 0.33,
+   "rot": 0,
+   "category": "prop"
+  },
+  {
+   "piece": "sakura_prop_cushion",
+   "x": 1.5,
+   "y": 0.35,
+   "z": 0,
+   "rot": 0,
+   "category": "prop"
+  },
+  {
+   "piece": "sakura_prop_cushion",
+   "x": 1.5,
+   "y": 1.65,
+   "z": 0,
+   "rot": 2,
+   "category": "prop"
+  },
+  {
+   "piece": "sakura_prop_cushion",
+   "x": 0.7,
+   "y": 1.0,
+   "z": 0,
+   "rot": 1,
+   "category": "prop"
+  },
+  {
+   "piece": "sakura_prop_cushion",
+   "x": 2.3,
+   "y": 1.0,
+   "z": 0,
+   "rot": 3,
+   "category": "prop"
+  },
+  {
+   "piece": "sakura_prop_ikebana",
+   "x": 0.35,
+   "y": 1.7,
+   "z": 0.0,
+   "rot": 0,
+   "category": "prop"
+  },
+  {
+   "piece": "sakura_prop_lantern_paper",
+   "x": 2.7,
+   "y": 1.7,
+   "z": 0.0,
+   "rot": 0,
+   "category": "prop"
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": -1.5,
+   "y": -6.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": -1.5,
+   "y": -5.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_water",
+   "x": -1.5,
+   "y": -4.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": false
+  },
+  {
+   "piece": "sakura_floor_water",
+   "x": -1.5,
+   "y": -3.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": false
+  },
+  {
+   "piece": "sakura_floor_water",
+   "x": -1.5,
+   "y": -2.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": false
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": -1.5,
+   "y": -1.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": -0.5,
+   "y": -6.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": -0.5,
+   "y": -5.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_water",
+   "x": -0.5,
+   "y": -4.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": false
+  },
+  {
+   "piece": "sakura_floor_water",
+   "x": -0.5,
+   "y": -3.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": false
+  },
+  {
+   "piece": "sakura_floor_water",
+   "x": -0.5,
+   "y": -2.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": false
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": -0.5,
+   "y": -1.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 0.5,
+   "y": -6.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 0.5,
+   "y": -5.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_water",
+   "x": 0.5,
+   "y": -4.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": false
+  },
+  {
+   "piece": "sakura_floor_water",
+   "x": 0.5,
+   "y": -3.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": false
+  },
+  {
+   "piece": "sakura_floor_water",
+   "x": 0.5,
+   "y": -2.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": false
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 0.5,
+   "y": -1.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 1.5,
+   "y": -6.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 1.5,
+   "y": -5.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 1.5,
+   "y": -4.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 1.5,
+   "y": -3.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_moss",
+   "x": 1.5,
+   "y": -2.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_moss",
+   "x": 1.5,
+   "y": -1.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_stone_path",
+   "x": 2.5,
+   "y": -6.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_stone_path",
+   "x": 2.5,
+   "y": -5.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_stone_path",
+   "x": 2.5,
+   "y": -4.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_stone_path",
+   "x": 2.5,
+   "y": -3.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_stone_path",
+   "x": 2.5,
+   "y": -2.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_stone_path",
+   "x": 2.5,
+   "y": -1.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 3.5,
+   "y": -6.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 3.5,
+   "y": -5.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 3.5,
+   "y": -4.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 3.5,
+   "y": -3.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 3.5,
+   "y": -2.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_moss",
+   "x": 3.5,
+   "y": -1.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 4.5,
+   "y": -6.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 4.5,
+   "y": -5.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 4.5,
+   "y": -4.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 4.5,
+   "y": -3.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 4.5,
+   "y": -2.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 4.5,
+   "y": -1.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 5.5,
+   "y": -6.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 5.5,
+   "y": -5.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 5.5,
+   "y": -4.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 5.5,
+   "y": -3.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 5.5,
+   "y": -2.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_floor_gravel_raked",
+   "x": 5.5,
+   "y": -1.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "floor",
+   "walkable": true
+  },
+  {
+   "piece": "sakura_garden_bridge_2m",
+   "x": -1.0,
+   "y": -4.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_garden_water_basin",
+   "x": 3.5,
+   "y": -1.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_garden_lantern_stone",
+   "x": 1.5,
+   "y": -4.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_garden_rock_a",
+   "x": 4.5,
+   "y": -4.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_garden_rock_b",
+   "x": 4.5,
+   "y": -3.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_garden_rock_b",
+   "x": 0.5,
+   "y": -6.5,
+   "z": 0.0,
+   "rot": 2,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_garden_bamboo_fence_1m",
+   "x": -1.5,
+   "y": -7.0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_garden_bamboo_fence_1m",
+   "x": -0.5,
+   "y": -7.0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_garden_bamboo_fence_1m",
+   "x": 0.5,
+   "y": -7.0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_garden_bamboo_fence_1m",
+   "x": 1.5,
+   "y": -7.0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_garden_bamboo_fence_1m",
+   "x": 2.5,
+   "y": -7.0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_garden_bamboo_fence_1m",
+   "x": 3.5,
+   "y": -7.0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_garden_bamboo_fence_1m",
+   "x": 4.5,
+   "y": -7.0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_garden_bamboo_fence_1m",
+   "x": 5.5,
+   "y": -7.0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_garden_bamboo_cluster",
+   "x": -1.5,
+   "y": -1.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_garden_bamboo_cluster",
+   "x": 5.5,
+   "y": -6.5,
+   "z": 0.0,
+   "rot": 1,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_tree_sakura_a",
+   "x": 4.5,
+   "y": -6.0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "tree"
+  },
+  {
+   "piece": "sakura_tree_sakura_b",
+   "x": -1.5,
+   "y": -6.5,
+   "z": 0.0,
+   "rot": 0,
+   "category": "tree"
+  },
+  {
+   "piece": "sakura_garden_petals",
+   "x": 4.5,
+   "y": -5.0,
+   "z": 0.0,
+   "rot": 0,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_garden_petals",
+   "x": 3.5,
+   "y": -6.0,
+   "z": 0.0,
+   "rot": 1,
+   "category": "garden"
+  },
+  {
+   "piece": "sakura_garden_petals",
+   "x": -1.5,
+   "y": -5.6,
+   "z": 0.0,
+   "rot": 2,
+   "category": "garden"
+  }
+ ]
+}

@@ -16,7 +16,6 @@ needed.
 | `sakura_kit/check.py` | check one piece: validate, export, preview |
 | `sakura_kit/build.py` | build everything: GLBs, `.blend`, previews, contact sheet, report |
 | `assemble.py` | the test scene (tea house + garden), rendered and exported, plus `scenes/teahouse.json` |
-| `godot/import_scene.gd` | Godot 4.3+ importer for the scene JSON (untested scaffold) |
 | `tests/` | broken pieces that must fail, and their runner |
 | `PIECE_PROMPT.md` | what to paste into a fresh model session to author one more piece |
 | `DECISIONS.md`, `breaks.md` | taste verdicts, and the only path that changes a contract number |
@@ -42,11 +41,16 @@ python3.13 -m venv .venv && .venv/bin/pip install bpy==5.2.2 pillow
   Nearest, mipmaps off (Godot); Point filter, no compression (Unity); no
   compression, nearest (Unreal). Bilinear filtering or compression will bleed
   the palette cells.
-- Every node carries glTF extras: `sakura_category`, `sakura_contract_version`,
+- Every GLB node carries glTF extras: `sakura_category`, `sakura_contract_version`,
   `sakura_walkable` (floors), `sakura_footprint` (pieces larger than a tile)
-  and `sakura_socket_px/nx/py/ny` (what each side expects to meet). Derive
-  collision from the category: trimesh for floor, wall, door, pillar, roof and
-  garden; convex for prop and tree; none for fx.
+  and `sakura_socket_px/nx/py/ny` (what each side expects to meet). Godot 4.3
+  does not expose them after import, so take category and walkability from
+  `scenes/teahouse.json`, which carries both per placement. Derive collision
+  from the category: trimesh for floor, wall, door, pillar, roof and garden;
+  convex for prop and tree; none for fx.
+- The working Godot project is in the game repo (`game/godot/`): a loader that
+  builds the scene from the JSON with collision, a first-person capsule, and
+  headless tests that prove the walk.
 - `scenes/teahouse.json` is the assembled scene as `{piece, x, y, z, rot,
   category}` in Blender's z-up metres. Godot position is `(x, z, -y)`.
 
