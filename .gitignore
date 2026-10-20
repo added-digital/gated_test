@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+sakura-kit/build/previews/
+sakura-kit/build/*.blend
+sakura-kit/build/*.zip
+game/godot/.godot/

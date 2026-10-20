@@ -1,0 +1,3524 @@
+[
+ {
+  "name": "sakura_door_shoji_1m",
+  "category": "door",
+  "ok": true,
+  "tris": 216,
+  "budget": 300,
+  "size": [
+   1.0,
+   0.12,
+   2.5
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_door_shoji_1m' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'door'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "216 tris, budget 300",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "108 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 2.500, max 2.5",
+    "level": "error"
+   },
+   {
+    "check": "wall_width_exact",
+    "ok": true,
+    "detail": "width 1.000, must be 1.0",
+    "level": "error"
+   },
+   {
+    "check": "wall_height_exact",
+    "ok": true,
+    "detail": "height 2.500, must be 2.5",
+    "level": "error"
+   },
+   {
+    "check": "wall_thickness_max",
+    "ok": true,
+    "detail": "thickness 0.120, max 0.13999999999999999",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 2.500",
+    "level": "error"
+   },
+   {
+    "check": "flush_edges",
+    "ok": true,
+    "detail": "a face stops short of the footprint edge: it will leak at the join",
+    "level": "warn"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 18 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_door_shoji_1m_open",
+  "category": "door",
+  "ok": true,
+  "tris": 96,
+  "budget": 300,
+  "size": [
+   1.0,
+   0.12,
+   2.5
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_door_shoji_1m_open' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'door'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "96 tris, budget 300",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "48 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 2.500, max 2.5",
+    "level": "error"
+   },
+   {
+    "check": "wall_width_exact",
+    "ok": true,
+    "detail": "width 1.000, must be 1.0",
+    "level": "error"
+   },
+   {
+    "check": "wall_height_exact",
+    "ok": true,
+    "detail": "height 2.500, must be 2.5",
+    "level": "error"
+   },
+   {
+    "check": "wall_thickness_max",
+    "ok": true,
+    "detail": "thickness 0.120, max 0.13999999999999999",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 2.500",
+    "level": "error"
+   },
+   {
+    "check": "flush_edges",
+    "ok": true,
+    "detail": "a face stops short of the footprint edge: it will leak at the join",
+    "level": "warn"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 8 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_floor_gravel_raked",
+  "category": "floor",
+  "ok": true,
+  "tris": 42,
+  "budget": 64,
+  "size": [
+   1.0,
+   1.0,
+   0.11
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_floor_gravel_raked' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'floor'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "42 tris, budget 64",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "26 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "floor_top_at_zero",
+    "ok": true,
+    "detail": "top z=0.0100 (walking surface at 0, detail may rise to 0.02)",
+    "level": "error"
+   },
+   {
+    "check": "floor_thickness",
+    "ok": true,
+    "detail": "bottom z=-0.1000 (min -0.1)",
+    "level": "error"
+   },
+   {
+    "check": "footprint_exact",
+    "ok": true,
+    "detail": "1.000 x 1.000, must be 1.0 x 1.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 1.000",
+    "level": "error"
+   },
+   {
+    "check": "flush_edges",
+    "ok": true,
+    "detail": "a face stops short of the footprint edge: it will leak at the join",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_floor_moss",
+  "category": "floor",
+  "ok": true,
+  "tris": 57,
+  "budget": 57,
+  "size": [
+   1.0,
+   1.0,
+   0.119
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_floor_moss' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'floor'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "57 tris, budget 57",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "51 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "floor_top_at_zero",
+    "ok": true,
+    "detail": "top z=0.0188 (walking surface at 0, detail may rise to 0.02)",
+    "level": "error"
+   },
+   {
+    "check": "floor_thickness",
+    "ok": true,
+    "detail": "bottom z=-0.1000 (min -0.1)",
+    "level": "error"
+   },
+   {
+    "check": "footprint_exact",
+    "ok": true,
+    "detail": "1.000 x 1.000, must be 1.0 x 1.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 1.000",
+    "level": "error"
+   },
+   {
+    "check": "flush_edges",
+    "ok": true,
+    "detail": "a face stops short of the footprint edge: it will leak at the join",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_floor_stone_path",
+  "category": "floor",
+  "ok": true,
+  "tris": 54,
+  "budget": 64,
+  "size": [
+   1.0,
+   1.0,
+   0.115
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_floor_stone_path' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'floor'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "54 tris, budget 64",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "32 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "floor_top_at_zero",
+    "ok": true,
+    "detail": "top z=0.0150 (walking surface at 0, detail may rise to 0.02)",
+    "level": "error"
+   },
+   {
+    "check": "floor_thickness",
+    "ok": true,
+    "detail": "bottom z=-0.1000 (min -0.1)",
+    "level": "error"
+   },
+   {
+    "check": "footprint_exact",
+    "ok": true,
+    "detail": "1.000 x 1.000, must be 1.0 x 1.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 1.000",
+    "level": "error"
+   },
+   {
+    "check": "flush_edges",
+    "ok": true,
+    "detail": "a face stops short of the footprint edge: it will leak at the join",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_floor_tatami",
+  "category": "floor",
+  "ok": true,
+  "tris": 36,
+  "budget": 64,
+  "size": [
+   1.0,
+   1.0,
+   0.104
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_floor_tatami' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'floor'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "36 tris, budget 64",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "18 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "floor_top_at_zero",
+    "ok": true,
+    "detail": "top z=0.0040 (walking surface at 0, detail may rise to 0.02)",
+    "level": "error"
+   },
+   {
+    "check": "floor_thickness",
+    "ok": true,
+    "detail": "bottom z=-0.1000 (min -0.1)",
+    "level": "error"
+   },
+   {
+    "check": "footprint_exact",
+    "ok": true,
+    "detail": "1.000 x 1.000, must be 1.0 x 1.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 1.000",
+    "level": "error"
+   },
+   {
+    "check": "flush_edges",
+    "ok": true,
+    "detail": "a face stops short of the footprint edge: it will leak at the join",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_floor_water",
+  "category": "floor",
+  "ok": true,
+  "tris": 36,
+  "budget": 64,
+  "size": [
+   1.0,
+   1.0,
+   0.1
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_floor_water' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'floor'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "36 tris, budget 64",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "18 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "floor_top_at_zero",
+    "ok": true,
+    "detail": "top z=0.0000 (walking surface at 0, detail may rise to 0.02)",
+    "level": "error"
+   },
+   {
+    "check": "floor_thickness",
+    "ok": true,
+    "detail": "bottom z=-0.1000 (min -0.1)",
+    "level": "error"
+   },
+   {
+    "check": "footprint_exact",
+    "ok": true,
+    "detail": "1.000 x 1.000, must be 1.0 x 1.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 1.000",
+    "level": "error"
+   },
+   {
+    "check": "flush_edges",
+    "ok": true,
+    "detail": "a face stops short of the footprint edge: it will leak at the join",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_floor_wood",
+  "category": "floor",
+  "ok": true,
+  "tris": 46,
+  "budget": 64,
+  "size": [
+   1.0,
+   1.0,
+   0.1
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_floor_wood' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'floor'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "46 tris, budget 64",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "23 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "floor_top_at_zero",
+    "ok": true,
+    "detail": "top z=0.0000 (walking surface at 0, detail may rise to 0.02)",
+    "level": "error"
+   },
+   {
+    "check": "floor_thickness",
+    "ok": true,
+    "detail": "bottom z=-0.1000 (min -0.1)",
+    "level": "error"
+   },
+   {
+    "check": "footprint_exact",
+    "ok": true,
+    "detail": "1.000 x 1.000, must be 1.0 x 1.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 1.000",
+    "level": "error"
+   },
+   {
+    "check": "flush_edges",
+    "ok": true,
+    "detail": "a face stops short of the footprint edge: it will leak at the join",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_fx_petal",
+  "category": "fx",
+  "ok": true,
+  "tris": 9,
+  "budget": 12,
+  "size": [
+   0.05,
+   0.035,
+   0.0
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_fx_petal' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'fx'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "9 tris, budget 12",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "6 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 0.000, max 0.2",
+    "level": "error"
+   },
+   {
+    "check": "footprint_max",
+    "ok": true,
+    "detail": "0.050 x 0.035, max 0.2 x 0.2",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 0.050",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 1 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_garden_bamboo_cluster",
+  "category": "garden",
+  "ok": true,
+  "tris": 532,
+  "budget": 600,
+  "size": [
+   0.624,
+   0.587,
+   2.899
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_garden_bamboo_cluster' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'garden'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "532 tris, budget 600",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "286 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 2.899, max 3.0",
+    "level": "error"
+   },
+   {
+    "check": "footprint_max",
+    "ok": true,
+    "detail": "0.624 x 0.587, max 0.8 x 0.8",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 2.899",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 41 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_garden_bamboo_fence_1m",
+  "category": "garden",
+  "ok": true,
+  "tris": 520,
+  "budget": 600,
+  "size": [
+   1.0,
+   0.089,
+   1.0
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_garden_bamboo_fence_1m' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'garden'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "520 tris, budget 600",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "292 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 1.000, max 3.0",
+    "level": "error"
+   },
+   {
+    "check": "footprint_max",
+    "ok": true,
+    "detail": "1.000 x 0.089, max 1.0 x 1.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 1.000",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 38 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_garden_bridge_2m",
+  "category": "garden",
+  "ok": true,
+  "tris": 588,
+  "budget": 600,
+  "size": [
+   2.0,
+   1.0,
+   1.269
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_garden_bridge_2m' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'garden'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "588 tris, budget 600",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "294 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 1.269, max 3.0",
+    "level": "error"
+   },
+   {
+    "check": "footprint_max",
+    "ok": true,
+    "detail": "2.000 x 1.000, max 2.0 x 1.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 2.000",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 41 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_garden_lantern_stone",
+  "category": "garden",
+  "ok": true,
+  "tris": 276,
+  "budget": 600,
+  "size": [
+   0.6,
+   0.6,
+   1.585
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_garden_lantern_stone' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'garden'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "276 tris, budget 600",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "168 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 1.585, max 3.0",
+    "level": "error"
+   },
+   {
+    "check": "footprint_max",
+    "ok": true,
+    "detail": "0.600 x 0.600, max 0.6 x 0.6",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 1.585",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 19 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_garden_petals",
+  "category": "garden",
+  "ok": true,
+  "tris": 288,
+  "budget": 600,
+  "size": [
+   0.798,
+   0.76,
+   0.004
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_garden_petals' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'garden'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "288 tris, budget 600",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "144 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 0.004, max 3.0",
+    "level": "error"
+   },
+   {
+    "check": "footprint_max",
+    "ok": true,
+    "detail": "0.798 x 0.760, max 1.0 x 1.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 0.798",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 24 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_garden_rock_a",
+  "category": "garden",
+  "ok": true,
+  "tris": 160,
+  "budget": 600,
+  "size": [
+   0.815,
+   0.666,
+   0.498
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_garden_rock_a' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'garden'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "160 tris, budget 600",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "160 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 0.498, max 3.0",
+    "level": "error"
+   },
+   {
+    "check": "footprint_max",
+    "ok": true,
+    "detail": "0.815 x 0.666, max 1.0 x 1.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 0.815",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 2 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_garden_rock_b",
+  "category": "garden",
+  "ok": true,
+  "tris": 240,
+  "budget": 600,
+  "size": [
+   0.632,
+   0.538,
+   0.227
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_garden_rock_b' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'garden'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "240 tris, budget 600",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "240 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 0.227, max 3.0",
+    "level": "error"
+   },
+   {
+    "check": "footprint_max",
+    "ok": true,
+    "detail": "0.632 x 0.538, max 0.7 x 0.7",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 0.632",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 3 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_garden_water_basin",
+  "category": "garden",
+  "ok": true,
+  "tris": 356,
+  "budget": 600,
+  "size": [
+   0.658,
+   0.659,
+   0.7
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_garden_water_basin' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'garden'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "356 tris, budget 600",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "276 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 0.700, max 3.0",
+    "level": "error"
+   },
+   {
+    "check": "footprint_max",
+    "ok": true,
+    "detail": "0.658 x 0.659, max 1.0 x 1.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 0.700",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 13 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_pillar_post",
+  "category": "pillar",
+  "ok": true,
+  "tris": 24,
+  "budget": 60,
+  "size": [
+   0.2,
+   0.2,
+   2.5
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_pillar_post' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'pillar'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "24 tris, budget 60",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "12 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 2.500, max 2.5",
+    "level": "error"
+   },
+   {
+    "check": "footprint_max",
+    "ok": true,
+    "detail": "0.200 x 0.200, max 0.25 x 0.25",
+    "level": "error"
+   },
+   {
+    "check": "pillar_height_exact",
+    "ok": true,
+    "detail": "height 2.500, must be 2.5",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 2.500",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 2 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_prop_cushion",
+  "category": "prop",
+  "ok": true,
+  "tris": 84,
+  "budget": 450,
+  "size": [
+   0.55,
+   0.55,
+   0.082
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_prop_cushion' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'prop'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "84 tris, budget 450",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "42 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 0.082, max 2.5",
+    "level": "error"
+   },
+   {
+    "check": "footprint_max",
+    "ok": true,
+    "detail": "0.550 x 0.550, max 1.0 x 1.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 0.550",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 7 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_prop_ikebana",
+  "category": "prop",
+  "ok": true,
+  "tris": 440,
+  "budget": 450,
+  "size": [
+   0.278,
+   0.274,
+   0.33
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_prop_ikebana' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'prop'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "440 tris, budget 450",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "398 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 0.330, max 2.5",
+    "level": "error"
+   },
+   {
+    "check": "footprint_max",
+    "ok": true,
+    "detail": "0.278 x 0.274, max 1.0 x 1.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 0.330",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 8 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_prop_lantern_paper",
+  "category": "prop",
+  "ok": true,
+  "tris": 320,
+  "budget": 450,
+  "size": [
+   0.323,
+   0.34,
+   0.7
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_prop_lantern_paper' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'prop'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "320 tris, budget 450",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "218 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 0.700, max 2.5",
+    "level": "error"
+   },
+   {
+    "check": "footprint_max",
+    "ok": true,
+    "detail": "0.323 x 0.340, max 1.0 x 1.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 0.700",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 12 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_prop_table_low",
+  "category": "prop",
+  "ok": true,
+  "tris": 132,
+  "budget": 450,
+  "size": [
+   0.761,
+   0.8,
+   0.33
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_prop_table_low' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'prop'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "132 tris, budget 450",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "74 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 0.330, max 2.5",
+    "level": "error"
+   },
+   {
+    "check": "footprint_max",
+    "ok": true,
+    "detail": "0.761 x 0.800, max 1.0 x 1.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 0.800",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 9 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_prop_tea_set",
+  "category": "prop",
+  "ok": true,
+  "tris": 324,
+  "budget": 450,
+  "size": [
+   0.4,
+   0.28,
+   0.108
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_prop_tea_set' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'prop'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "324 tris, budget 450",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "198 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 0.108, max 2.5",
+    "level": "error"
+   },
+   {
+    "check": "footprint_max",
+    "ok": true,
+    "detail": "0.400 x 0.280, max 1.0 x 1.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 0.400",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 13 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_roof_eave_1m",
+  "category": "roof",
+  "ok": true,
+  "tris": 140,
+  "budget": 160,
+  "size": [
+   1.0,
+   1.2,
+   0.709
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_roof_eave_1m' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'roof'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "140 tris, budget 160",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "71 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "roof_origin_on_ridge",
+    "ok": true,
+    "detail": "bbox centre x=0.0000, ridge edge y=-0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 0.709, max 1.5",
+    "level": "error"
+   },
+   {
+    "check": "roof_width_exact",
+    "ok": true,
+    "detail": "width 1.000, must be 1.0",
+    "level": "error"
+   },
+   {
+    "check": "roof_depth_max",
+    "ok": true,
+    "detail": "depth 1.200, max 1.5",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 1.200",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 12 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_tree_sakura_a",
+  "category": "tree",
+  "ok": true,
+  "tris": 860,
+  "budget": 1400,
+  "size": [
+   2.798,
+   2.79,
+   3.503
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_tree_sakura_a' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'tree'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "860 tris, budget 1400",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "820 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 3.503, max 5.0",
+    "level": "error"
+   },
+   {
+    "check": "footprint_max",
+    "ok": true,
+    "detail": "2.798 x 2.790, max 3.0 x 3.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 3.503",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 14 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_tree_sakura_b",
+  "category": "tree",
+  "ok": true,
+  "tris": 460,
+  "budget": 800,
+  "size": [
+   1.607,
+   1.238,
+   2.201
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_tree_sakura_b' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'tree'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "460 tris, budget 800",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "442 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 2.201, max 5.0",
+    "level": "error"
+   },
+   {
+    "check": "footprint_max",
+    "ok": true,
+    "detail": "1.607 x 1.238, max 3.0 x 3.0",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 2.201",
+    "level": "error"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 8 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ },
+ {
+  "name": "sakura_wall_plain_1m",
+  "category": "wall",
+  "ok": true,
+  "tris": 60,
+  "budget": 120,
+  "size": [
+   1.0,
+   0.12,
+   2.5
+  ],
+  "checks": [
+   {
+    "check": "name_matches_rule",
+    "ok": true,
+    "detail": "'sakura_wall_plain_1m' must be sakura_<category>_<name>[_<variant>]",
+    "level": "error"
+   },
+   {
+    "check": "category_known",
+    "ok": true,
+    "detail": "category 'wall'",
+    "level": "error"
+   },
+   {
+    "check": "transforms_applied",
+    "ok": true,
+    "detail": "loc=(0.0, 0.0, 0.0) rot=0.0 scale=(1.0, 1.0, 1.0) parent=None",
+    "level": "error"
+   },
+   {
+    "check": "tri_budget",
+    "ok": true,
+    "detail": "60 tris, budget 120",
+    "level": "error"
+   },
+   {
+    "check": "has_geometry",
+    "ok": true,
+    "detail": "30 faces",
+    "level": "error"
+   },
+   {
+    "check": "no_ngons",
+    "ok": true,
+    "detail": "0 faces with more than 4 verts",
+    "level": "error"
+   },
+   {
+    "check": "no_loose_verts",
+    "ok": true,
+    "detail": "0 loose vertices",
+    "level": "error"
+   },
+   {
+    "check": "single_palette_material",
+    "ok": true,
+    "detail": "materials: ['sakura_palette']",
+    "level": "error"
+   },
+   {
+    "check": "no_modifiers",
+    "ok": true,
+    "detail": "0 modifiers",
+    "level": "error"
+   },
+   {
+    "check": "uv_on_palette",
+    "ok": true,
+    "detail": "0 faces with UVs off a single palette cell",
+    "level": "error"
+   },
+   {
+    "check": "origin_centred_xy",
+    "ok": true,
+    "detail": "bbox centre x=0.0000 y=0.0000",
+    "level": "error"
+   },
+   {
+    "check": "origin_at_base",
+    "ok": true,
+    "detail": "bottom z=0.0000 (must be 0)",
+    "level": "error"
+   },
+   {
+    "check": "height_within",
+    "ok": true,
+    "detail": "height 2.500, max 2.5",
+    "level": "error"
+   },
+   {
+    "check": "wall_width_exact",
+    "ok": true,
+    "detail": "width 1.000, must be 1.0",
+    "level": "error"
+   },
+   {
+    "check": "wall_height_exact",
+    "ok": true,
+    "detail": "height 2.500, must be 2.5",
+    "level": "error"
+   },
+   {
+    "check": "wall_thickness_max",
+    "ok": true,
+    "detail": "thickness 0.120, max 0.13999999999999999",
+    "level": "error"
+   },
+   {
+    "check": "not_degenerate",
+    "ok": true,
+    "detail": "largest dimension 2.500",
+    "level": "error"
+   },
+   {
+    "check": "flush_edges",
+    "ok": true,
+    "detail": "a face stops short of the footprint edge: it will leak at the join",
+    "level": "warn"
+   },
+   {
+    "check": "nothing_floats",
+    "ok": true,
+    "detail": "0 of 5 shells touch neither the ground nor another shell",
+    "level": "warn"
+   },
+   {
+    "check": "flat_shading",
+    "ok": true,
+    "detail": "smooth-shaded faces",
+    "level": "warn"
+   },
+   {
+    "check": "normals_outward",
+    "ok": true,
+    "detail": "0 faces point into their shell",
+    "level": "warn"
+   },
+   {
+    "check": "extras_present",
+    "ok": true,
+    "detail": "missing custom properties: []",
+    "level": "warn"
+   }
+  ]
+ }
+]
