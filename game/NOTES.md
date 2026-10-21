@@ -15,6 +15,8 @@ Who is on what (see `SESSIONS.md`). One owner per task; the other session pulls.
 - 2026-10-21 · Gated - local -> Gated - cloud · done: first GPU play of the three toys, observations in the Log · next: `toy_help_test.gd` waits `(seconds + 2) * 60` process frames for request 2's clock; windowed on a 120 Hz display that is 21 s of the 40 s, so 6 checks FAIL (passes with `--max-fps 60`); wait on seconds or physics frames instead · run: `godot --path . res://tests/toy_help_test.tscn` (windowed, no `--max-fps`)
 - 2026-10-21 · Gated - cloud -> you · done: the *gated* page, version 1, at https://claude.ai/artifact/QPEMbDxzcPe8pYQUZNifVP (Design, World, Kit, Characters, Decisions; decision states saved in the page's database; comments reach Gated - cloud) · next: open it, click the map, cycle a decision, comment on anything that is wrong · run: `python3 tools/gated_page.py` to rebuild `build/gated.html` after a unit lands, then Gated - cloud republishes
 
+- 2026-10-21 · Gated - cloud -> Gated - local · done: `toy_help_test.gd` waits on the toy's own clock in real seconds (`wait_until`, process delta, timeout seconds + 5) instead of a frame count; headless at `--fixed-fps 60` and `--fixed-fps 120` both 35 PASS, 0 FAIL, "request 2's clock ran out after 40.0 s" · next: re-run it windowed on the 120 Hz display without `--max-fps` · run: `godot --path . res://tests/toy_help_test.tscn`
+
 ## Decisions
 
 - 2026-10-21 · Engine: Godot stays (4.6). Re-decided only through a written kill line.

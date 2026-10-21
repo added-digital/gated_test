@@ -81,10 +81,12 @@ func _ready() -> void:
 	check(panel.say_label.text == r2.ask, "the panel says request 2's plain ask line (request 1 was delivered, not missed)")
 	check(absf(toy.time_left - float(r2.seconds)) < 0.1, "request 2's clock started at its own %d s (%.2f)" % [r2.seconds, toy.time_left])
 
-	# 5. Stand still until the clock runs out.
+	# 5. Stand still until the clock runs out. The toy's clock counts real
+	# seconds in _process, so wait on the toy's own state with a timeout in
+	# seconds, never a frame count: at 120 Hz a frame count is half the time.
 	player.auto_move = Vector3.ZERO
-	for i in (int(r2.seconds) + 2) * 60:
-		await get_tree().process_frame
+	var waited := await wait_until(func() -> bool: return toy.request.is_empty(), float(r2.seconds) + 5.0)
+	check(waited >= float(r2.seconds) - 0.5 and waited < float(r2.seconds) + 5.0, "request 2's clock ran out after %.1f s (its %d s)" % [waited, r2.seconds])
 	check(toy.request.is_empty() and toy.crate == null, "request 2 closed by the clock and its crate is gone")
 	check(panel.say_label.text == r2.too_late, "the panel says the too-late line")
 	check(harness.summary().contains("  00:") and harness.summary().contains("too_late"), "the harness recorded the milestone too_late")
@@ -108,6 +110,16 @@ func settle() -> void:
 	player.velocity = Vector3.ZERO
 	for i in 10:
 		await get_tree().physics_frame
+
+
+## Wait, in real seconds, until a condition holds or the timeout passes.
+## Returns the seconds waited. Process delta, like the toy's own clock.
+func wait_until(cond: Callable, timeout: float) -> float:
+	var waited := 0.0
+	while not cond.call() and waited < timeout:
+		await get_tree().process_frame
+		waited += get_process_delta_time()
+	return waited
 
 
 ## Chase the runner until a request opens or the frames run out.
