@@ -1,10 +1,11 @@
-"""Pond water tile: a 1 x 1 m stone basin whose water surface lies 2 cm below the walking plane, a thin water_deep band darkening the water against the edge, and a 1 cm stone_dark coping lip at z = 0 along all four edges so neighbouring tiles join into one gridded pond."""
+"""Pond water tile: a 1 x 1 m stone basin whose water surface lies 0.20 m below the walking plane, the coping's stone_dark inner wall showing as a bank above it, a thin water_deep band darkening the water against that wall, and a 1 cm stone_dark coping lip at z = 0 along all four edges so neighbouring tiles join into one gridded pond. The slab hangs to -0.30 (FLOOR_T_MAX), the one floor deeper than FLOOR_T: at 2 cm the walk found "no height difference between water and the things around" (breaks.md 2026-10-21)."""
 from mathutils import Vector
 
-from sakura_kit.contract import Piece, FLOOR_T, GRID
+from sakura_kit.contract import Piece, FLOOR_T_MAX, GRID
 
 COPING_W = 0.01   # stone lip width; two tiles side by side make a 2 cm line
-WATER_Z = -0.02   # water surface, sunk below the walking plane
+WATER_Z = -0.20   # water surface, sunk below the walking plane
+SLAB_Z = -FLOOR_T_MAX   # the basin's underside: 0.10 of stone under the water
 RIM_W = 0.06      # water_deep band just inside the coping
 
 
@@ -26,7 +27,7 @@ def build():
     # so the coping, its inner wall, the rim band and the water surface share
     # edges instead of being five overlapping boxes (which would be 60 tris).
     half = GRID / 2
-    outer_bottom = _loop(p, half, -FLOOR_T)
+    outer_bottom = _loop(p, half, SLAB_Z)
     outer_top = _loop(p, half, 0.0)
     lip = _loop(p, half - COPING_W, 0.0)
     lip_foot = _loop(p, half - COPING_W, WATER_Z)

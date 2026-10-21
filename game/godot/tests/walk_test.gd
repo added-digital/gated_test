@@ -6,30 +6,38 @@ extends Node3D
 ## north); Godot is (x, z, -y). Prints PASS/FAIL per check with positions
 ## and quits with 0 only if every check passes.
 ##
+## The layout is the scale pass's 5 x 4 room (kit breaks.md 2026-10-21): the
+## open shoji bay is the middle of the south wall at x = 2.5, the stone path
+## runs up x = 2.5, the table stands at the room's centre (2.5, 2.0), and the
+## 3 m bridge spans the pond's south row y = -4.5 from x = -2 to x = 1.
+##
 ## 1. The walk: stone path south end (2.5, -6.5) north to (2.5, -1.5), onto
-##    the engawa (2.5, -0.5), west to (1.5, -0.5), north through the open
-##    shoji bay (1.5, 0.0) onto the tatami. The task names (1.5, 1.0) as the
-##    end, but the kit's scene puts the 0.8 m chabudai exactly there (its
-##    south edge at y = 0.6), so the last waypoint is (1.5, 0.5), the centre
-##    of the tatami cell inside the bay; the distance to (1.5, 1.0) is
-##    printed too. Arrival within 0.3 m in under 900 physics frames.
+##    the engawa (2.5, -0.5), through the open bay (2.5, 0.0) onto the tatami
+##    (2.5, 1.0). Arrival within 0.3 m in under 900 physics frames. Nothing
+##    stands on that line: the table's south edge is at y = 1.6.
 ## 2. Closed shoji: from the engawa (0.5, -0.5) push north for 3 s; the body
 ##    must stay south of the wall line (y < 0).
-## 3. Pond: push west from the gravel into the pond; the blocker on the water
-##    tile must stop the body before the first pond cell's centre. The task's
-##    start (0.5, -4.5) is itself a water cell and (1.5, -4.5) holds the stone
-##    lantern, so the push runs along row -3.5: from (1.5, -3.5) toward
-##    (-0.5, -3.5), blocked before x = 0.5.
+## 3. Pond: from the gravel (1.5, -3.5) push west into the pond; the blocker
+##    on the water tile (0.5, -3.5) must stop the body before that cell's
+##    centre (its east edge is x = 1.0).
+## 4. Bridge: from the gravel (1.5, -4.5) walk west across the bridge to the
+##    gravel at (-2.5, -4.5) and arrive within 0.3 m. The deck is a gentle
+##    arc (0.07 m at the tips, 0.47 m at the crest); the capsule climbs it
+##    with no step-up logic, and the loader leaves no pond blocker on the
+##    three water cells under the bridge's footprint.
 
 const TEAHOUSE := preload("res://scenes/teahouse.tscn")
 const PLAYER := preload("res://scenes/player.tscn")
 
 const SPAWN := Vector2(2.5, -6.5)
-const ROUTE: Array[Vector2] = [Vector2(2.5, -1.5), Vector2(2.5, -0.5), Vector2(1.5, -0.5), Vector2(1.5, 0.0), Vector2(1.5, 0.5)]
-const ROOM_CENTRE := Vector2(1.5, 1.0)   # the task's named end point, under the table
+const ROUTE: Array[Vector2] = [Vector2(2.5, -1.5), Vector2(2.5, -0.5), Vector2(2.5, 0.0), Vector2(2.5, 1.0)]
+const TABLE := Vector2(2.5, 2.0)      # the chabudai, 0.8 m square, at the room's centre
+const BRIDGE_START := Vector2(1.5, -4.5)
+const BRIDGE_END := Vector2(-2.5, -4.5)
 const ARRIVE := 0.3        # m: the task's arrival tolerance
 const REACHED := 0.1       # m: close enough to steer for the next waypoint (the last one uses ARRIVE)
 const WALK_FRAMES := 900   # physics frames allowed for the walk
+const BRIDGE_FRAMES := 600 # physics frames allowed for the 4 m bridge crossing
 const PUSH_FRAMES := 180   # 3 s of pushing against something that should hold
 
 var teahouse: Node3D
@@ -74,6 +82,8 @@ func _ready() -> void:
 	reach = await push(Vector2(1.5, -3.5), Vector2(-1, 0), "west into the pond cell (0.5, -3.5), then (-0.5, -3.5)")
 	check(reach.x > 0.5, "pond holds: furthest x = %.2f, blocked before the pond cell centre x = 0.5 (cell edge x = 1.0)" % reach.x)
 
+	await cross_bridge()
+
 	print("RESULT: %d failure(s)" % failures)
 	get_tree().quit(0 if failures == 0 else 1)
 
@@ -96,8 +106,9 @@ func walk() -> void:
 		var to := target - player.position
 		to.y = 0.0
 		var last := next == ROUTE.size() - 1
-		# The last waypoint is under the table's edge, so it also counts as
-		# reached when the body is blocked inside the arrival tolerance.
+		# The last waypoint also counts as reached if the body is blocked
+		# inside the arrival tolerance (nothing should block it now that the
+		# table is 1 m further north, so the hit is printed if it happens).
 		var blocked := last and to.length() < ARRIVE and moved < 0.001
 		if to.length() < REACHED or blocked:
 			print("  frame %3d: waypoint %s reached at %s%s" % [frames, ROUTE[next], where(), " (blocked here, %s)" % hits() if blocked else ""])
@@ -114,10 +125,46 @@ func walk() -> void:
 	player.auto_move = Vector3.ZERO
 	var goal := ROUTE[ROUTE.size() - 1]
 	var dist := goal.distance_to(blender_xy())
-	print("walk ended after %d frames at %s; %.2f m from the last waypoint %s, %.2f m from the room centre %s (the table)" % [frames, where(), dist, goal, ROOM_CENTRE.distance_to(blender_xy()), ROOM_CENTRE])
+	print("walk ended after %d frames at %s; %.2f m from the last waypoint %s, %.2f m from the table at %s" % [frames, where(), dist, goal, TABLE.distance_to(blender_xy()), TABLE])
 	check(next == ROUTE.size(), "every waypoint on the route was reached (%d of %d)" % [next, ROUTE.size()])
 	check(dist <= ARRIVE, "arrived on the tatami within %.1f m of %s (%.2f m)" % [ARRIVE, goal, dist])
 	check(frames < WALK_FRAMES, "walk took %d physics frames, under %d" % [frames, WALK_FRAMES])
+	check(hits() == "", "nothing blocks the walk's end (hits: '%s')" % hits())
+
+
+## Place the player on the east approach, settle, then steer west over the
+## bridge until the west approach is reached or the frames run out.
+func cross_bridge() -> void:
+	player.position = to_godot(Vector3(BRIDGE_START.x, BRIDGE_START.y, 0.0))
+	await settle()
+	print("bridge: from %s west to %s" % [where(), BRIDGE_END])
+	var target := to_godot(Vector3(BRIDGE_END.x, BRIDGE_END.y, 0.0))
+	var frames := 0
+	var highest := 0.0   # the capsule's highest feet height on the way: proof it climbed the deck
+	var furthest_west := BRIDGE_START.x
+	var last_hit := ""
+	while frames < BRIDGE_FRAMES:
+		var to := target - player.position
+		to.y = 0.0
+		if to.length() < REACHED:
+			break
+		player.auto_move = to.normalized()
+		await get_tree().physics_frame
+		frames += 1
+		highest = maxf(highest, player.position.y)
+		furthest_west = minf(furthest_west, blender_xy().x)
+		if hits() != "":
+			last_hit = hits()
+		if frames % 60 == 0:
+			print("  frame %3d: %s %s" % [frames, where(), hits()])
+	player.auto_move = Vector3.ZERO
+	await settle()
+	var dist := BRIDGE_END.distance_to(blender_xy())
+	print("bridge crossing ended after %d frames at %s; %.2f m from %s; highest feet %.2f m; furthest west x = %.2f; %s" % [frames, where(), dist, BRIDGE_END, highest, furthest_west, "last hit " + last_hit if last_hit else "nothing pushed against"])
+	check(dist <= ARRIVE, "bridge is walkable: arrived within %.1f m of %s (%.2f m)" % [ARRIVE, BRIDGE_END, dist])
+	check(highest > 0.3, "the capsule climbed the deck's arc (highest feet %.2f m, the crest is 0.47 m)" % highest)
+	check(player.is_on_floor() and absf(player.position.y) < 0.05, "back on the gravel after the bridge, feet at y = %.3f" % player.position.y)
+	check(frames < BRIDGE_FRAMES, "crossing took %d physics frames, under %d" % [frames, BRIDGE_FRAMES])
 
 
 ## Place the player at start, settle, then push in a Blender direction for

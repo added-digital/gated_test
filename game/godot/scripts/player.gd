@@ -1,13 +1,14 @@
 extends CharacterBody3D
-## First-person walker for rung 2. Contract numbers, do not change: capsule
-## radius 0.35 m, height 1.80 m (in player.tscn), eye height 1.60 m, 3 m/s.
-## Mouse looks (Esc frees or recaptures the mouse), WASD walks, gravity pulls.
-## No jump, no step-up logic: every floor is at the same height.
+## First-person walker. Contract numbers (scale pass, breaks.md 2026-10-21):
+## capsule radius 0.30 m, height 1.80 m, eye height 1.60 m, camera 90 degrees
+## HORIZONTAL field of view (Camera3D keep_aspect KEEP_WIDTH, fov 90; all in
+## player.tscn), 3.5 m/s. Mouse looks (Esc frees or recaptures the mouse),
+## WASD walks, gravity pulls. No jump, no step-up logic.
 ##
 ## The node's origin is at the feet, like the kit's pieces, so spawning the
 ## player at a floor tile's position stands it on that tile.
 
-const SPEED := 3.0                   # walking speed, m/s
+const SPEED := 3.5                   # walking speed, m/s
 const LOOK := 0.002                  # radians per mouse pixel
 const PITCH_LIMIT := deg_to_rad(80)  # how far the head tilts up or down
 

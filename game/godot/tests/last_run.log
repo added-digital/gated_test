@@ -1,28 +1,394 @@
-== 2026-10-20T20:30:35Z  4.3.stable.official.77dcf97d8
+== 2026-10-21T08:57:16Z  4.6.1.stable.official.14d19694e
 == import
-Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
 
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+[  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+[  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (4 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[92m[ DONE ][39m [1mupdate_scripts_classes[22m
+[0m
+[   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (53 steps)[39m[0m
+[   0% ] [90m[1m_update_scan_actions[22m | sakura_door_shoji_1m.glb[39m[0m
+[   1% ] [90m[1m_update_scan_actions[22m | sakura_door_shoji_1m_open.glb[39m[0m
+[   3% ] [90m[1m_update_scan_actions[22m | sakura_door_shoji_1m_open_sakura_palette.png[39m[0m
+[   5% ] [90m[1m_update_scan_actions[22m | sakura_door_shoji_1m_sakura_palette.png[39m[0m
+[   7% ] [90m[1m_update_scan_actions[22m | sakura_floor_gravel_raked.glb[39m[0m
+[   9% ] [90m[1m_update_scan_actions[22m | sakura_floor_gravel_raked_sakura_palette.png[39m[0m
+[  11% ] [90m[1m_update_scan_actions[22m | sakura_floor_moss.glb[39m[0m
+[  12% ] [90m[1m_update_scan_actions[22m | sakura_floor_moss_sakura_palette.png[39m[0m
+[  14% ] [90m[1m_update_scan_actions[22m | sakura_floor_stone_path.glb[39m[0m
+[  16% ] [90m[1m_update_scan_actions[22m | sakura_floor_stone_path_sakura_palette.png[39m[0m
+[  18% ] [90m[1m_update_scan_actions[22m | sakura_floor_tatami.glb[39m[0m
+[  20% ] [90m[1m_update_scan_actions[22m | sakura_floor_tatami_sakura_palette.png[39m[0m
+[  22% ] [90m[1m_update_scan_actions[22m | sakura_floor_water.glb[39m[0m
+[  24% ] [90m[1m_update_scan_actions[22m | sakura_floor_water_sakura_palette.png[39m[0m
+[  25% ] [90m[1m_update_scan_actions[22m | sakura_floor_wood.glb[39m[0m
+[  27% ] [90m[1m_update_scan_actions[22m | sakura_floor_wood_sakura_palette.png[39m[0m
+[  29% ] [90m[1m_update_scan_actions[22m | sakura_fx_petal.glb[39m[0m
+[  31% ] [90m[1m_update_scan_actions[22m | sakura_fx_petal_sakura_palette.png[39m[0m
+[  33% ] [90m[1m_update_scan_actions[22m | sakura_garden_bamboo_cluster.glb[39m[0m
+[  35% ] [90m[1m_update_scan_actions[22m | sakura_garden_bamboo_cluster_sakura_palette.png[39m[0m
+[  37% ] [90m[1m_update_scan_actions[22m | sakura_garden_bamboo_fence_1m.glb[39m[0m
+[  38% ] [90m[1m_update_scan_actions[22m | sakura_garden_bamboo_fence_1m_sakura_palette.png[39m[0m
+[  40% ] [90m[1m_update_scan_actions[22m | sakura_garden_bridge_3m.glb[39m[0m
+[  42% ] [90m[1m_update_scan_actions[22m | sakura_garden_lantern_stone.glb[39m[0m
+[  44% ] [90m[1m_update_scan_actions[22m | sakura_garden_lantern_stone_sakura_palette.png[39m[0m
+[  46% ] [90m[1m_update_scan_actions[22m | sakura_garden_petals.glb[39m[0m
+[  48% ] [90m[1m_update_scan_actions[22m | sakura_garden_petals_sakura_palette.png[39m[0m
+[  50% ] [90m[1m_update_scan_actions[22m | sakura_garden_rock_a.glb[39m[0m
+[  51% ] [90m[1m_update_scan_actions[22m | sakura_garden_rock_a_sakura_palette.png[39m[0m
+[  53% ] [90m[1m_update_scan_actions[22m | sakura_garden_rock_b.glb[39m[0m
+[  55% ] [90m[1m_update_scan_actions[22m | sakura_garden_rock_b_sakura_palette.png[39m[0m
+[  57% ] [90m[1m_update_scan_actions[22m | sakura_garden_water_basin.glb[39m[0m
+[  59% ] [90m[1m_update_scan_actions[22m | sakura_garden_water_basin_sakura_palette.png[39m[0m
+[  61% ] [90m[1m_update_scan_actions[22m | sakura_pillar_post.glb[39m[0m
+[  62% ] [90m[1m_update_scan_actions[22m | sakura_pillar_post_sakura_palette.png[39m[0m
+[  64% ] [90m[1m_update_scan_actions[22m | sakura_prop_cushion.glb[39m[0m
+[  66% ] [90m[1m_update_scan_actions[22m | sakura_prop_cushion_sakura_palette.png[39m[0m
+[  68% ] [90m[1m_update_scan_actions[22m | sakura_prop_ikebana.glb[39m[0m
+[  70% ] [90m[1m_update_scan_actions[22m | sakura_prop_ikebana_sakura_palette.png[39m[0m
+[  72% ] [90m[1m_update_scan_actions[22m | sakura_prop_lantern_paper.glb[39m[0m
+[  74% ] [90m[1m_update_scan_actions[22m | sakura_prop_lantern_paper_sakura_palette.png[39m[0m
+[  75% ] [90m[1m_update_scan_actions[22m | sakura_prop_table_low.glb[39m[0m
+[  77% ] [90m[1m_update_scan_actions[22m | sakura_prop_table_low_sakura_palette.png[39m[0m
+[  79% ] [90m[1m_update_scan_actions[22m | sakura_prop_tea_set.glb[39m[0m
+[  81% ] [90m[1m_update_scan_actions[22m | sakura_prop_tea_set_sakura_palette.png[39m[0m
+[  83% ] [90m[1m_update_scan_actions[22m | sakura_roof_eave_1m.glb[39m[0m
+[  85% ] [90m[1m_update_scan_actions[22m | sakura_roof_eave_1m_sakura_palette.png[39m[0m
+[  87% ] [90m[1m_update_scan_actions[22m | sakura_tree_sakura_a.glb[39m[0m
+[  88% ] [90m[1m_update_scan_actions[22m | sakura_tree_sakura_a_sakura_palette.png[39m[0m
+[  90% ] [90m[1m_update_scan_actions[22m | sakura_tree_sakura_b.glb[39m[0m
+[  92% ] [90m[1m_update_scan_actions[22m | sakura_tree_sakura_b_sakura_palette.png[39m[0m
+[  94% ] [90m[1m_update_scan_actions[22m | sakura_wall_plain_1m.glb[39m[0m
+[  96% ] [90m[1m_update_scan_actions[22m | sakura_wall_plain_1m_sakura_palette.png[39m[0m
+[92m[ DONE ][39m [1m_update_scan_actions[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (53 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   1% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   3% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   5% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   7% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   9% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  11% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  12% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  14% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  16% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  18% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  20% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  22% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  24% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  25% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  27% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  29% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  31% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  33% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  35% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  37% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  38% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  40% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  42% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  44% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  46% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  48% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  50% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  51% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  53% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  55% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  57% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  59% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  61% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  62% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  64% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  66% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  68% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  70% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  72% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  74% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  75% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  77% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  79% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  81% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  83% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  85% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  87% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  88% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  90% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  92% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  94% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  96% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   0% ] [90m[1mreimport[22m | Executing pre-reimport operations...[39m[0m
+[   0% ] [90m[1mpreload_reimporting_scene[22m | Started Preparing scenes for reload (1 steps)[39m[0m
+[   0% ] [90m[1mpreload_reimporting_scene[22m | Analyzing scene [empty][39m[0m
+[  50% ] [90m[1mpreload_reimporting_scene[22m | Preparation done.[39m[0m
+[92m[ DONE ][39m [1mpreload_reimporting_scene[22m
+[0m
+[   0% ] [90m[1mreimport[22m | sakura_garden_bamboo_cluster_sakura_palette.png[39m[0m
+[   1% ] [90m[1mreimport[22m | sakura_garden_bamboo_fence_1m_sakura_palette.png[39m[0m
+[   3% ] [90m[1mreimport[22m | sakura_garden_lantern_stone_sakura_palette.png[39m[0m
+[   5% ] [90m[1mreimport[22m | sakura_garden_petals_sakura_palette.png[39m[0m
+[   7% ] [90m[1mreimport[22m | sakura_garden_rock_a_sakura_palette.png[39m[0m
+[   9% ] [90m[1mreimport[22m | sakura_garden_rock_b_sakura_palette.png[39m[0m
+[  11% ] [90m[1mreimport[22m | sakura_garden_water_basin_sakura_palette.png[39m[0m
+[  12% ] [90m[1mreimport[22m | sakura_pillar_post_sakura_palette.png[39m[0m
+[  14% ] [90m[1mreimport[22m | sakura_prop_cushion_sakura_palette.png[39m[0m
+[  16% ] [90m[1mreimport[22m | sakura_prop_ikebana_sakura_palette.png[39m[0m
+[  18% ] [90m[1mreimport[22m | sakura_prop_lantern_paper_sakura_palette.png[39m[0m
+[  20% ] [90m[1mreimport[22m | sakura_prop_table_low_sakura_palette.png[39m[0m
+[  22% ] [90m[1mreimport[22m | sakura_prop_tea_set_sakura_palette.png[39m[0m
+[  24% ] [90m[1mreimport[22m | sakura_roof_eave_1m_sakura_palette.png[39m[0m
+[  25% ] [90m[1mreimport[22m | sakura_tree_sakura_a_sakura_palette.png[39m[0m
+[  27% ] [90m[1mreimport[22m | sakura_tree_sakura_b_sakura_palette.png[39m[0m
+[  29% ] [90m[1mreimport[22m | sakura_wall_plain_1m_sakura_palette.png[39m[0m
+[  31% ] [90m[1mreimport[22m | sakura_floor_moss_sakura_palette.png[39m[0m
+[  33% ] [90m[1mreimport[22m | sakura_floor_stone_path_sakura_palette.png[39m[0m
+[  35% ] [90m[1mreimport[22m | sakura_floor_gravel_raked_sakura_palette.png[39m[0m
+[  37% ] [90m[1mreimport[22m | sakura_floor_tatami_sakura_palette.png[39m[0m
+[  38% ] [90m[1mreimport[22m | sakura_floor_water_sakura_palette.png[39m[0m
+[  40% ] [90m[1mreimport[22m | sakura_door_shoji_1m_sakura_palette.png[39m[0m
+[  42% ] [90m[1mreimport[22m | sakura_door_shoji_1m_open_sakura_palette.png[39m[0m
+[  44% ] [90m[1mreimport[22m | sakura_floor_wood_sakura_palette.png[39m[0m
+[  46% ] [90m[1mreimport[22m | sakura_fx_petal_sakura_palette.png[39m[0m
+[  48% ] [90m[1mreimport[22m | sakura_tree_sakura_a.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  50% ] [90m[1mreimport[22m | sakura_tree_sakura_b.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  51% ] [90m[1mreimport[22m | sakura_roof_eave_1m.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  53% ] [90m[1mreimport[22m | sakura_floor_gravel_raked.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  55% ] [90m[1mreimport[22m | sakura_prop_tea_set.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  57% ] [90m[1mreimport[22m | sakura_door_shoji_1m_open.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  59% ] [90m[1mreimport[22m | sakura_wall_plain_1m.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  61% ] [90m[1mreimport[22m | sakura_prop_table_low.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  62% ] [90m[1mreimport[22m | sakura_floor_moss.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  64% ] [90m[1mreimport[22m | sakura_door_shoji_1m.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  66% ] [90m[1mreimport[22m | sakura_prop_lantern_paper.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  68% ] [90m[1mreimport[22m | sakura_prop_ikebana.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  70% ] [90m[1mreimport[22m | sakura_floor_stone_path.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  72% ] [90m[1mreimport[22m | sakura_prop_cushion.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  74% ] [90m[1mreimport[22m | sakura_pillar_post.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  75% ] [90m[1mreimport[22m | sakura_floor_tatami.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  77% ] [90m[1mreimport[22m | sakura_garden_water_basin.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  79% ] [90m[1mreimport[22m | sakura_garden_rock_b.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  81% ] [90m[1mreimport[22m | sakura_floor_water.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  83% ] [90m[1mreimport[22m | sakura_garden_rock_a.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  85% ] [90m[1mreimport[22m | sakura_garden_petals.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  87% ] [90m[1mreimport[22m | sakura_floor_wood.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  88% ] [90m[1mreimport[22m | sakura_garden_lantern_stone.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  90% ] [90m[1mreimport[22m | sakura_garden_bridge_3m.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  92% ] [90m[1mreimport[22m | sakura_garden_bamboo_fence_1m.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  94% ] [90m[1mreimport[22m | sakura_fx_petal.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  96% ] [90m[1mreimport[22m | sakura_garden_bamboo_cluster.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  98% ] [90m[1mreimport[22m | Finalizing Asset Import...[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (53 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | Executing post-reimport operations...[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+[  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+[92m[ DONE ][39m [1mloading_editor_layout[22m
+[0m
 == walk_test (exit code of the import: 0)
-Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
 
-teahouse: 110 pieces; player spawned at Blender (2.50, -6.50, 0.00), Godot (2.5, 0, 6.5), facing -z
+teahouse: 141 pieces; player spawned at Blender (2.50, -6.50, 0.00), Godot (2.5, 0.0, 6.5), facing -z
 PASS  player stands on the stone path after settling, feet at y = 0.015
-  frame  60: Blender (2.50, -3.51, 0.02) 
-  frame  99: waypoint (2.5, -1.5) reached at Blender (2.50, -1.57, 0.02)
-  frame 119: waypoint (2.5, -0.5) reached at Blender (2.50, -0.57, 0.00)
-  frame 120: Blender (2.45, -0.56, 0.00) 
-  frame 138: waypoint (1.5, -0.5) reached at Blender (1.55, -0.50, 0.00)
-  frame 147: waypoint (1.5, 0) reached at Blender (1.51, -0.08, 0.05)
-  frame 155: waypoint (1.5, 0.5) reached at Blender (1.50, 0.26, 0.08) (blocked here, hit sakura_prop_table_low_33)
-walk ended after 155 frames at Blender (1.50, 0.26, 0.08); 0.24 m from the last waypoint (1.5, 0.5), 0.74 m from the room centre (1.5, 1) (the table)
-PASS  every waypoint on the route was reached (5 of 5)
-PASS  arrived on the tatami within 0.3 m of (1.5, 0.5) (0.24 m)
-PASS  walk took 155 physics frames, under 900
+  frame  60: Blender (2.50, -3.01, 0.00) 
+  frame  85: waypoint (2.5, -1.5) reached at Blender (2.50, -1.56, 0.02)
+  frame 102: waypoint (2.5, -0.5) reached at Blender (2.50, -0.57, 0.00)
+  frame 111: waypoint (2.5, 0.0) reached at Blender (2.50, -0.07, 0.05)
+  frame 120: Blender (2.50, 0.45, 0.00) 
+  frame 128: waypoint (2.5, 1.0) reached at Blender (2.50, 0.92, 0.00)
+walk ended after 128 frames at Blender (2.50, 0.92, 0.00); 0.08 m from the last waypoint (2.5, 1.0), 1.08 m from the table at (2.5, 2.0)
+PASS  every waypoint on the route was reached (4 of 4)
+PASS  arrived on the tatami within 0.3 m of (2.5, 1.0) (0.08 m)
+PASS  walk took 128 physics frames, under 900
+PASS  nothing blocks the walk's end (hits: '')
 push north into the closed shoji at (0.5, 0.0) from Blender (0.50, -0.50, 0.00)
-  after 180 frames: furthest (0.5, -0.365236, 0), ended at Blender (0.50, -0.37, 0.00), blocked by hit sakura_door_shoji_1m_10
-PASS  closed shoji holds: furthest y = -0.37, never crossed the wall line y = 0
+  after 180 frames: furthest (0.5, -0.325, 0.0), ended at Blender (0.50, -0.32, 0.00), blocked by hit sakura_door_shoji_1m_25
+PASS  closed shoji holds: furthest y = -0.32, never crossed the wall line y = 0
 push west into the pond cell (0.5, -3.5), then (-0.5, -3.5) from Blender (1.50, -3.50, 0.01)
-  after 180 frames: furthest (1.350125, -3.499999, 0.010791), ended at Blender (1.35, -3.50, 0.01), blocked by hit sakura_floor_water_56
-PASS  pond holds: furthest x = 1.35, blocked before the pond cell centre x = 0.5 (cell edge x = 1.0)
+  after 180 frames: furthest (1.300165, -3.499998, 0.01079), ended at Blender (1.30, -3.50, 0.01), blocked by hit sakura_floor_water_86
+PASS  pond holds: furthest x = 1.30, blocked before the pond cell centre x = 0.5 (cell edge x = 1.0)
+bridge: from Blender (1.50, -4.50, 0.01) west to (-2.5, -4.5)
+  frame  60: Blender (-1.81, -4.50, 0.19) 
+bridge crossing ended after 71 frames at Blender (-2.45, -4.50, 0.01); 0.05 m from (-2.5, -4.5); highest feet 0.47 m; furthest west x = -2.45; nothing pushed against
+PASS  bridge is walkable: arrived within 0.3 m of (-2.5, -4.5) (0.05 m)
+PASS  the capsule climbed the deck's arc (highest feet 0.47 m, the crest is 0.47 m)
+PASS  back on the gravel after the bridge, feet at y = 0.006
+PASS  crossing took 71 physics frames, under 600
 RESULT: 0 failure(s)
 == walk_test exit code: 0

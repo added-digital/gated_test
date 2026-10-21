@@ -1,8 +1,10 @@
-"""A 1 m wide tiled roof slope (kawara-buki): a 1.2 m deep wedge 0.7 m tall at
+"""A 1 m wide tiled roof slope (kawara-buki): a 2.2 m deep wedge 1.1 m tall at
 its ridge edge (y = 0, the piece's origin) sloping down to a dark wood eave
-beam at y = 1.2, with five rows of half-round cover tiles ending in round tile
+beam at y = 2.2, with five rows of half-round cover tiles ending in round tile
 caps along the eave. Two of these on one ridge line, at rot 0 and rot 2, make
-a gable; the assembler lifts them to the top of the walls."""
+a gable; the assembler lifts them to the top of the walls. Sized for the 5 x 4
+tea room (breaks.md 2026-10-21): from the ridge at y = 2.0 one eave reaches
+0.2 m past the wall at y = 4 (or y = 0); it was 1.2 x 0.7 for the 3 x 2 room."""
 import math
 
 import bmesh
@@ -10,7 +12,7 @@ from mathutils import Vector
 
 from sakura_kit.contract import Piece, GRID
 
-DEPTH, RISE = 1.2, 0.7          # wedge footprint along Y and its height at the high end
+DEPTH, RISE = 2.2, 1.1          # wedge footprint along Y and its height at the high end
 BEAM_D, BEAM_H = 0.10, 0.08     # eave beam section (Y depth, Z height)
 RIDGE_R, N_RIDGES = 0.045, 5    # half-round cover tiles running down the slope
 CAP_R, CAP_T = 0.06, 0.02       # round tile-end caps at the eave

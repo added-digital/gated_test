@@ -35,6 +35,7 @@ SUB_GRID = 0.25       # props may be modelled to this finer grid
 WALL_H = 2.5          # wall, door and pillar height
 DOOR_H = 2.0          # a shoji panel opening; the 0.5 m above is lintel
 FLOOR_T = 0.1         # floor tiles hang this far below z = 0
+FLOOR_T_MAX = 0.3     # the deepest a slab may hang: the pond tile (water 0.2 below the rim, 0.1 of stone under it)
 TOL = 0.002           # dimensional tolerance when validating
 CONTRACT_VERSION = "0.2"
 
@@ -42,6 +43,15 @@ CONTRACT_VERSION = "0.2"
 # relation to the post, not a free number. The pillar piece reads PILLAR_POST.
 PILLAR_POST = 0.15
 WALL_T_MAX = PILLAR_POST - 0.01
+
+# The first-person body the kit is scaled for (breaks.md 2026-10-21, the human
+# walk): the engine's capsule, eye and camera. CONTRACT.md "Player" is the same numbers.
+PLAYER_RADIUS = 0.30  # capsule radius, m
+PLAYER_HEIGHT = 1.80  # capsule height, m
+PLAYER_EYE = 1.60     # camera height above the feet, m
+PLAYER_FOV_H = 90     # degrees, HORIZONTAL (Godot: Camera3D keep_aspect KEEP_WIDTH, fov 90)
+PLAYER_SPEED = 3.5    # walking speed, m/s
+CLEARANCE = 0.8       # metres a layout keeps free around furniture: the body must pass
 
 # One sun for previews, the assembled scene and the engine's directional light.
 SUN_ELEVATION = 40    # degrees above the horizon
@@ -56,13 +66,13 @@ NAME_RE = re.compile(r"^sakura_(floor|wall|door|pillar|roof|prop|garden|tree|fx)
 # enforces. `exact` footprints must match to TOL; `max` footprints may be smaller.
 CATEGORY_RULES = {
     # category: (tri budget, footprint rule, (x, y) size, (z min, z max))
-    "floor":  dict(tris=64,   footprint="exact", size=(GRID, GRID),  z=(-FLOOR_T, 0.02)),
+    "floor":  dict(tris=64,   footprint="exact", size=(GRID, GRID),  z=(-FLOOR_T_MAX, 0.02)),
     "wall":   dict(tris=120,  footprint="wall",  size=(GRID, WALL_T_MAX), z=(0.0, WALL_H)),
     "door":   dict(tris=300,  footprint="wall",  size=(GRID, WALL_T_MAX), z=(0.0, WALL_H)),
     "pillar": dict(tris=60,   footprint="max",   size=(0.25, 0.25),  z=(0.0, WALL_H)),
-    "roof":   dict(tris=160,  footprint="roof",  size=(GRID, 1.5),   z=(0.0, 1.5)),
+    "roof":   dict(tris=160,  footprint="roof",  size=(GRID, 2.5),   z=(0.0, 1.5)),
     "prop":   dict(tris=450,  footprint="max",   size=(GRID, GRID),  z=(0.0, WALL_H)),
-    "garden": dict(tris=600,  footprint="max",   size=(GRID, GRID),  z=(0.0, 3.0)),
+    "garden": dict(tris=600,  footprint="max",   size=(3.0, 2.0),    z=(0.0, 3.0)),
     "tree":   dict(tris=1400, footprint="max",   size=(3.0, 3.0),    z=(0.0, 5.0)),
     "fx":     dict(tris=12,   footprint="max",   size=(0.2, 0.2),    z=(0.0, 0.2)),
 }

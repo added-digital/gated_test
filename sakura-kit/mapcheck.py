@@ -6,7 +6,13 @@ Structural pieces (floor, wall, door, pillar, roof) must sit on the grid and
 occupy their slot exclusively; props, garden pieces and trees must stand on a
 floor (or on another prop); corners need a pillar; and a character must be
 able to walk from the start cell to every tatami cell, crossing a wall line
-only through an open door bay. Exit 1 on any failure.
+only through an open door bay. A floor with walkable:false (the pond) is a
+wall to the walk, except where a bridge decks over it: a garden piece named
+*bridge* whose placement carries "footprint": [w, d] (assemble.py writes it
+from the piece's sakura_footprint; an odd rot swaps w and d) makes every cell
+whose centre lies inside that rectangle walkable, the same rule the engine's
+loader uses to leave the pond blocker off those cells (breaks.md 2026-10-21).
+Exit 1 on any failure.
 """
 from __future__ import annotations
 
@@ -48,9 +54,29 @@ def edge_of(x, y, rot):
     return ((c[0] - 1, c[1]), (c[0], c[1]))
 
 
+def bridge_rects(pl):
+    """The (cx, cy, w, d) rectangle each bridge covers, from its placement's footprint."""
+    rects = []
+    for p in pl:
+        if p["category"] != "garden" or "bridge" not in p["piece"] or "footprint" not in p:
+            continue
+        w, d = p["footprint"]
+        if p["rot"] % 2:
+            w, d = d, w
+        rects.append((p["x"], p["y"], w, d))
+    return rects
+
+
+def under_bridge(c, rects):
+    """Does the centre of cell `c` lie inside a bridge footprint (1 mm tolerance)?"""
+    cx, cy = c[0] + 0.5, c[1] + 0.5
+    return any(abs(cx - bx) <= w / 2 + 1e-3 and abs(cy - by) <= d / 2 + 1e-3 for bx, by, w, d in rects)
+
+
 def main(path):
     data = json.load(open(path))
     pl = data["placements"]
+    bridges = bridge_rects(pl)
     sizes = {}
     rep_path = os.path.join(ROOT, "build", "report.json")
     if os.path.exists(rep_path):
@@ -60,6 +86,7 @@ def main(path):
     fails: list[str] = []
 
     floors, walls, pillars, roofs = {}, {}, {}, {}
+    floor_walkable: dict[tuple, bool] = {}     # per cell, from the floor's walkable flag
     blocked_edges: set[frozenset] = set()
     open_edges: set[frozenset] = set()
     for p in pl:
@@ -71,7 +98,7 @@ def main(path):
             if c in floors:
                 fails.append(f"two floors in cell {c}: {floors[c]} and {name}")
             floors[c] = name
-            p["_walkable"] = p.get("walkable", True)
+            floor_walkable[c] = p.get("walkable", True) is not False
         elif cat in ("wall", "door"):
             e = edge_of(x, y, rot)
             if e is None or abs(z) > TOL:
@@ -107,7 +134,8 @@ def main(path):
             continue
         if p["category"] in ("prop", "garden", "tree", "fx"):
             c = cell(p["x"], p["y"])
-            w, d = (sizes.get(p["piece"]) or [1, 1, 1])[:2]
+            # A declared footprint (in the placement) beats the built size from the report.
+            w, d = p.get("footprint") or (sizes.get(p["piece"]) or [1, 1, 1])[:2]
             if p["category"] == "tree":
                 w = d = 0.3
             if p["rot"] % 2:
@@ -137,7 +165,9 @@ def main(path):
             fails.append(f"walls meet at an angle at {v} with no pillar")
 
     # Walkability: flood fill over walkable floors, never through a blocked edge.
-    walkable = {c for c, n in floors.items() if not any(p["piece"] == n and p.get("walkable") is False for p in pl)}
+    # A pond cell under a bridge footprint is walkable: the bridge deck is its floor.
+    decked = {c for c in floors if not floor_walkable[c] and under_bridge(c, bridges)}
+    walkable = {c for c in floors if floor_walkable[c]} | decked
     start = cell(*START)
     if start not in walkable:
         fails.append(f"start cell {start} has no walkable floor")
@@ -155,7 +185,8 @@ def main(path):
         fails.append(f"{len(unreached)} tatami cells cannot be reached from {start}: {sorted(unreached)}")
 
     print(f"{len(pl)} placements: {len(floors)} floors, {len(walls)} wall/door edges ({len(open_edges)} open), "
-          f"{len(pillars)} pillars, {len(roofs)} roofs; {len(seen)} cells reachable from {start}")
+          f"{len(pillars)} pillars, {len(roofs)} roofs; {len(bridges)} bridge(s) decking {len(decked)} pond cell(s) "
+          f"{sorted(decked)}; {len(seen)} cells reachable from {start}")
     for f in fails:
         print("   x", f)
     print("PASS" if not fails else f"FAIL ({len(fails)})")

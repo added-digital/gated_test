@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Imports the project, then runs the scripted walk headless (no GPU needed)
 # and writes everything to tests/last_run.log. Exit 0 only if every check
-# passed. Usage: GODOT=/path/to/Godot_v4.3-stable tests/run.sh
+# passed. Usage: tests/run.sh   (GODOT=/path/to/Godot_v4.6.1-stable tests/run.sh
+# to pick another binary; the default is the 4.6.1 binary in the scratchpad.)
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
 PROJECT="$(dirname "$HERE")"
-GODOT="${GODOT:-godot}"
+GODOT="${GODOT:-/tmp/claude-0/-home-user-gated-test/5dad3fb4-c617-5098-9f35-819130e12508/scratchpad/godot46/Godot_v4.6.1-stable_linux.x86_64}"
 LOG="$HERE/last_run.log"
 
 {

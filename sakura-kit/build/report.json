@@ -378,7 +378,7 @@
    {
     "check": "floor_thickness",
     "ok": true,
-    "detail": "bottom z=-0.1000 (min -0.1)",
+    "detail": "bottom z=-0.1000 (min -0.3)",
     "level": "error"
    },
    {
@@ -506,7 +506,7 @@
    {
     "check": "floor_thickness",
     "ok": true,
-    "detail": "bottom z=-0.1000 (min -0.1)",
+    "detail": "bottom z=-0.1000 (min -0.3)",
     "level": "error"
    },
    {
@@ -634,7 +634,7 @@
    {
     "check": "floor_thickness",
     "ok": true,
-    "detail": "bottom z=-0.1000 (min -0.1)",
+    "detail": "bottom z=-0.1000 (min -0.3)",
     "level": "error"
    },
    {
@@ -762,7 +762,7 @@
    {
     "check": "floor_thickness",
     "ok": true,
-    "detail": "bottom z=-0.1000 (min -0.1)",
+    "detail": "bottom z=-0.1000 (min -0.3)",
     "level": "error"
    },
    {
@@ -812,7 +812,7 @@
   "size": [
    1.0,
    1.0,
-   0.1
+   0.3
   ],
   "checks": [
    {
@@ -890,7 +890,7 @@
    {
     "check": "floor_thickness",
     "ok": true,
-    "detail": "bottom z=-0.1000 (min -0.1)",
+    "detail": "bottom z=-0.3000 (min -0.3)",
     "level": "error"
    },
    {
@@ -1018,7 +1018,7 @@
    {
     "check": "floor_thickness",
     "ok": true,
-    "detail": "bottom z=-0.1000 (min -0.1)",
+    "detail": "bottom z=-0.1000 (min -0.3)",
     "level": "error"
    },
    {
@@ -1408,7 +1408,7 @@
    {
     "check": "footprint_max",
     "ok": true,
-    "detail": "1.000 x 0.089, max 1.0 x 1.0",
+    "detail": "1.000 x 0.089, max 3.0 x 2.0",
     "level": "error"
    },
    {
@@ -1444,21 +1444,21 @@
   ]
  },
  {
-  "name": "sakura_garden_bridge_2m",
+  "name": "sakura_garden_bridge_3m",
   "category": "garden",
   "ok": true,
-  "tris": 588,
-  "budget": 600,
+  "tris": 816,
+  "budget": 900,
   "size": [
-   2.0,
-   1.0,
-   1.269
+   3.0,
+   1.2,
+   1.49
   ],
   "checks": [
    {
     "check": "name_matches_rule",
     "ok": true,
-    "detail": "'sakura_garden_bridge_2m' must be sakura_<category>_<name>[_<variant>]",
+    "detail": "'sakura_garden_bridge_3m' must be sakura_<category>_<name>[_<variant>]",
     "level": "error"
    },
    {
@@ -1476,13 +1476,13 @@
    {
     "check": "tri_budget",
     "ok": true,
-    "detail": "588 tris, budget 600",
+    "detail": "816 tris, budget 900",
     "level": "error"
    },
    {
     "check": "has_geometry",
     "ok": true,
-    "detail": "294 faces",
+    "detail": "408 faces",
     "level": "error"
    },
    {
@@ -1530,25 +1530,25 @@
    {
     "check": "height_within",
     "ok": true,
-    "detail": "height 1.269, max 3.0",
+    "detail": "height 1.490, max 3.0",
     "level": "error"
    },
    {
     "check": "footprint_max",
     "ok": true,
-    "detail": "2.000 x 1.000, max 2.0 x 1.0",
+    "detail": "3.000 x 1.200, max 3.0 x 1.2",
     "level": "error"
    },
    {
     "check": "not_degenerate",
     "ok": true,
-    "detail": "largest dimension 2.000",
+    "detail": "largest dimension 3.000",
     "level": "error"
    },
    {
     "check": "nothing_floats",
     "ok": true,
-    "detail": "0 of 41 shells touch neither the ground nor another shell",
+    "detail": "0 of 56 shells touch neither the ground nor another shell",
     "level": "warn"
    },
    {
@@ -1792,7 +1792,7 @@
    {
     "check": "footprint_max",
     "ok": true,
-    "detail": "0.798 x 0.760, max 1.0 x 1.0",
+    "detail": "0.798 x 0.760, max 3.0 x 2.0",
     "level": "error"
    },
    {
@@ -1920,7 +1920,7 @@
    {
     "check": "footprint_max",
     "ok": true,
-    "detail": "0.815 x 0.666, max 1.0 x 1.0",
+    "detail": "0.815 x 0.666, max 3.0 x 2.0",
     "level": "error"
    },
    {
@@ -2176,7 +2176,7 @@
    {
     "check": "footprint_max",
     "ok": true,
-    "detail": "0.658 x 0.659, max 1.0 x 1.0",
+    "detail": "0.658 x 0.659, max 3.0 x 2.0",
     "level": "error"
    },
    {
@@ -2993,8 +2993,8 @@
   "budget": 160,
   "size": [
    1.0,
-   1.2,
-   0.709
+   2.2,
+   1.112
   ],
   "checks": [
    {
@@ -3060,7 +3060,7 @@
    {
     "check": "roof_origin_on_ridge",
     "ok": true,
-    "detail": "bbox centre x=0.0000, ridge edge y=-0.0000 (must be 0)",
+    "detail": "bbox centre x=0.0000, ridge edge y=0.0000 (must be 0)",
     "level": "error"
    },
    {
@@ -3072,7 +3072,7 @@
    {
     "check": "height_within",
     "ok": true,
-    "detail": "height 0.709, max 1.5",
+    "detail": "height 1.112, max 1.5",
     "level": "error"
    },
    {
@@ -3084,13 +3084,13 @@
    {
     "check": "roof_depth_max",
     "ok": true,
-    "detail": "depth 1.200, max 1.5",
+    "detail": "depth 2.200, max 2.5",
     "level": "error"
    },
    {
     "check": "not_degenerate",
     "ok": true,
-    "detail": "largest dimension 1.200",
+    "detail": "largest dimension 2.200",
     "level": "error"
    },
    {

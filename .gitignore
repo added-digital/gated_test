@@ -5,3 +5,4 @@ sakura-kit/build/previews/
 sakura-kit/build/*.blend
 sakura-kit/build/*.zip
 game/godot/.godot/
+*.blend1

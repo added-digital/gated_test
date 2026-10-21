@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
-radius = 0.35
+radius = 0.3
 height = 1.8
 
 [node name="Player" type="CharacterBody3D"]
@@ -17,4 +17,6 @@ shape = SubResource("CapsuleShape3D_body")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 
 [node name="Camera" type="Camera3D" parent="Head"]
+keep_aspect = 0
+fov = 90.0
 current = true

@@ -1,9 +1,11 @@
 extends Node3D
 ## Headless check of the project phase: teahouse.tscn builds every placement
 ## from the JSON, every non-fx placement has a StaticBody3D, the pond floors
-## carry their blockers, the rotation sign matches Blender, the palette is
-## nearest + no mipmaps, and main.tscn's sun points where the contract says.
-## Prints PASS/FAIL per check and quits with 0 only if all pass.
+## carry their blockers except under the bridge's footprint, the rotation
+## sign matches Blender, the palette is nearest + no mipmaps, and main.tscn's
+## sun points where the contract says. Prints PASS/FAIL per check and quits
+## with 0 only if all pass. The counts come from the JSON itself (141
+## placements after the scale pass, kit breaks.md 2026-10-21).
 
 const TEAHOUSE := preload("res://scenes/teahouse.tscn")
 const MAIN := preload("res://scenes/main.tscn")
@@ -28,16 +30,28 @@ func _ready() -> void:
 	var placements: Array = data["placements"]
 	var expect_bodies := 0
 	var expect_blockers := 0
+	var expect_water := 0
+	var expect_convex := 0
+	var decked: Array[Vector2] = []   # water cells under the bridge: no blocker there
 	for p in placements:
 		if p["category"] != "fx":
 			expect_bodies += 1
+		if p["category"] in ["prop", "tree"]:
+			expect_convex += 1
 		if p["category"] == "floor" and p.get("walkable", true) == false:
-			expect_blockers += 1
+			expect_water += 1
+			if teahouse.under_bridge(p["x"], p["y"]):
+				decked.append(Vector2(p["x"], p["y"]))
+			else:
+				expect_blockers += 1
+	var expect_trimesh := expect_bodies - expect_convex
 
 	print("teahouse built in %d ms; JSON placements=%d, loader placed=%d, skipped=%s" % [build_ms, placements.size(), teahouse.placed, teahouse.skipped])
-	check(placements.size() == 110, "JSON has 110 placements (got %d)" % placements.size())
-	check(teahouse.placed == 110 and teahouse.get_child_count() == 110, "110 pieces instanced as children (placed=%d, children=%d)" % [teahouse.placed, teahouse.get_child_count()])
+	check(placements.size() == 141, "JSON has 141 placements (got %d)" % placements.size())
+	check(teahouse.placed == 141 and teahouse.get_child_count() == 141, "141 pieces instanced as children (placed=%d, children=%d)" % [teahouse.placed, teahouse.get_child_count()])
 	check(teahouse.skipped.is_empty(), "no placement skipped for a missing GLB")
+	print("bridge footprints: %s; water cells=%d, decked by a bridge=%s" % [teahouse.bridges, expect_water, decked])
+	check(teahouse.bridges.size() == 1 and decked.size() == 3, "one bridge decks 3 of the %d water cells (got %d bridge(s), %d decked)" % [expect_water, teahouse.bridges.size(), decked.size()])
 
 	var meshes := teahouse.find_children("*", "MeshInstance3D", true, false)
 	var bodies := teahouse.find_children("*", "StaticBody3D", true, false)
@@ -52,8 +66,8 @@ func _ready() -> void:
 			convex += 1
 	print("mesh instances=%d, static bodies=%d, collision shapes=%d (trimesh=%d, convex=%d, box blockers=%d)" % [meshes.size(), bodies.size(), shapes.size(), trimesh, convex, blockers.size()])
 	check(bodies.size() == expect_bodies, "StaticBody3D count %d == non-fx placements %d" % [bodies.size(), expect_bodies])
-	check(blockers.size() == expect_blockers, "pond blockers %d == floors with walkable:false %d" % [blockers.size(), expect_blockers])
-	check(convex == 10 and trimesh == 100, "10 convex (prop+tree) and 100 trimesh shapes (got %d, %d)" % [convex, trimesh])
+	check(blockers.size() == expect_blockers, "pond blockers %d == walkable:false floors not under the bridge %d (%d water cells, 3 decked)" % [blockers.size(), expect_blockers, expect_water])
+	check(convex == expect_convex and trimesh == expect_trimesh, "%d convex (prop+tree) and %d trimesh shapes (got %d, %d)" % [expect_convex, expect_trimesh, convex, trimesh])
 
 	_check_rotation_sign(teahouse, placements)
 	_check_palette(meshes[0])
@@ -136,7 +150,7 @@ func _check_sun() -> void:
 	var elevation := rad_to_deg(asin(-dir.y))
 	print("sun direction %s, elevation %.1f deg; expected %s (elevation 40, azimuth 35)" % [dir, elevation, expected])
 	check(dir.distance_to(expected) < 0.002, "sun matches the contract sun")
-	check(main.get_node("Teahouse").get_child_count() == 110, "main.tscn's Teahouse also built 110 pieces")
+	check(main.get_node("Teahouse").get_child_count() == 141, "main.tscn's Teahouse also built 141 pieces")
 	var env: Environment = main.get_node("WorldEnvironment").environment
 	print("ambient source=%d (2 = colour) colour=%s energy=%.2f; sun energy=%.2f shadows=%s" % [env.ambient_light_source, env.ambient_light_color, env.ambient_light_energy, sun.light_energy, sun.shadow_enabled])
 	check(env.ambient_light_source == Environment.AMBIENT_SOURCE_COLOR and env.ambient_light_energy > 0.0, "warm ambient light is on (contract AMBIENT colour)")
