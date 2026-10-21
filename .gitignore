@@ -6,3 +6,7 @@ sakura-kit/build/*.blend
 sakura-kit/build/*.zip
 game/godot/.godot/
 *.blend1
+# Godot regenerates these on every open; tracking them makes every pull conflict.
+game/godot/**/*.import
+game/godot/**/*.uid
+game/godot/kit/glb/*_sakura_palette.png
