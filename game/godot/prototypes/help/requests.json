@@ -4,21 +4,23 @@
     "item": "NOTES",
     "where": "Across the path from where you came in, not far. A box that says NOTES.",
     "at": [6, -9],
-    "seconds": 40,
+    "seconds": 25,
     "thanks": "NOTES! Page one is upside down but that's how I wrote it. You are a wonderful stranger. Right. Speech. Speech speech speech.",
     "too_late": "They've started without me. I'll wing it. I've winged worse. Probably. Thank you for trying, really, I mean it."
   },
   {
     "ask": "You again! Good, you're fast. The speech went fine, mostly, but my sister's present is still out there in a box and the party is after the speech, which is now. It's a big box that says GIFT. Way out past the end of my path. Please.",
+    "ask_after_miss": "You're still here! Oh thank goodness, thank you for still being here. The speech was, let's call it improvised, and that's on me, I left the box too far out. Right. Breathe. One more, a bigger one: my sister's present, in a box that says GIFT, way past the end of my path, and the party is now, it's now. Would you? Only if you want to. Please want to.",
     "item": "GIFT",
     "where": "Past one end of the path and keep going. A box that says GIFT.",
     "at": [-24, -12],
-    "seconds": 60,
+    "seconds": 40,
     "thanks": "The GIFT. She's going to cry. I'm going to cry. You might cry, you've earned it. Go on, I've got a party to be late to.",
     "too_late": "No no no, they're cutting the cake. Fine. FINE. I'll tell her it's in the post. Thank you anyway. You were brilliant and I was a mess."
   },
   {
     "ask": "Last thing, last thing, I promise. My shoes. I'm in socks. There are two boxes out there, LEFT SHOE and RIGHT SHOE, I don't know why I packed them separately, that's a question for later me. One at a time. I'll wait. Go!",
+    "ask_after_miss": "Don't be sorry, the GIFT was mine to lose, I hid it halfway to the sea. You came back, that's the part I'll remember. Last thing, truly the last: I'm in socks. Two boxes, LEFT SHOE and RIGHT SHOE, I packed them apart, don't ask. One at a time, quick as you can, I'm wobbling. Go, go, go!",
     "item": "LEFT SHOE",
     "where": "Off to one side of the path, not far. A box that says LEFT SHOE.",
     "at": [11, -7],
@@ -28,7 +30,7 @@
       "where": "The other way from the first one, across the path. A box that says RIGHT SHOE.",
       "at": [-8, 10]
     },
-    "seconds": 45,
+    "seconds": 30,
     "thanks": "Both shoes! On the wrong feet. There's no time, it's fine. Thank you, thank you, thank you. If anyone asks, I was never late for anything.",
     "too_late": "I'll go in socks. Socks are a statement. Thank you, honestly, you did more than anyone. Right. Socks."
   }

@@ -67,6 +67,7 @@ reads as what they said and when.
 Every word the player reads is in `dialogue.json`; rewrite it freely, no
 code changes needed, the toy reads it at start.
 
+- The rule for Pim's lines: he never says that he remembers, keeps, forgets, or is bringing something up; memory shows only in what he does with what you said (your name, your words as facts of his world, your advice acted on, your promise or refusal held to, his mood).
 - `"character"`: the name over the capsule and before each line.
 - `"ui"`: the hint lines (`talk`, `continue`, `choose`, `walking`).
 - `"encounters"`: one entry per encounter, in order: `"start"` is the id of

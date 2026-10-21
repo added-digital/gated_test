@@ -5,8 +5,9 @@ extends Node3D
 ## runner, read request 1, walk to its crate, pick it up, come back, hand it
 ## over, and expect the milestone request_1_done; then meet the runner again
 ## for request 2, stand still until its clock runs out and expect too_late;
-## then meet them once more and expect request 3 still offered. Prints
-## PASS/FAIL per check and quits with 0 only if every check passes.
+## then meet them once more and expect request 3 still offered, asked with
+## its ask_after_miss line because request 2 was missed. Prints PASS/FAIL
+## per check and quits with 0 only if every check passes.
 
 const TOY := preload("res://prototypes/help/help.tscn")
 const MEET_FRAMES := 2400   # 40 s to meet the runner (a round trip of the path is 12 s)
@@ -77,7 +78,7 @@ func _ready() -> void:
 	frames = await meet_runner()
 	var r2: Dictionary = toy.requests[1]
 	check(toy.number == 2 and not toy.request.is_empty(), "request 2 offered after the runner passed an end, %d frames later" % frames)
-	check(panel.say_label.text == r2.ask, "the panel says request 2's ask line")
+	check(panel.say_label.text == r2.ask, "the panel says request 2's plain ask line (request 1 was delivered, not missed)")
 	check(absf(toy.time_left - float(r2.seconds)) < 0.1, "request 2's clock started at its own %d s (%.2f)" % [r2.seconds, toy.time_left])
 
 	# 5. Stand still until the clock runs out.
@@ -92,8 +93,9 @@ func _ready() -> void:
 
 	# 6. The next request is still offered after a miss.
 	frames = await meet_runner()
+	var r3: Dictionary = toy.requests[2]
 	check(toy.number == 3 and not toy.request.is_empty(), "request 3 still offered after the miss, %d frames later" % frames)
-	check(panel.say_label.text == toy.requests[2].ask, "the panel says request 3's ask line")
+	check(panel.say_label.text == r3.get("ask_after_miss", "") and panel.say_label.text != r3.ask, "after the too_late the panel says request 3's ask_after_miss line, not its ask: '%s'" % panel.say_label.text)
 
 	print("--- summary() ---\n%s\n--- end ---" % harness.summary())
 	print("RESULT: %d failure(s)" % failures)

@@ -10,7 +10,8 @@ extends Node3D
 ##                  seconds, thanks, too_late}, "at" is the crate's [x, z];
 ##                  an optional "then": {ask, item, where, at} is a second
 ##                  crate asked for after the first is handed over, on the
-##                  same clock
+##                  same clock; an optional "ask_after_miss" is said instead
+##                  of "ask" when the request before it ended too late
 ##   words.json     the hints: start, countdown, pick_up, bring_back,
 ##                  hand_over, after ({item} and {seconds} are filled in)
 ## Rewrite those, not this.
@@ -38,6 +39,7 @@ var leg: Dictionary = {}       # the crate being fetched now: {ask, item, where,
 var crate: Node3D = null       # that crate's node, on the field or carried
 var time_left := 0.0           # s on the open request's clock
 var line_timer := 0.0          # s until the sentence on screen clears (0: it stays)
+var missed_last := false       # the last closed request ended too late: the next ask is its ask_after_miss, if it has one
 
 
 func _ready() -> void:
@@ -98,14 +100,15 @@ func _offer(r: Dictionary) -> void:
 		more = more.get("then")
 	line_timer = 0.0
 	runner.stop_for(player)
-	print("[help] request %d offered, %d s on the clock" % [number, int(time_left)])
-	_ask(r)
+	var after_miss := missed_last and str(r.get("ask_after_miss", "")) != ""
+	print("[help] request %d offered, %d s on the clock%s" % [number, int(time_left), ", asked the after-a-miss way" if after_miss else ""])
+	_ask(r, "ask_after_miss" if after_miss else "ask")
 
 
-## Say one crate's ask line and put that crate on the field.
-func _ask(l: Dictionary) -> void:
+## Say one crate's ask line (ask_key picks which) and put that crate on the field.
+func _ask(l: Dictionary, ask_key: String = "ask") -> void:
 	leg = l
-	panel.say(l.get("ask", ""))
+	panel.say(l.get(ask_key, ""))
 	crate = _spawn_crate(str(l.get("item", "?")), l.get("at", [0, 0]))
 	_show_hint(_near(runner, TALK_RANGE))   # the countdown shows from this frame, not the next
 
@@ -125,6 +128,7 @@ func _deliver() -> void:
 	crate.queue_free()
 	crate = null
 	if legs.is_empty():
+		missed_last = false
 		_close(request.get("thanks", ""))
 		harness.milestone("request_%d_done" % number)
 	else:
@@ -133,6 +137,7 @@ func _deliver() -> void:
 
 func _too_late() -> void:
 	print("[help] too late on request %d" % number)
+	missed_last = true
 	_close(request.get("too_late", ""))
 	harness.milestone("too_late")
 

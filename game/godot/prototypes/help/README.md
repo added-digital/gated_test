@@ -13,10 +13,12 @@ field. A clock starts the moment they ask. Walk to the box, E picks it up
 (it floats in front of you), bring it back, E hands it over. In time: they
 thank you and hurry on; the next request comes once they have run to a post
 and come back past you. Too late: they leave without it, and the next
-request is still offered. Three requests, escalating: one crate close by
-(40 s), one crate far past the end of the path (60 s), then two crates one
-at a time in opposite directions on one tighter clock (45 s). After the
-third, approaching them only gets a closing line.
+request is still offered, but a miss changes the next ask: the runner opens
+it with their `ask_after_miss` line, a little more frantic and a little
+kinder, the blame all on themselves. Three requests, escalating: one crate
+close by (25 s), one crate far past the end of the path (40 s), then two
+crates one at a time in opposite directions on one tighter clock (30 s).
+After the third, approaching them only gets a closing line.
 
 ## Run it
 
@@ -32,7 +34,7 @@ and how to read the session log, is in [`../README.md`](../README.md).
 | F8 or close the window | end the session (closing writes the log) |
 
 Nothing to press to talk: standing near the runner is the ask. The bottom
-line is what they say; the small line under it is the clock (`40 s`) and
+line is what they say; the small line under it is the clock (`25 s`) and
 what to do next (where the box is, `E to pick up NOTES`, `Bring NOTES back
 to them`, `E to hand over NOTES`).
 
@@ -49,8 +51,35 @@ to them`, `E to hand over NOTES`).
    looking for the next box early.
 3. **The miss.** If a clock runs out, watch whether they go again. Someone
    who shrugs and walks off the field is a kill signal for the hypothesis;
-   someone who waits for the runner to come back is the opposite. If nobody
-   ever misses, the clocks in `requests.json` are too loose.
+   someone who waits for the runner to come back is the opposite. The next
+   ask after a miss is the `ask_after_miss` line: watch whether it sends
+   them out again. If nobody ever misses, the clocks in `requests.json` are
+   too loose (see The clocks).
+
+## The clocks
+
+25, 40 and 30 seconds (`seconds` in `requests.json`), the designer's numbers
+after their own first play (2026-10-21): on the first clocks, 40, 60 and
+45, all three were delivered with roughly half of every clock unused, NOTES
+4 s after pickup, 100 s for the whole toy, "no pressure". The floor is the
+walk itself: the headless bot, which goes straight to each box without
+looking for it, hands NOTES over with about 17 of the 25 s to spare; the
+two shoes are some 50 m of walking, 15 s at 3.5 m/s, before any searching.
+
+If nobody misses on these either, tighten one thing per play, in
+`requests.json`:
+
+1. Read `handed over <item> with N s left` in the Output panel (or the
+   pickup-to-deliver gap in the log's timeline). Take the request with the
+   largest N and cut its `seconds` by about half of N.
+2. A clock still never missed after two cuts means the box is too easy to
+   find, not that the clock is loose: move its `at` further from the path
+   (the ground reaches 30 each way) or across it, so the walk eats the
+   clock, and leave `seconds` alone.
+3. Request 3 last, 5 s at a time: its one clock covers two boxes.
+
+Never below the walk: a clock a straight walk cannot make is a chore, not
+urgency, and would kill the hypothesis for the wrong reason.
 
 ## The log
 
@@ -69,7 +98,10 @@ Two files next to the scene; rewrite them, not the scripts.
   they stop), `item` (the name on the box), `where` (the hint under the
   clock), `at` (the box's `[x, z]` on the field; the path runs along x from
   -15 to 15 at z = 0, you start at z = 6, the ground reaches 30 each way),
-  `seconds` (the clock), `thanks`, `too_late`. A request may carry `then`:
+  `seconds` (the clock), `thanks`, `too_late`. A request may carry
+  `ask_after_miss`: said instead of `ask` when the request before it ended
+  too late (requests 2 and 3 have one; a request without it says `ask`
+  either way). A request may carry `then`:
   `{ask, item, where, at}` for a second box asked for after the first is
   handed over, on the same clock. Add a fourth request and it is offered
   after the third, with the milestone `request_4_done`.
@@ -94,7 +126,9 @@ Headless check, from the project folder (import first):
 ```
 
 It drives the player to the runner, reads request 1, fetches the crate,
-presses E, brings it back, hands it over and expects `request_1_done`;
-meets the runner again, lets request 2 run out and expects `too_late`; then
-meets them once more and expects request 3 still offered. `RESULT: 0
-failure(s)` and exit 0; it leaves one `help_*` log in `toy_sessions/`.
+presses E, brings it back, hands it over inside the 25 s and expects
+`request_1_done`; meets the runner again, lets request 2 run out and
+expects `too_late`; then meets them once more and expects request 3 still
+offered, opened with its `ask_after_miss` line rather than its `ask`.
+`RESULT: 0 failure(s)` and exit 0; it leaves one `help_*` log in
+`toy_sessions/`.
