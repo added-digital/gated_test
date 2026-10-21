@@ -6,13 +6,14 @@ Read this first, every session. Rung, question, evidence, kill date.
 
 Who is on what (see `SESSIONS.md`). One owner per task; the other session pulls.
 
-- 2026-10-21 · Gated - cloud · the *gated* page, version 1.
+- 2026-10-21 · Gated - cloud · the *gated* page, version 1: done, published; republish on request.
 - 2026-10-21 · Gated - local · first run of the three toys on the GPU, the chimes in sequence, observations below, then confidants.
 
 ## Hand-offs
 
 - 2026-10-21 · Gated - cloud -> Gated - local · done: three toys built and fix-passed (`2d8342d`) · next: play, listen, confidant sessions · run: `git pull`, then each `game/godot/prototypes/*/*.tscn` with Cmd+R
 - 2026-10-21 · Gated - local -> Gated - cloud · done: first GPU play of the three toys, observations in the Log · next: `toy_help_test.gd` waits `(seconds + 2) * 60` process frames for request 2's clock; windowed on a 120 Hz display that is 21 s of the 40 s, so 6 checks FAIL (passes with `--max-fps 60`); wait on seconds or physics frames instead · run: `godot --path . res://tests/toy_help_test.tscn` (windowed, no `--max-fps`)
+- 2026-10-21 · Gated - cloud -> you · done: the *gated* page, version 1, at https://claude.ai/artifact/QPEMbDxzcPe8pYQUZNifVP (Design, World, Kit, Characters, Decisions; decision states saved in the page's database; comments reach Gated - cloud) · next: open it, click the map, cycle a decision, comment on anything that is wrong · run: `python3 tools/gated_page.py` to rebuild `build/gated.html` after a unit lands, then Gated - cloud republishes
 
 ## Decisions
 

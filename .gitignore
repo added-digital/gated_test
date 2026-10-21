@@ -11,3 +11,4 @@ game/godot/**/*.import
 game/godot/**/*.uid
 game/godot/kit/glb/*_sakura_palette.png
 game/godot/tests/last_run.log
+/build/

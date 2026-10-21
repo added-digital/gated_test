@@ -60,3 +60,11 @@ a message is a nudge, the note is the record.
 ## Hand-offs
 
 - 2026-10-21 · Gated - cloud -> Gated - local · done: three toys built, fix pass verified (`2d8342d`) · next: play them on the GPU, listen to the chimes, confidant sessions · run: `git pull`, then each `prototypes/*/*.tscn` with Cmd+R
+
+## The gated page
+
+`tools/gated_page.py` reads the repo (scene JSON, kit report and previews,
+NOTES, IDEAS, breaks, the toys' JSON) and writes `build/gated.html`, which is
+ignored by git. Gated - cloud publishes it as the artifact; the page's own
+database holds the decision states and its comments wake Gated - cloud. Either
+session may run the generator; only Gated - cloud republishes.
