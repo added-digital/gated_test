@@ -1,0 +1,8 @@
+{
+  "start": "Someone is in a hurry. Get close to them.",
+  "countdown": "{seconds} s",
+  "pick_up": "E to pick up {item}",
+  "bring_back": "Bring {item} back to them",
+  "hand_over": "E to hand over {item}",
+  "after": "They're off. Nothing more to carry today."
+}

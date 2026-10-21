@@ -1,0 +1,35 @@
+[
+  {
+    "ask": "Oh thank goodness, a person. I'm giving a speech in ten minutes and my notes are in a box back there. I can't stop, if I stop I'll lose my nerve. Could you grab it? The box says NOTES.",
+    "item": "NOTES",
+    "where": "Across the path from where you came in, not far. A box that says NOTES.",
+    "at": [6, -9],
+    "seconds": 40,
+    "thanks": "NOTES! Page one is upside down but that's how I wrote it. You are a wonderful stranger. Right. Speech. Speech speech speech.",
+    "too_late": "They've started without me. I'll wing it. I've winged worse. Probably. Thank you for trying, really, I mean it."
+  },
+  {
+    "ask": "You again! Good, you're fast. The speech went fine, mostly, but my sister's present is still out there in a box and the party is after the speech, which is now. It's a big box that says GIFT. Way out past the end of my path. Please.",
+    "item": "GIFT",
+    "where": "Past one end of the path and keep going. A box that says GIFT.",
+    "at": [-24, -12],
+    "seconds": 60,
+    "thanks": "The GIFT. She's going to cry. I'm going to cry. You might cry, you've earned it. Go on, I've got a party to be late to.",
+    "too_late": "No no no, they're cutting the cake. Fine. FINE. I'll tell her it's in the post. Thank you anyway. You were brilliant and I was a mess."
+  },
+  {
+    "ask": "Last thing, last thing, I promise. My shoes. I'm in socks. There are two boxes out there, LEFT SHOE and RIGHT SHOE, I don't know why I packed them separately, that's a question for later me. One at a time. I'll wait. Go!",
+    "item": "LEFT SHOE",
+    "where": "Off to one side of the path, not far. A box that says LEFT SHOE.",
+    "at": [11, -7],
+    "then": {
+      "ask": "Yes! One shoe. Now I'm hopping. The other box says RIGHT SHOE and it's the other way, of course it is. Quick, people are looking.",
+      "item": "RIGHT SHOE",
+      "where": "The other way from the first one, across the path. A box that says RIGHT SHOE.",
+      "at": [-8, 10]
+    },
+    "seconds": 45,
+    "thanks": "Both shoes! On the wrong feet. There's no time, it's fine. Thank you, thank you, thank you. If anyone asks, I was never late for anything.",
+    "too_late": "I'll go in socks. Socks are a statement. Thank you, honestly, you did more than anyone. Right. Socks."
+  }
+]

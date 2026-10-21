@@ -1,0 +1,144 @@
+{
+  "character": "Pim",
+
+  "ui": {
+    "talk": "E to talk",
+    "continue": "E to continue",
+    "choose": "1, 2 or 3 to answer",
+    "walking": "Pim is going somewhere. Catch up when they stop."
+  },
+
+  "encounters": [
+    {"start": "e1_hello", "then_walk_to": [8, -5]},
+    {"start": "e2_hello", "then_walk_to": [-1, -9]},
+    {"start": "e3_hello", "then_walk_to": [-9, -4]}
+  ],
+  "after": "after",
+
+  "nodes": [
+
+    {"id": "e1_hello", "who": "Pim", "text": "Oh! A person. Mind the wet paint. No. Wait. There isn't any. Sorry. I keep thinking they've started.", "next": "e1_you"},
+    {"id": "e1_you", "who": "You", "text": "...Started what?", "next": "e1_intro"},
+    {"id": "e1_intro", "who": "Pim", "text": "I'm Pim. I'm waiting for the painters. They said Tuesday. Is it Tuesday?", "choices": [
+      {"text": "It's Tuesday. Definitely.", "next": "e1_day_yes", "set": ["e1_said_tuesday"]},
+      {"text": "No idea. Does it matter?", "next": "e1_day_noidea", "set": ["e1_said_no_idea"]},
+      {"text": "It's whatever day you need it to be.", "next": "e1_day_whatever", "set": ["e1_said_whatever"]}
+    ]},
+    {"id": "e1_day_yes", "who": "Pim", "text": "Definitely. Good. I like definitely. Then they're late, which is better than wrong.", "next": "e1_favour"},
+    {"id": "e1_day_noidea", "who": "Pim", "text": "It matters to me. Tuesday is the day the grey ends. Allegedly.", "next": "e1_favour"},
+    {"id": "e1_day_whatever", "who": "Pim", "text": "That's either very kind or very slippery. I'll take it as kind. It's Tuesday, then.", "next": "e1_favour"},
+
+    {"id": "e1_favour", "who": "Pim", "text": "Can I ask a favour? If you see a van. Or a ladder. Or anyone holding a tin. Tell them Pim is here, by the... by the nothing. Will you?", "choices": [
+      {"text": "I promise.", "next": "e1_promise_yes", "set": ["e1_promised"]},
+      {"text": "I'll try. No promises.", "next": "e1_promise_try", "set": ["e1_no_promise"]},
+      {"text": "What's in it for me?", "next": "e1_promise_deal", "set": ["e1_bargained"]}
+    ]},
+    {"id": "e1_promise_yes", "who": "Pim", "text": "You promise. Nobody promises anymore. I'm going to hold you to that, you know. I hold things.", "next": "e1_name"},
+    {"id": "e1_promise_try", "who": "Pim", "text": "Try. Fine. Trying is a kind of promise with the door left open.", "next": "e1_name"},
+    {"id": "e1_promise_deal", "who": "Pim", "text": "In it for you! Ha. Nothing, probably. But I'll think of something. I'm good at thinking. I've had the time.", "next": "e1_name"},
+
+    {"id": "e1_name", "who": "Pim", "text": "One more thing. Your name. I'd like to know who I'm waiting with.", "choices": [
+      {"text": "Call me Walker.", "next": "e1_name_walker", "set": ["e1_walker"]},
+      {"text": "Just a passer-by.", "next": "e1_name_passer", "set": ["e1_passer"]},
+      {"text": "I'd rather not say.", "next": "e1_name_secret", "set": ["e1_secret"]}
+    ]},
+    {"id": "e1_name_walker", "who": "Pim", "text": "Walker. Suits you. You've got the legs for it.", "next": "e1_bye"},
+    {"id": "e1_name_passer", "who": "Pim", "text": "Passer-by. Hm. Nobody passes by here, though. You're the first. So you're something else, really.", "next": "e1_bye"},
+    {"id": "e1_name_secret", "who": "Pim", "text": "Fair. A mystery. I'll call you the Mystery, in my head. Out loud I'll just say 'you'.", "next": "e1_bye"},
+    {"id": "e1_bye", "who": "Pim", "text": "Right. I'm going to check the other side, in case they came round the back. Don't go far. It's nicer with two.", "end": true},
+
+    {"id": "e2_hello", "if": ["e1_walker"], "who": "Pim", "text": "Walker! You're still here. Good. Good good good.", "next": "e2_report"},
+    {"id": "e2_hello", "if": ["e1_passer"], "who": "Pim", "text": "The passer-by! Who didn't pass. Who stayed. I noticed that.", "next": "e2_report"},
+    {"id": "e2_hello", "if": ["e1_secret"], "who": "Pim", "text": "It's you. The Mystery. I waved, earlier. You didn't see. That's fine.", "next": "e2_report"},
+    {"id": "e2_hello", "who": "Pim", "text": "You again! Good.", "next": "e2_report"},
+    {"id": "e2_report", "who": "Pim", "text": "No van. No ladder. Nobody holding a tin. I checked the other side and it's the same side, only further away.", "next": "e2_colour"},
+    {"id": "e2_colour", "who": "Pim", "text": "I've been thinking about the colour. I'm allowed one, I decided. One colour, for everything. Guess it.", "choices": [
+      {"text": "Yellow.", "next": "e2_yellow", "set": ["e2_guess_yellow"]},
+      {"text": "Blue.", "next": "e2_blue", "set": ["e2_guess_blue"]},
+      {"text": "Grey. Keep it as it is.", "next": "e2_grey", "set": ["e2_guess_grey"]}
+    ]},
+    {"id": "e2_yellow", "who": "Pim", "text": "...Yes. Yes! How did you... it's yellow. Don't tell anyone. It's the kind of thing people laugh at.", "next": "e2_thought"},
+    {"id": "e2_blue", "who": "Pim", "text": "Blue. Blue is sensible. I didn't pick blue. But I can see you're the sort of person who would, and that's not nothing.", "next": "e2_thought"},
+    {"id": "e2_grey", "who": "Pim", "text": "That is the worst thing anyone has said to me, and I've been standing here all day. ...I'm going to pretend you said yellow.", "next": "e2_thought"},
+    {"id": "e2_thought", "who": "Pim", "text": "Here's the thing. If they don't come, I had a thought. A bad thought. What if I did it myself? Me. With a brush.", "choices": [
+      {"text": "Do it. Who's stopping you?", "next": "e2_go", "set": ["e2_encouraged"]},
+      {"text": "Wait for the professionals.", "next": "e2_wait", "set": ["e2_said_wait"]},
+      {"text": "Can I help?", "next": "e2_help", "set": ["e2_offered_help"]}
+    ]},
+    {"id": "e2_go", "who": "Pim", "text": "Who's stopping me. Nobody. That's the trouble with nobody, there's so much of them.", "next": "e2_bye"},
+    {"id": "e2_wait", "who": "Pim", "text": "The professionals. Yes. You're right. They know about edges. I'd make a mess of the edges.", "next": "e2_bye"},
+    {"id": "e2_help", "who": "Pim", "text": "Help? You'd... with your actual hands? Nobody's offered that. I don't know what to do with my face now.", "next": "e2_bye"},
+    {"id": "e2_bye", "who": "Pim", "text": "I need to think about this. Properly. Over there, where it's quieter. Come and find me.", "end": true},
+
+    {"id": "e3_hello", "if": ["e1_walker"], "who": "Pim", "text": "Walker. I've been thinking, and I've been remembering, and they turned out to be the same thing.", "next": "e3_day"},
+    {"id": "e3_hello", "if": ["e1_passer"], "who": "Pim", "text": "Passer-by. Still not passing. I've been thinking, and remembering, and they turned out to be the same thing.", "next": "e3_day"},
+    {"id": "e3_hello", "if": ["e1_secret"], "who": "Pim", "text": "Mystery. I've been thinking, and remembering, and they turned out to be the same thing.", "next": "e3_day"},
+    {"id": "e3_hello", "who": "Pim", "text": "You. I've been thinking, and remembering, and they turned out to be the same thing.", "next": "e3_day"},
+
+    {"id": "e3_day", "if": ["e1_said_tuesday"], "who": "Pim", "text": "You told me it was Tuesday. 'Definitely,' you said. It has been Tuesday for a very long time now. Nothing has happened in it.", "next": "e3_promise"},
+    {"id": "e3_day", "if": ["e1_said_no_idea"], "who": "Pim", "text": "You said you had no idea what day it was, and asked if it mattered. I've decided it doesn't. That was you. You did that.", "next": "e3_promise"},
+    {"id": "e3_day", "if": ["e1_said_whatever"], "who": "Pim", "text": "You said it was whatever day I needed. I've tried a few. None of them had painters in.", "next": "e3_promise"},
+    {"id": "e3_day", "who": "Pim", "text": "You never did tell me what day it was. It's been a long one, whichever it is.", "next": "e3_promise"},
+
+    {"id": "e3_promise", "if": ["e1_promised"], "who": "Pim", "text": "And you promised. 'I promise,' you said, with a face like a signed form. So. Did anyone come? Did you tell them?", "choices": [
+      {"text": "No one came. I looked, though.", "next": "e3_kept", "set": ["e3_promise_kept"]},
+      {"text": "I forgot to look.", "next": "e3_broke", "set": ["e3_promise_broken"]},
+      {"text": "I told the nothing. The nothing's on it.", "next": "e3_joked", "set": ["e3_promise_joked"]}
+    ]},
+    {"id": "e3_promise", "if": ["e1_no_promise"], "who": "Pim", "text": "You wouldn't promise. 'I'll try,' you said. I was cross about that for a while. Then I thought: at least it wasn't a lie waiting to happen. So. Did you try?", "choices": [
+      {"text": "I tried. Nobody's out there.", "next": "e3_kept", "set": ["e3_promise_kept"]},
+      {"text": "Honestly? No.", "next": "e3_broke", "set": ["e3_promise_broken"]},
+      {"text": "I'm trying right now. This is me trying.", "next": "e3_joked", "set": ["e3_promise_joked"]}
+    ]},
+    {"id": "e3_promise", "if": ["e1_bargained"], "who": "Pim", "text": "And you asked what was in it for you. I've got your answer now. I'll give it to you in a minute. First: did anyone come? Did you see anyone?", "choices": [
+      {"text": "No one. I looked.", "next": "e3_kept", "set": ["e3_promise_kept"]},
+      {"text": "I didn't look. Sorry.", "next": "e3_broke", "set": ["e3_promise_broken"]},
+      {"text": "Only you, Pim. Over and over.", "next": "e3_joked", "set": ["e3_promise_joked"]}
+    ]},
+    {"id": "e3_promise", "who": "Pim", "text": "So. Did anyone come? Did you see anyone?", "choices": [
+      {"text": "No one. I looked.", "next": "e3_kept", "set": ["e3_promise_kept"]},
+      {"text": "I didn't look.", "next": "e3_broke", "set": ["e3_promise_broken"]},
+      {"text": "Only you, Pim. Over and over.", "next": "e3_joked", "set": ["e3_promise_joked"]}
+    ]},
+    {"id": "e3_kept", "who": "Pim", "text": "You looked. That's more than the painters did.", "next": "e3_decide"},
+    {"id": "e3_broke", "if": ["e1_promised"], "who": "Pim", "text": "You forgot. You promised and you forgot. ...No, it's all right. I'd have forgotten too. There's a lot of nothing out there to get lost in.", "next": "e3_decide"},
+    {"id": "e3_broke", "who": "Pim", "text": "No. All right. At least you're honest, and honest is the colour I've got most of.", "next": "e3_decide"},
+    {"id": "e3_joked", "who": "Pim", "text": "Ha. You're ridiculous. I'd forgotten that about you. No I hadn't. I keep everything.", "next": "e3_decide"},
+
+    {"id": "e3_decide", "if": ["e2_encouraged"], "who": "Pim", "text": "So here's what I remembered. You said 'do it, who's stopping you.' And I've decided. I'm doing it. Myself. Today. One wall, then we'll see.", "next": "e3_colour"},
+    {"id": "e3_decide", "if": ["e2_said_wait"], "who": "Pim", "text": "So here's what I remembered. You said wait for the professionals. So I've waited. I'm good at it. But I think I've waited enough, and I think you knew that when you said it.", "next": "e3_colour"},
+    {"id": "e3_decide", "if": ["e2_offered_help"], "who": "Pim", "text": "So here's what I remembered. You said 'can I help?' Nobody says that. I'm taking you up on it. You're holding the tin. There's no tin yet. Hold it anyway.", "next": "e3_colour"},
+    {"id": "e3_decide", "who": "Pim", "text": "So here's what I decided. I'm doing it. Myself. Today. One wall, then we'll see.", "next": "e3_colour"},
+
+    {"id": "e3_colour", "if": ["e2_guess_yellow"], "who": "Pim", "text": "Yellow, obviously. You guessed it first time. I've decided that means it was always going to be yellow.", "next": "e3_ask"},
+    {"id": "e3_colour", "if": ["e2_guess_blue"], "who": "Pim", "text": "Not blue. I know you'd have gone blue. I thought about it, for you. Then I thought: it's my wall.", "next": "e3_ask"},
+    {"id": "e3_colour", "if": ["e2_guess_grey"], "who": "Pim", "text": "And it will not be grey, whatever you said. I've forgiven you for that. Mostly. I'm bringing it up so you know I remember.", "next": "e3_ask"},
+    {"id": "e3_colour", "who": "Pim", "text": "In my colour. You never guessed it. It's yellow. There. Now you know.", "next": "e3_ask"},
+
+    {"id": "e3_ask", "if": ["e2_said_wait"], "who": "Pim", "text": "Will you stand here while I do it? You don't have to do anything. Just be the person who's here.", "choices": [
+      {"text": "I'll stand here.", "next": "e3_stay", "set": ["e3_stayed"]},
+      {"text": "You don't need me for this.", "next": "e3_leave", "set": ["e3_let_go"]},
+      {"text": "I'll stand here, but I'm not holding anything.", "next": "e3_stay_grumpy", "set": ["e3_stayed"]}
+    ]},
+    {"id": "e3_ask", "who": "Pim", "text": "Say something I can keep. Something to think while I'm doing the edges.", "choices": [
+      {"text": "Start small. One wall.", "next": "e3_small", "set": ["e3_said_small"]},
+      {"text": "Make it loud.", "next": "e3_loud", "set": ["e3_said_loud"]},
+      {"text": "Do the edges last.", "next": "e3_edges", "set": ["e3_said_edges"]}
+    ]},
+    {"id": "e3_small", "who": "Pim", "text": "One wall. Small. Yes. I can hold one wall in my head.", "next": "e3_bye"},
+    {"id": "e3_loud", "who": "Pim", "text": "Loud! All right. Loud. If anyone laughs I'll say you told me to.", "next": "e3_bye"},
+    {"id": "e3_edges", "who": "Pim", "text": "Edges last. Of course. That's the kind of thing a professional would say, and you're not one, so it's better.", "next": "e3_bye"},
+    {"id": "e3_stay", "who": "Pim", "text": "Then I'll start. Don't look at the edges.", "next": "e3_bye"},
+    {"id": "e3_stay_grumpy", "who": "Pim", "text": "Noted. No holding. You can be in charge of standing.", "next": "e3_bye"},
+    {"id": "e3_leave", "who": "Pim", "text": "No. I suppose I don't. ...I'd have liked it, though. Go on. I'll be here. I'm always here, that's rather the point.", "next": "e3_bye"},
+
+    {"id": "e3_bye", "if": ["e1_bargained"], "who": "Pim", "text": "Oh, and your answer. What's in it for you. It's this: you get to be the one who was here. That's all I've got. It's quite a lot, I think. Goodbye for now.", "end": true},
+    {"id": "e3_bye", "if": ["e3_let_go"], "who": "Pim", "text": "Goodbye, then. Come back when it's done. Come back anyway.", "end": true},
+    {"id": "e3_bye", "who": "Pim", "text": "Right. Deep breath. Here goes nothing, and I should know, I've been here with it all day. Goodbye for now.", "end": true},
+
+    {"id": "after", "if": ["e3_let_go"], "who": "Pim", "text": "Still here. Still Tuesday. You came back, though. I'm counting that.", "end": true},
+    {"id": "after", "if": ["e3_promise_broken"], "who": "Pim", "text": "Still here. It's all right about the forgetting. I've forgotten it. Nearly.", "end": true},
+    {"id": "after", "if": ["e3_promise_joked"], "who": "Pim", "text": "The nothing hasn't reported back. I'm not surprised. Still here.", "end": true},
+    {"id": "after", "who": "Pim", "text": "Still here. Still Tuesday. One wall at a time.", "end": true}
+  ]
+}

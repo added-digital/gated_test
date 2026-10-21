@@ -1,0 +1,116 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://prototypes/help/help.gd" id="1_help"]
+[ext_resource type="Script" path="res://prototypes/help/runner.gd" id="2_runner"]
+[ext_resource type="Script" path="res://prototypes/_shared/toy_harness.gd" id="3_harness"]
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="4_player"]
+[ext_resource type="PackedScene" path="res://prototypes/_shared/text_panel.tscn" id="5_panel"]
+
+[sub_resource type="Environment" id="Environment_sky"]
+background_mode = 1
+background_color = Color(0.78, 0.8, 0.82, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.6, 0.6, 0.6, 1)
+
+[sub_resource type="StandardMaterial3D" id="Material_dark"]
+albedo_color = Color(0.38, 0.38, 0.38, 1)
+
+[sub_resource type="StandardMaterial3D" id="Material_light"]
+albedo_color = Color(0.7, 0.7, 0.7, 1)
+
+[sub_resource type="StandardMaterial3D" id="Material_mid"]
+albedo_color = Color(0.55, 0.55, 0.55, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(60, 1, 60)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+material = SubResource("Material_dark")
+size = Vector3(60, 1, 60)
+
+[sub_resource type="BoxMesh" id="BoxMesh_path"]
+material = SubResource("Material_light")
+size = Vector3(30, 0.02, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_post"]
+material = SubResource("Material_mid")
+top_radius = 0.2
+bottom_radius = 0.2
+height = 2.0
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_post"]
+radius = 0.2
+height = 2.0
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_runner"]
+material = SubResource("Material_mid")
+radius = 0.3
+height = 1.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_nose"]
+material = SubResource("Material_mid")
+size = Vector3(0.2, 0.2, 0.3)
+
+[node name="Help" type="Node3D"]
+script = ExtResource("1_help")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.383, 0.3214, 0, 0.6428, 0.766, -0.5, -0.6634, 0.5567, 0, 10, 0)
+shadow_enabled = true
+
+[node name="Environment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_sky")
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("BoxShape3D_ground")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("BoxMesh_ground")
+
+[node name="Path" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
+mesh = SubResource("BoxMesh_path")
+
+[node name="PostA" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 1, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="PostA"]
+shape = SubResource("CylinderShape3D_post")
+
+[node name="Mesh" type="MeshInstance3D" parent="PostA"]
+mesh = SubResource("CylinderMesh_post")
+
+[node name="PostB" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 1, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="PostB"]
+shape = SubResource("CylinderShape3D_post")
+
+[node name="Mesh" type="MeshInstance3D" parent="PostB"]
+mesh = SubResource("CylinderMesh_post")
+
+[node name="Runner" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.5, 0, 0)
+script = ExtResource("2_runner")
+from = Vector3(-14.5, 0, 0)
+to = Vector3(14.5, 0, 0)
+speed = 5.0
+
+[node name="Body" type="MeshInstance3D" parent="Runner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+mesh = SubResource("CapsuleMesh_runner")
+
+[node name="Nose" type="MeshInstance3D" parent="Runner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -0.4)
+mesh = SubResource("BoxMesh_nose")
+
+[node name="Player" parent="." instance=ExtResource("4_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+
+[node name="TextPanel" parent="." instance=ExtResource("5_panel")]
+
+[node name="Harness" type="Node" parent="."]
+script = ExtResource("3_harness")
