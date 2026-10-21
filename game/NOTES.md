@@ -19,6 +19,18 @@ calm is the home state; something breaks it; the feeling arrives when the
 calm is put back. Must never feel repetitive, stagnant, or like a chore to
 continue.
 
+## Toys (rung 3)
+
+Question: which single interaction is worth repeating? Proof: three grey-box toys, three verbs, each played by a confidant. Gate: one toy holds a confidant 5 minutes and their words match the Goal.
+
+| Toy | Hypothesis (designer's words) | Verb | Dead if not by |
+| --- | --- | --- | --- |
+| 1 Remember | I believe choosing replies to a character who remembers what you said holds a confidant 5 minutes because it makes your decisions feel important. | choose, with consequence | 2026-10-24 |
+| 2 Help | I believe helping someone in a rush holds a confidant 5 minutes because it makes you feel like something important is happening. | help, under urgency | 2026-10-28 |
+| 3 Far sound | I believe hearing something interesting far away but being blocked from getting there holds a confidant 5 minutes because it turns on brain activity to find a way there. | find the way | 2026-10-31 |
+
+Rules in force: grey boxes only; a kit piece only if a line names it as the verb's object; no goals, menus, polish, or a second verb in one toy; two sessions per toy; a confidant plays each one.
+
 ## Log
 
 | Date | Rung | Question | Evidence this week | Kill date still true? |
