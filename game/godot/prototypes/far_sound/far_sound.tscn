@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://prototypes/far_sound/far_sound.gd" id="1_toy"]
 [ext_resource type="Script" path="res://prototypes/far_sound/layout.gd" id="2_layout"]
@@ -20,12 +20,15 @@ albedo_color = Color(0.38, 0.38, 0.38, 1)
 [sub_resource type="StandardMaterial3D" id="Material_light"]
 albedo_color = Color(0.75, 0.75, 0.75, 1)
 
+[sub_resource type="StandardMaterial3D" id="Material_gate"]
+albedo_color = Color(0.68, 0.68, 0.68, 1)
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
-size = Vector3(44, 1, 44)
+size = Vector3(60, 1, 48)
 
 [sub_resource type="BoxMesh" id="BoxMesh_ground"]
 material = SubResource("Material_dark")
-size = Vector3(44, 1, 44)
+size = Vector3(60, 1, 48)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_source"]
 size = Vector3(1, 1, 1)
@@ -33,6 +36,16 @@ size = Vector3(1, 1, 1)
 [sub_resource type="BoxMesh" id="BoxMesh_source"]
 material = SubResource("Material_light")
 size = Vector3(1, 1, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gate"]
+size = Vector3(0.3, 2.5, 3.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_gate"]
+material = SubResource("Material_gate")
+size = Vector3(0.3, 2.5, 3.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_trigger"]
+size = Vector3(5, 2.5, 15.7)
 
 [node name="FarSound" type="Node3D"]
 script = ExtResource("1_toy")
@@ -45,7 +58,7 @@ shadow_enabled = true
 environment = SubResource("Environment_sky")
 
 [node name="Ground" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -3)
 
 [node name="Shape" type="CollisionShape3D" parent="Ground"]
 shape = SubResource("BoxShape3D_ground")
@@ -56,25 +69,80 @@ mesh = SubResource("BoxMesh_ground")
 [node name="Walls" type="Node3D" parent="."]
 script = ExtResource("2_layout")
 
-[node name="Source" type="StaticBody3D" parent="."]
+[node name="Source1" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -18)
 
-[node name="Shape" type="CollisionShape3D" parent="Source"]
+[node name="Shape" type="CollisionShape3D" parent="Source1"]
 shape = SubResource("BoxShape3D_source")
 
-[node name="Mesh" type="MeshInstance3D" parent="Source"]
+[node name="Mesh" type="MeshInstance3D" parent="Source1"]
 mesh = SubResource("BoxMesh_source")
 
-[node name="Chime" type="AudioStreamPlayer3D" parent="Source"]
+[node name="Chime" type="AudioStreamPlayer3D" parent="Source1"]
 stream = ExtResource("6_chime")
 attenuation_model = 1
 unit_size = 7.0
 max_db = 3.0
 
-[node name="Chord" type="AudioStreamPlayer3D" parent="Source"]
+[node name="Chord" type="AudioStreamPlayer3D" parent="Source1"]
 stream = ExtResource("7_chord")
 unit_size = 7.0
 max_db = 3.0
+
+[node name="Source2" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.5, 6)
+
+[node name="Shape" type="CollisionShape3D" parent="Source2"]
+shape = SubResource("BoxShape3D_source")
+
+[node name="Mesh" type="MeshInstance3D" parent="Source2"]
+mesh = SubResource("BoxMesh_source")
+
+[node name="Chime" type="AudioStreamPlayer3D" parent="Source2"]
+stream = ExtResource("6_chime")
+attenuation_model = 1
+unit_size = 7.0
+max_db = 3.0
+
+[node name="Chord" type="AudioStreamPlayer3D" parent="Source2"]
+stream = ExtResource("7_chord")
+unit_size = 7.0
+max_db = 3.0
+
+[node name="Source3" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.5, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="Source3"]
+shape = SubResource("BoxShape3D_source")
+
+[node name="Mesh" type="MeshInstance3D" parent="Source3"]
+mesh = SubResource("BoxMesh_source")
+
+[node name="Chime" type="AudioStreamPlayer3D" parent="Source3"]
+stream = ExtResource("6_chime")
+attenuation_model = 1
+unit_size = 7.0
+max_db = 3.0
+
+[node name="Chord" type="AudioStreamPlayer3D" parent="Source3"]
+stream = ExtResource("7_chord")
+unit_size = 7.0
+max_db = 3.0
+
+[node name="Gate" type="AnimatableBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.35, 1.25, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="Gate"]
+shape = SubResource("BoxShape3D_gate")
+
+[node name="Mesh" type="MeshInstance3D" parent="Gate"]
+mesh = SubResource("BoxMesh_gate")
+
+[node name="GateTrigger" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 1.25, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="GateTrigger"]
+shape = SubResource("BoxShape3D_trigger")
 
 [node name="Player" parent="." instance=ExtResource("4_player")]
 

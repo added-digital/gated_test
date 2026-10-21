@@ -1,4 +1,6 @@
 {
 	"start": "Do you hear that?",
-	"arrived": "There it is."
+	"arrived_1": "There it is.",
+	"arrived_2": "And that one.",
+	"arrived_3": "That was the last of them."
 }
