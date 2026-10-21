@@ -15,3 +15,6 @@ Fridays. The AI may append; it never acts on a line here.
 - 2026-10-21 · from the walk, kit · organic edges: curved pond, gravel-to-moss blends, banks with height; the grid must not show
 - 2026-10-21 · from the walk, scale · architecture scaled up ~1.3-1.5x relative to props, as games do; real tea-room dimensions read cramped in first person
 - 2026-10-21 · from the re-walk, look · toon outlines on the kit (contours between same-colour blobs); a whole-game look decision, decide at Core or Slice
+- 2026-10-21 · reference, designer's words · Dave the Diver is the game to be inspired by most: "easy to make a concept and add maps and features later"; "items matter and the progress is legendary, you get new stuff which makes you progress further"; "the sushi restaurant is such an amazing idea"
+- 2026-10-21 · reference, designer's words · A Short Hike matches the Goal feeling; Dave the Diver (2D) and Undertale (semi-3D) for intriguing, funny dialogue; all three have music and design elements "that make it feel like a world"
+- 2026-10-21 · scope, designer's words · "it's okay to stray from anything we have built this far, as this far has only been testing of sorts"; open question: how to find the core of a game like Dave the Diver without copying it
