@@ -1,0 +1,111 @@
+# Radio Hollow
+
+*Angle: invert Dave.* You keep a one-room radio station on top of a hollow mountain, and when a sound goes missing from the village below (the river, the school bell, somebody's laugh) you go down into the dark with a lantern and three glass jars, find it by ear, climb back up, and play it on air until the valley can hear it again.
+
+**The player records sunk sounds in the dark to put a village's calm back on the air.**
+
+## The surface
+
+The station is the old tea house at the top of the path: a desk with a needle meter and a jar shelf in the tatami room, a winch and cable spool bolted beside the pond, an antenna lashed to the roof eave, the valley spread out below the engawa. Mornings are slow: tea, petals on the boards, and the home's ambient mix in your ears (wind in bamboo, the river below, the school bell at nine, a dog, a train at dusk). Villagers climb the path one at a time, sit on the engawa, and tell you what they miss; Pim, the teenage engineer who lives in the back room, builds your gear out of what grateful people carry up (lamp oil, wire, glass). At dusk you go on air for three real minutes: the Evening Show, a fast, manual, hands-on segment where calls come in and you cue the right jar on the right line before the caller hangs up; its pace is the opposite of the Hollow. After the show you lay spare jars into the Night Programme, a slow four-slot mix that plays till morning, and from the engawa you count the windows that stay lit in the valley: that is who is listening. What grows: the number of layers in the home's mix (every restored sound comes back into the ambience, so the home literally sounds richer every week), the number of lit windows, the station itself (a second studio room behind a shoji, a listener bench, a lantern path to the pond, a relay mast), and the roster of villagers who bother to climb up.
+
+## The underground
+
+The Hollow is the inside of the mountain, in shelves, where everything the village stops listening to sinks: lost sounds live down there as kodama (the Japanese word means both tree spirit and echo), small shy glowing things that sit on rock perches and make their one sound. It is dark; you hear before you see. Your lantern burns (oil is the clock), the cable from the winch runs out behind you (the reach), and you carry glass jars (the capacity). To record a kodama you get in range and hold the jar still for a count: some flee light so you must put the lantern out and stand in the dark for five seconds, some only sing when it drips, big ones (a train, festival drums) need a wide jar. A clap sends a pulse that lights the shelf's edges for a second so you can see the route, but it scares everything on the shelf for a while: see or listen, pick one. Paths are blocked the Far Sound way: a cleft you cannot cross until the cable is unhooked and swung, a stone that opens only when the shelf is silent, a ledge you find by the sound behind it. Recording copies, it never takes: the Hollow is never emptied, and nothing down there is hurt or killed. What shifts each visit: which kodama are on which perches, the Hollow's weather (drip days muffle faint sounds; storm days make the big ones sing), and the sound of the day that sank that morning, which is always just past where your oil comfortably reaches.
+
+## The threshold
+
+Separated by the pond: the station is on one side, the Hollow's mouth is a cleft in the rock behind the stone garden on the other, and the kit's 3 m bridge is the only way across. Crossing is a three-step ritual, so it is never accidental: clip the cable hook to your belt at the winch, light the lantern, step into the mouth; the home's ambient mix fades to nothing by the third step and the lantern's circle is all you have. Coming back you follow the cable (it is also Pim's phone line: her voice comes through it, thinner the deeper you are), the winch reels you up the last stretch, the bell on the winch rings so the whole station knows you are home, and the home mix fades back in over the bridge. Day structure: morning at the station, one descent (two after the Lantern II upgrade), the Evening Show at dusk, the Night Programme overnight.
+
+## Three dials
+
+- OIL (how long): the lantern burns for 150 s at start; the trip ends when it goes out. Track: Lantern I 150 s, II 240 s, III 360 s, then the Quiet Wick (oil burns half as fast while you stand still, which turns waiting for a shy sound into a free action).
+- CABLE (how far): you are tethered to the winch; the spool's length is how deep you can go and which shelves open. Track: Spool I reaches the First Shelf, II the Second Shelf, III the Third, IV the Drowned Shelf, then the Ooma Saddle, which replaces the cable with riding the salamander for the deepest shelf.
+- JARS (how much and what): a belt of glass jars, one recording each. Count track: 3, 5, 8, 12 jars. Grade track: Plain jars take small sounds; Wide jars take big ones (a train, drums, a storm); Still jars take voices, the hardest and the late-game content.
+
+## The fail state is a bet
+
+When the oil runs out you are in the dark, and a low, slow call starts somewhere below: Ooma, the giant blind salamander who carries lost things up through the mountain, finds you by your heartbeat and carries you to the mouth. The jars spill on the way up. In the dark you hear each jar's sound once and keep ONE; the rest return to the Hollow, where they can be found again next trip (nothing is lost forever, which keeps the bet from feeling punitive). The bet: every day's sunk sound sits just past where the oil comfortably reaches, so the question at 20% oil is always 'turn back with the frog and the bell, or push for the river and risk coming up with one jar'. Being carried also costs the next morning: you wake late, Pim has opinions, and the Evening Show runs with whatever jar you kept.
+
+## Conversion and two sinks
+
+Sink 1, the Evening Show (requests): the named villager's sound goes on air; the needle moves, the camera turns to the valley, the sound returns to its place in the home mix, and tomorrow that villager climbs up with gratitude in the form of materials (Mrs. Hane brings lamp oil, the stationmaster brings wire, the glassblower brings jars). Materials go to Pim, who builds the three dial upgrades from them. There is no money and no till: gratitude is the currency and people are the shop. Sink 2, the Night Programme (spares): any jar nobody asked for is laid into the overnight mix (four slots at first, eight later); a frog on top of rain on top of a far train makes a warmer night, and warmth lights windows in the valley, which is the non-money progression. Every spare is useful, so recording the unasked-for sound is never a waste, and the Night Programme is where the player's taste shows. Every recorded kodama also goes into the Archive on the jar shelf with the villager's note on the card: the collection that makes progress visible and legendary.
+
+## The second progression
+
+WINDOWS. At night from the engawa you see the valley; every house that is listening has a lit window. The count rises with the Night Programme's warmth and with a clean Evening Show, and it drops when a sound sinks (people stop listening when things go quiet, so the calm-break is also a listenership hit). Windows decide what the station becomes: 5 lit and Pim stays for good and the workbench opens; 10 and the school asks for a morning programme (scheduled requests); 15 and the stationmaster brings the night train and wide jars; 25 and the festival committee asks for a live broadcast from the square; 40 and the far valley asks for a relay. Windows never buy anything; they are who shows up at your door with a want.
+
+## What breaks the calm
+
+Sinkings. On scheduled story mornings (never random), one layer of the home's ambient mix is gone when you wake: the river is silent, the nine o'clock bell does not ring, the dog does not bark; later the train, the festival drums, and finally a person's laugh and then a voice. The player hears the calm break before anyone says anything; then a named villager climbs the path. The sunk sound is now a kodama on a shelf of the Hollow just beyond comfortable reach, and the windows in the valley go dark one by one until it is back.
+
+## Where accomplishment lands
+
+Not in the Hollow (that is relief) but at the desk during the Evening Show: you cue the jar, the needle swings, the camera turns to the valley, and the river sound fades back in across the whole home mix with the valley's windows lighting up in a row. It is confirmed the next morning when the villager who asked climbs up and says something that quotes you. The accomplishment is heard, not counted: the restored layer stays in the home mix forever, so the home gets audibly calmer every time the player puts something back.
+
+## The one-map conceit
+
+"What nobody listens to sinks into the mountain." The Hollow is one hole in shelves; the deeper the shelf, the older the sound. Any sound from any place or era (this village, the far valley, a grandmother's lullaby, a sound no one alive has heard) is a kodama placed on an existing perch, and a kodama is a data row: one audio file, a range, a shyness, a jar grade, a perch tag, a villager's note. New content is new rows; a new shelf is more of the same map. Never a new system.
+
+## Characters and requests
+
+PIM (teen engineer, lives in the back room; the Remember toy's character grown into a role): wants to build something nobody in the valley has built; delivers Upgrades and the workbench, and is the voice on the cable. MRS. HANE (retired schoolteacher, first up the path, sharp): wants the river back so she can sleep; delivers the first Sinking and the Evening Show, and later the school's morning programme. MR. KINOSHITA (stationmaster of the closed railway, polite, stubborn): wants the night train he fell asleep to for forty years; delivers Wide jars and the Night Programme. OOMA (the giant blind salamander under the mountain, no words, one low call): wants nothing, carries lost things up; delivers the fail-state, and later the Saddle for the deepest shelf. Later arrivals with wants: Ren the postwoman (letters and the request board), old Bunzo who hears the mountain's weather (Hollow weather), the festival committee (the live broadcast).
+
+## Two lines
+
+- Pim: "You told me the oil was 'plenty.' Ooma carried you up by your belt. I've written PLENTY on the new lantern."
+- Pim: "Three jars. Yes, you asked for five. I heard you. Hearing things is your job; I just build."
+
+## Later, in order
+
+- Second Shelf + Spool II + the school bell (Mrs. Hane's second want): the first deeper, older shelf; proves the map scales.
+- Night Programme mixer (4 slots) + Wide jars + the night train (Mr. Kinoshita arrives): the spare sink and the big-sound grade.
+- Hollow weather (drip days, storm days) + Lantern II (old Bunzo arrives): variation between visits without new geometry.
+- Letters and the request board (Ren the postwoman): several active wants at once, villagers who cannot climb, Evening Show callers you have never met.
+- The Festival live broadcast: a scheduled set-piece, the first time the player walks down into the village square; the valley becomes a walkable second home space.
+- Third Shelf + Still jars + voices (the first sunk laugh): the emotional late game; a voice needs a Still jar and total dark.
+- The Ooma Saddle: ride the salamander past the cable's reach to the Drowned Shelf, sounds no one alive has heard.
+- The Relay: the far valley, a second village whose sinkings go into the same Hollow; a second surface, the same hole, content forever.
+
+## Presentation
+
+Low-poly 3D in Godot 4.6, fixed three-quarter camera (A Short Hike's look, which the designer likes), orthographic-leaning, no camera control to learn. Why 3D: the kit is already glTF and walkable; the core sense is spatial hearing, and AudioStreamPlayer3D gives directional, distance-attenuated far sound for free; dark plus FogVolume plus one OmniLight3D for the lantern hides low-poly cheapness and makes the clap pulse (an expanding edge-lit sphere shader) look expensive. In the Hollow the camera tightens and the fog thickens; at the station it pulls back to show the engawa and the valley.
+
+## The kit
+
+REUSED as the home, nearly whole: tatami room = the studio, engawa = where villagers sit, pond + 3 m bridge = the threshold, stone garden and rocks = the Hollow's mouth, lanterns = night lighting, the two sakura = the station's trees, petals = the calm. ADAPTED with six new props in the existing style contract and validator (desk with needle meter, jar shelf, winch and cable spool, antenna mast on the roof eave, speaker horn, lit valley backdrop plane): about one Claude day, since pieces are Python-generated glTF. NEW for the Hollow: a ten-piece cave kit (shelf, pillar, drip stalactite, perch, cleft door, cable anchor, three kodama bodies, Ooma): two to three Claude days, built only after the loop toy proves the loop in grey boxes. COST: the setting is now locked to a Japanese-ish mountain valley and one long spring (fine: kodama means echo, the pun is the lore), and the Walk rung's tea house becomes the real home instead of a test.
+
+## The first ten minutes
+
+0:00 Morning on the engawa, petals, tea, the home mix in your ears: bamboo, birds, the river below, a dog. Pim at the desk, cocky, asks your name and will use it later. 0:45 Mid-sentence the river layer drops out of the mix. Pim: "That's not right." Mrs. Hane climbs the path, sits, says the river stopped in the night and she cannot sleep without it, and that the last keeper would have had it back by Thursday. 2:00 Pim clips the cable to your belt, lights the lantern, hands you three jars: "River's in the Hollow. Follow it by ear. Oil's about two and a half minutes. Heroes get carried." 2:30 Across the bridge, into the mouth; the mix fades to nothing; dark; lantern circle; a far chime (a bell, not the river) and, fainter, to the left, the rush of water. 3:30 A frog on a perch, the easy one: get in range, hold the jar, three-count, jar one full. First small win. 4:30 Follow the river; blocked by a cleft; clap: the pulse shows a ledge, the frog on the shelf goes quiet; climb; the cable snags on a pillar; unhook, re-route, hook. 6:00 The river kodama, big and shy, flees the lantern; put the lantern out; five seconds of dark with the oil ticking; jar two full. Oil at 25%. 6:30 Pim's voice through the cable: "Bell's past the spool. Not today." The bell chimes beyond reach: the far sound you cannot have yet. Turn back. 7:30 Follow the cable, the winch, the bell rings on the winch, the bridge, the home mix (still no river). Dusk. 8:00 Evening Show, sixty seconds: Mrs. Hane calls, you cue the river jar, the needle swings, the camera turns to the valley, the river fades back in across the whole mix, three windows light. 9:30 Morning: Mrs. Hane brings a can of oil and quotes something you said; Pim builds Spool II from the wire the stationmaster left: "Bell's on the Second Shelf. You said you wanted it." 10:00 The player looks at the bridge. Whether they walk to it unprompted is the toy's question.
+
+## The loop toy
+
+CONTENTS. Rooms 2: the existing walkable tea house with the pond bridge and a cleft behind the rocks, plus one grey-box Hollow shelf about 60 by 60 m with fog, six perches, two blocked routes. Sounds 5 kodama: frog, river, drip, a laugh that flees light, the bell (sits beyond Spool I). Items: 3 jars, 1 lantern at 150 s, 1 cable that reaches four of the six perches, a clap. Characters 2 speaking with memory flags (Pim and Mrs. Hane; Pim reuses the Remember toy's dialogue code) plus Ooma as a fail-state event (a sound, a black screen, a pick-one-jar choice). Upgrades 1: Spool II, built after the first broadcast, reaches the bell. Systems: a home ambient mix with one sinkable layer (the river); the Evening Show as the Help toy's clock with three calls in sixty seconds; a window counter that goes 0 to 3 to 6. CLAUDE BUILD: seven working days. Day 1 lantern oil, cable tether and reach, fog, mouth and return. Day 2 kodama with AudioStreamPlayer3D, record-by-holding, clap pulse and scare. Day 3 oil-out, Ooma, the keep-one choice, respawn. Day 4 Evening Show from the Help toy. Day 5 Pim and Mrs. Hane from the Remember toy, the river layer sinking and restoring. Day 6 Spool II, the bell, gratitude materials. Day 7 tuning and the 20-minute script. THE 20-MINUTE QUESTION: after the river comes back over the valley, does the player go down again without being asked, and do they spend the lantern chasing the bell?
+
+## Hypothesis line
+
+I believe going down by ear to record a sunk sound, coming back up, and playing it on air until the valley hears it again, with grey boxes, holds a confidant 20 minutes because every trip ends in a bet on the lantern and every return is heard, not counted; dead if not by 2026-11-07.
+
+## Shared with Dave, and yours
+
+Shared structure, on purpose: home and out with a deliberate threshold; a trip ended by three dials each on its own upgrade track; a fail-state that is a bet with one kept item; two sinks so nothing is wasted; a non-money progression that decides what the home becomes; one hole that holds everything so content is rows, not systems; every system arriving as a named person's want; a manual, time-limited home minigame at the opposite pace to the out; side activities scheduled at story moments. Ours: gathering copies and never takes, so the out is never depleted and nothing dies; the out contains no loot at all, every material comes from people as gratitude, so there is no till and no shop; the home's calm is a literal audio mix that breaks and is restored, so the Goal is heard rather than scored; the out is navigated by ear in the dark with a lantern that is both your sight and your clock; the tether is also a phone line to a character; the rescuer is a character; the villagers come up the path to you by name, which is exactly the thing Hwang regretted leaving out; the second progression is being listened to, not reputation stars; and the three toys the designer already built are the three systems (Far Sound is the Hollow, Help is the Evening Show, Remember is Pim).
+
+## Three ways it fails
+
+- Hearing does not read: on laptop speakers or without headphones the player cannot tell left from right or near from far, and 'find it by ear in the dark' becomes wandering in fog. Mitigation in the toy: a faint visible ripple on the fog from every sounding kodama, and testing on speakers as well as headphones; if the ripple is doing all the work, the concept is sight-based and must be redesigned before the slice.
+- The restoration lands flat: 'the river is back' is one ambient layer and the player does not notice, so the accomplishment the whole game is built around is a mix change. Mitigation: never restore a sound without one visible change (the river surface animates, windows light) and one named reaction the next morning; the 20-minute play must show the confidant reacting at the desk, not at the jar.
+- Audio content cost eats the solo designer: every kodama needs a real sound and a behaviour, and the Evening Show is a second game to balance. Mitigation: a kodama is a data row (one CC0 audio file plus four numbers) so Claude can add ten a day, the Evening Show has exactly one rule (right jar, right line, before the hang-up), and no new shelf is built until the toy shows the player going down a third time.
+
+## The judges
+
+**Designer, 6/10.** The only concept that is genuinely not a reskin: the home's calm is a literal audio mix that loses layers and gets them back, the out copies and never takes, the valley's lit windows are the score, 'see or listen, pick one' is a real mechanic, and the Evening Show is the most faithful sushi bar in the batch (one rule, opposite pace, hands-on). The river dropping out mid-sentence, Mr. Kinoshita's night train and Ooma the blind salamander are alive. But it is an audio-first game pitched at a visual designer who loves hauling stuff up: its own first risk ('hearing does not read' without headphones) is fundamental, 'no loot at all' cuts directly against 'items matter and you feel like you get new stuff', and the three toys mapped one-to-one onto three systems is tidy rather than wondrous.
+
+*Best idea in it:* The home as a mix that breaks and is restored, so accomplishment is heard (the river fades back in across the whole valley and windows light in a row) rather than counted.
+
+*The one change:* Make sound visible by design, not as a fallback: every sounding kodama bends the fog, lights the drip, sways the bamboo, so the game reads on a screenshot and on laptop speakers, and give jars a physical collectible presence (an Archive wall you walk past) so 'items matter' survives copying.
+
+**Producer, 5.5/10.** The purest reading of the designer's Goal (calm is an ambient mix, a layer sinks, you put it back and the home audibly gets richer forever) and the strongest home half: the Evening Show is a three-minute manual burst at the opposite pace, the Night Programme is a taste-driven spare sink, and lit windows are a progression you count from the engawa. It fails the designer's own brief on purpose: recording copies, nothing is taken, there is no haul and no scrap, so 'items matter and the progress is legendary' is stripped out. Two production risks go unflagged: a physical cable that runs out behind you, snags on pillars and swings across clefts is rope simulation, a known Godot 3D sink, and the content long tail is audio (laughs, voices, lullabies, sounds no one alive has heard), the one asset type Claude cannot generate; the flagged core risk that hearing does not read on speakers sits on top of that.
+
+*Best idea in it:* The home's calm as a literal audio mix with sinkable layers, so the break is heard before anyone says anything and the restoration lands in the ears rather than on a counter.
+
+*The one change:* Replace the physical cable with an abstract tether (a radius from the mouth, read as Pim's voice thinning), and commit the kodama content to a fixed CC0 library plus Godot-synthesised sounds before promising voices and laughs; otherwise the long tail depends on an asset pipeline the team does not have.
