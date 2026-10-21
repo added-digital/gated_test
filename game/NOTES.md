@@ -2,6 +2,17 @@
 
 Read this first, every session. Rung, question, evidence, kill date.
 
+## Now
+
+Who is on what (see `SESSIONS.md`). One owner per task; the other session pulls.
+
+- 2026-10-21 · Gated - cloud · the *gated* page, version 1.
+- 2026-10-21 · Gated - local · first run of the three toys on the GPU, the chimes in sequence, observations below, then confidants.
+
+## Hand-offs
+
+- 2026-10-21 · Gated - cloud -> Gated - local · done: three toys built and fix-passed (`2d8342d`) · next: play, listen, confidant sessions · run: `git pull`, then each `game/godot/prototypes/*/*.tscn` with Cmd+R
+
 ## Decisions
 
 - 2026-10-21 · Engine: Godot stays (4.6). Re-decided only through a written kill line.
