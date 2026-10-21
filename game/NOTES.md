@@ -2,6 +2,11 @@
 
 Read this first, every session. Rung, question, evidence, kill date.
 
+## Decisions
+
+- 2026-10-21 · Engine: Godot stays (4.6). Re-decided only through a written kill line.
+- 2026-10-21 · Walk: walkable after the scale pass. Rung 2 passed.
+
 ## Goal (rung 1)
 
 **2026-10-20 — The player feels accomplished.**
@@ -18,6 +23,7 @@ continue.
 
 | Date | Rung | Question | Evidence this week | Kill date still true? |
 | --- | --- | --- | --- | --- |
+| 2026-10-21 | 2 Walk | Does the pipeline hold up in Godot, and is Godot the engine? | GATE PASSED. Human re-walk after the scale pass: "walkable" and "Godot stays for now" (designer's words). Pipeline holds in Godot 4.6.1. Open feel items carried into breaks.md: pond tiling, canopy contrast, prop scale, world edge, roundness of pond and garden. | n/a |
 | 2026-10-20 | 1 Goal | What should the player feel? | The sentence above, read aloud | n/a |
 | 2026-10-20 | 2 Walk | Does the pipeline hold up in Godot, and is Godot the engine? | setup started by the AI | 2 evenings (6 h) from the first evening |
 | 2026-10-21 | 2 Walk | Does the pipeline hold up in Godot, and is Godot the engine? | Human walk done on Godot 4.6.1 / Apple M5 Pro: the project ran; pipeline holds. Findings in breaks.md (scale is the foundation break; bridge/pond as predicted; the world is static). Engine decision not yet written. | yes: evening 2 used; one re-walk after the scale pass |
