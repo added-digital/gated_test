@@ -43,6 +43,7 @@ GARDEN_Y0, GARDEN_Y1 = -7, -1
 POND_I, POND_J = range(-2, 1), range(-5, -2)   # pond cells x -2..1, rows y -5..-2 (centres -4.5, -3.5, -2.5)
 PATH_I = 2                           # the stone path column, x 2..3, from the fence to the engawa
 BRIDGE_AT = (-0.5, -4.5)             # the 3 m bridge, centred on the pond's south row; ends at x -2 and x 1
+TABLE_H = 0.33                       # prop_table_low's real-size height; built at TABLE_H * PROP_SCALE
 
 library: dict[str, bpy.types.Object] = {}
 missing: set[str] = set()
@@ -123,7 +124,9 @@ def layout():
     # 0.8 m clear all round). The walk line x = 2.5 from the bay to the tatami at
     # (2.5, 1.0) stays bare: no south cushion; the four sit west, east and two north.
     place("prop_table_low", BAY_X, RIDGE_Y)
-    place("prop_tea_set", BAY_X, RIDGE_Y, 0.33)
+    # The tea set stands on the table top: the chabudai is 0.33 m at real size and
+    # props build at PROP_SCALE (breaks.md 2026-10-21), so the top is at 0.396.
+    place("prop_tea_set", BAY_X, RIDGE_Y, round(TABLE_H * C.PROP_SCALE, 3))
     for (x, y, r) in [(1.5, 2.0, 1), (3.5, 2.0, 3), (1.9, 2.9, 2), (3.1, 2.9, 2)]:
         place("prop_cushion", x, y, 0, r)
     place("prop_ikebana", 0.35, 3.65)          # north-west corner

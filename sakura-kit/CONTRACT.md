@@ -14,13 +14,13 @@ and moss, so a single sakura tree reads as the event in the scene.
 | Rule | Value |
 | --- | --- |
 | Units | 1 Blender unit = 1 m. glTF export is Y-up (engine default). |
-| Floor tile | exactly 1 × 1 m; walking surface at z = 0, slab hangs ≤ 0.1 m below (`FLOOR_T`; the pond tile ≤ 0.3 m, `FLOOR_T_MAX`: its water surface lies 0.20 m below the rim, 2026-10-21), surface detail (ridges, borders) may rise ≤ 0.02 m above |
+| Floor tile | exactly 1 × 1 m; walking surface at z = 0, slab hangs ≤ 0.1 m below (`FLOOR_T`), surface detail (ridges, borders) may rise ≤ 0.02 m above. The one exception is a non-walkable floor (the pond): a sunken surface at `WATER_Z` = −0.20 across the full tile with no rim, its slab to −0.30 (`FLOOR_T_MAX`), 2026-10-21 |
 | Wall / door segment | exactly 1 m wide (X), 2.5 m tall, ≤ 0.3 m thick, centred on Y = 0 |
 | Shoji opening | 2 m tall; the top 0.5 m is lintel |
 | Pillar | ≤ 0.25 × 0.25 m, exactly 2.5 m tall |
 | Roof segment | exactly 1 m wide (X), ≤ 2.5 m deep, ≤ 1.5 m tall (the eave is 2.2 m deep with a 1.1 m rise, 2026-10-21: from the ridge at y = 2.0 of the 5 × 4 room one eave reaches 0.2 m past the wall); origin on the ridge edge (mesh from y = 0 to y = depth, sloping down toward +Y); placed at z = 2.5 on the ridge line by the assembler, two rows of 5 at rot 0 and rot 2 making a gable |
 | Wall thickness vs post | `WALL_T_MAX = PILLAR_POST − 0.01` (0.14 m): a wall never pokes past the 0.15 m post it meets; built walls are 0.12 m |
-| Props, garden pieces | fit inside one 1 × 1 m tile unless the piece declares a larger footprint; a garden piece may declare up to 3 × 2 m (the bridge is 3.0 × 1.2 m, 2026-10-21) |
+| Props, garden pieces | fit inside one 1 × 1 m tile unless the piece declares a larger footprint; a garden piece may declare up to 3 × 2 m (the bridge is 3.0 × 1.2 m, 2026-10-21). Props are modelled at real size and built at `PROP_SCALE` = 1.2 (the validator's prop envelope is 1.2 × 1.2 × 3.0 m to match; see "Props", 2026-10-21) |
 | Trees | ≤ 3 × 3 m footprint, ≤ 5 m tall |
 | Fine grid | 0.25 m for detailing; pieces snap at 1 m, rotate in 90° steps |
 
@@ -35,7 +35,18 @@ The body the kit is scaled for, from the first human walk (2026-10-21, `breaks.m
 | Body | capsule radius 0.30 m, height 1.80 m; walks at 3.5 m/s; no jump, no step-up, so a ledge it steps onto is under 0.09 m (a 0.30 capsule meets anything taller at more than 45°, a wall) |
 | Tea room | 5 × 4 tiles (x 0..5, y 0..4); the table at the centre with ≥ 0.8 m clear on every side; engawa 5 tiles along the south edge; the open shoji bay in the middle of the south wall (x 2.5), closed shoji on the rest of it, plain walls elsewhere, pillars at the four corners; two rows of 5 eaves on the ridge line y = 2.0 |
 | Bridge | `garden_bridge_3m`: 3.0 m along X, 1.2 m wide, deck arc 0.40 m (deck 0.07 m above the ground at the tips, 0.47 m at the crest), rails 1.0 m above the deck, footprint (3.0, 1.2); it spans the whole 3-cell pond (cells x −2..1, rows y −5..−3; bridge centred at (−0.5, −4.5)) |
-| Pond | `floor_water`: water surface 0.20 m below the rim, slab to −0.30 m, `walkable: false`; no pond blocker on a water cell under a bridge footprint (`assemble.py` writes `footprint: [w, d]` into each placement that has one; mapcheck treats such a cell as walkable) |
+| Pond | `floor_water`: no rim at all. The tile is a sunken sheet of water at `WATER_Z` = −0.20 spanning the full 1 × 1 m, its slab to −0.30 m with stone_dark sides and underside, so adjacent water tiles meet with no ridge and no visible seam; the bank is simply the neighbouring tile's slab side (2026-10-21: with a rim on every edge "pond tiles read as separate ponds"). `walkable: false`; no pond blocker on a water cell under a bridge footprint (`assemble.py` writes `footprint: [w, d]` into each placement that has one; mapcheck treats such a cell as walkable) |
+
+## Props
+
+Props are modelled at real size and built at 1.2× (`PROP_SCALE`, 2026-10-21),
+because scaled-up architecture makes real-size props read small: the re-walk
+found the props in the house "a little too small, especially the flower pot".
+`Piece.finish()` scales the geometry of category `prop` about the origin, so
+the origin stays at the base; the validator's prop envelope is 1.2 × 1.2 × 3.0 m
+to match. A prop's docstring states its real size (the ikebana is briefed at
+0.50 m tall, so it stands 0.60 m built). Anything stacked on a prop is placed at
+the built height: the tea set sits on the table at 0.33 × 1.2 = 0.396 m.
 
 ## Origin
 
@@ -72,7 +83,7 @@ Vermilion is for a single shrine-type accent in a scene, not for furniture.
 - Quads and tris only, no n-gons; no loose vertices; no unapplied modifiers; transforms identity.
 - Detail is geometry, never texture: lattice bars, bamboo nodes, gravel ridges are modelled.
 - Thin things have thickness (paper 0.01 m, lattice bars 0.02 m) so they do not vanish edge-on.
-- Round things use 6 to 10 segments; canopies are subdivision-1 icospheres, scaled unevenly.
+- Round things use 6 to 10 segments; canopies are subdivision-1 icospheres, scaled unevenly. No two canopy blobs that show a seam against each other share a palette pink (sakura_light / sakura / sakura_deep, and sakura_bud where a cloud needs a fourth); the tree scripts assert it on the visible seams (2026-10-21: "no contrast between blobs of the same pink").
 - Nothing floats: every part of a prop touches the ground or another part.
 
 ## Naming

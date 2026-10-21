@@ -1,4 +1,4 @@
-"""Hero cherry tree in full bloom, 3.5 m tall with a 2.8 m canopy: a tapering eight-sided bark trunk 1.4 m tall forking into four angled branches that carry nine unevenly squashed icosphere blossom clouds, sunlit pale pink on top and deeper pink underneath."""
+"""Hero cherry tree in full bloom, 3.5 m tall with a 2.8 m canopy: a tapering eight-sided bark trunk 1.4 m tall forking into four angled branches that carry nine unevenly squashed icosphere blossom clouds in four pinks, no two of which share a colour where they show a seam against each other: sakura_light on the sunlit crown and back lobe, sakura and sakura_deep alternating round the sides, sakura_bud on the buried core (the re-walk: "no contrast between blobs of the same pink", breaks.md 2026-10-21)."""
 import math
 
 import bmesh
@@ -23,17 +23,71 @@ BRANCHES = [
 
 # Canopy: icospheres, each scaled unevenly so no two read the same; the lot overlaps
 # into one connected cloud that the branches run up into.  (centre, radius, (sx, sy, sz), colour)
+# Colours: no two blobs that show a seam against each other share a pink (asserted
+# by check_contrast below). The buried core takes the fourth pink, sakura_bud: it
+# shows a seam with every lobe, and the lobes need three pinks among themselves.
 CANOPY = [
-    ((0.00, 0.00, 2.65), 0.90, (1.00, 0.95, 0.85), "sakura"),         # core
+    ((0.00, 0.00, 2.65), 0.90, (1.00, 0.95, 0.85), "sakura_bud"),     # core: 20% of its surface shows, at the heart of the cloud
     ((0.10, -0.10, 2.95), 0.65, (1.05, 1.00, 0.85), "sakura_light"),  # sunlit crown, top at 3.5
-    ((-0.45, 0.30, 3.05), 0.52, (1.00, 1.00, 0.80), "sakura_light"),  # second sunlit lobe
-    ((-0.82, 0.10, 2.52), 0.72, (0.85, 1.00, 0.78), "sakura"),        # left lobe, out to x = -1.4
+    ((-0.45, 0.30, 3.05), 0.52, (1.00, 1.00, 0.80), "sakura"),        # second sunlit lobe
+    ((-0.82, 0.10, 2.52), 0.72, (0.85, 1.00, 0.78), "sakura_deep"),   # left lobe, out to x = -1.4
     ((0.79, -0.20, 2.57), 0.75, (0.85, 0.90, 0.80), "sakura"),        # right lobe, out to x = +1.4
-    ((0.20, -0.80, 2.42), 0.70, (1.00, 0.85, 0.75), "sakura"),        # front lobe, out to y = -1.4
-    ((-0.25, 0.80, 2.62), 0.70, (0.95, 0.85, 0.80), "sakura"),        # back lobe, out to y = +1.4
+    ((0.20, -0.80, 2.42), 0.70, (1.00, 0.85, 0.75), "sakura_deep"),   # front lobe, out to y = -1.4
+    ((-0.25, 0.80, 2.62), 0.70, (0.95, 0.85, 0.80), "sakura_light"),  # back lobe, out to y = +1.4
     ((0.60, 0.50, 2.20), 0.55, (1.05, 1.00, 0.80), "sakura_deep"),    # shaded underside, front-right
-    ((-0.55, -0.45, 2.25), 0.58, (1.00, 0.95, 0.80), "sakura_deep"),  # shaded underside, back-left
+    ((-0.55, -0.45, 2.25), 0.58, (1.00, 0.95, 0.80), "sakura"),       # shaded underside, back-left
 ]
+BLOSSOM_PINKS = ("sakura_light", "sakura", "sakura_deep", "sakura_bud")
+
+# Contrast test. Two blobs "touch" where the surface of one crosses the surface
+# of the other outside every third blob: a seam the eye can see. (The plain
+# bounding-sphere overlap graph of this cloud needs five pinks, the core and the
+# crown overlapping every lobe and three lobes overlapping each other, and the
+# palette has four; the visible seams need four.) Sampled on the ellipsoids:
+# SEAM_SAMPLES fixed directions per blob, SEAM_TOL on the normalised radius^2.
+SEAM_SAMPLES = 4000
+SEAM_TOL = 0.15
+
+
+def _directions(n):
+    """A fixed Fibonacci sphere: the same n directions every build."""
+    golden = math.pi * (3 - math.sqrt(5))
+    out = []
+    for i in range(n):
+        z = 1 - 2 * (i + 0.5) / n
+        r = math.sqrt(1 - z * z)
+        out.append((r * math.cos(golden * i), r * math.sin(golden * i), z))
+    return out
+
+
+def _depth(pt, blob):
+    """Normalised radius^2 of `pt` in `blob`'s ellipsoid: < 1 inside, 1 on the surface."""
+    (cx, cy, cz), r, (sx, sy, sz), _ = blob
+    return ((pt[0] - cx) / (r * sx)) ** 2 + ((pt[1] - cy) / (r * sy)) ** 2 + ((pt[2] - cz) / (r * sz)) ** 2
+
+
+def visible_seams(canopy):
+    """Pairs (i, j) of blobs whose surfaces cross outside every other blob."""
+    seams = set()
+    for i, (c, r, s, _) in enumerate(canopy):
+        others = [j for j in range(len(canopy)) if j != i]
+        for d in _directions(SEAM_SAMPLES):
+            pt = (c[0] + d[0] * r * s[0], c[1] + d[1] * r * s[1], c[2] + d[2] * r * s[2])
+            depths = {j: _depth(pt, canopy[j]) for j in others}
+            for j, dj in depths.items():
+                if abs(dj - 1) < SEAM_TOL and all(dk > 1 for k, dk in depths.items() if k != j):
+                    seams.add((min(i, j), max(i, j)))
+    return seams
+
+
+def check_contrast(canopy):
+    """Assert no two blobs with a visible seam share a palette pink; returns the seams."""
+    for _, _, _, colour in canopy:
+        assert colour in BLOSSOM_PINKS, f"{colour} is not a blossom pink"
+    seams = visible_seams(canopy)
+    same = [(i, j) for i, j in sorted(seams) if canopy[i][3] == canopy[j][3]]
+    assert not same, f"blobs sharing a pink across a visible seam: {same} ({[canopy[i][3] for i, _ in same]})"
+    return seams
 
 
 def _tris(p, faces, color):
@@ -55,6 +109,7 @@ def _branch(p, start, end, r0, r1):
 
 
 def build():
+    check_contrast(CANOPY)
     p = Piece("sakura_tree_sakura_a", "tree")
 
     # Trunk, then the branches that fork out of its upper third.

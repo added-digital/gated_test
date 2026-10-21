@@ -15,6 +15,10 @@ Rules in one screen:
   * No textures other than the palette, no vertex colours, no modifiers left
     unapplied, no n-gons.
   * Naming: sakura_<category>_<name>[_<variant>], lowercase, snake_case.
+  * Props are modelled at real size and built at PROP_SCALE (1.2): finish()
+    scales category "prop" geometry about the origin, so the base stays put.
+  * The pond tile is the one floor whose top is not at z = 0: a non-walkable
+    floor is a sunken surface at WATER_Z, the full tile wide, with no rim.
 """
 from __future__ import annotations
 
@@ -35,7 +39,9 @@ SUB_GRID = 0.25       # props may be modelled to this finer grid
 WALL_H = 2.5          # wall, door and pillar height
 DOOR_H = 2.0          # a shoji panel opening; the 0.5 m above is lintel
 FLOOR_T = 0.1         # floor tiles hang this far below z = 0
-FLOOR_T_MAX = 0.3     # the deepest a slab may hang: the pond tile (water 0.2 below the rim, 0.1 of stone under it)
+FLOOR_T_MAX = 0.3     # the deepest a slab may hang: the pond tile (water 0.2 below the walking plane, 0.1 of stone under it)
+WATER_Z = -0.20       # the pond tile's water surface: a non-walkable floor's top, the full 1 x 1 m with no rim,
+                      # so adjacent water tiles meet as one sheet (breaks.md 2026-10-21, the re-walk)
 TOL = 0.002           # dimensional tolerance when validating
 CONTRACT_VERSION = "0.2"
 
@@ -52,6 +58,15 @@ PLAYER_EYE = 1.60     # camera height above the feet, m
 PLAYER_FOV_H = 90     # degrees, HORIZONTAL (Godot: Camera3D keep_aspect KEEP_WIDTH, fov 90)
 PLAYER_SPEED = 3.5    # walking speed, m/s
 CLEARANCE = 0.8       # metres a layout keeps free around furniture: the body must pass
+
+# Props are modelled at real size and built at PROP_SCALE, because scaled-up
+# architecture (the 5 x 4 room under 2.5 m walls) makes real-size props read
+# small: the re-walk found them "a little too small, especially the flower pot"
+# (breaks.md 2026-10-21). Piece.finish() scales the geometry of category "prop"
+# about the origin, so the origin stays at the base; the validator's prop
+# envelope grows by the same factor (1.2 x 1.2 x 3.0 m). Anything stacked on a
+# prop (the tea set on the table) is placed at the built height, real x PROP_SCALE.
+PROP_SCALE = 1.2
 
 # One sun for previews, the assembled scene and the engine's directional light.
 SUN_ELEVATION = 40    # degrees above the horizon
@@ -71,7 +86,7 @@ CATEGORY_RULES = {
     "door":   dict(tris=300,  footprint="wall",  size=(GRID, WALL_T_MAX), z=(0.0, WALL_H)),
     "pillar": dict(tris=60,   footprint="max",   size=(0.25, 0.25),  z=(0.0, WALL_H)),
     "roof":   dict(tris=160,  footprint="roof",  size=(GRID, 2.5),   z=(0.0, 1.5)),
-    "prop":   dict(tris=450,  footprint="max",   size=(GRID, GRID),  z=(0.0, WALL_H)),
+    "prop":   dict(tris=450,  footprint="max",   size=(GRID * PROP_SCALE, GRID * PROP_SCALE), z=(0.0, WALL_H * PROP_SCALE)),  # 1.2 x 1.2 x 3.0
     "garden": dict(tris=600,  footprint="max",   size=(3.0, 2.0),    z=(0.0, 3.0)),
     "tree":   dict(tris=1400, footprint="max",   size=(3.0, 3.0),    z=(0.0, 5.0)),
     "fx":     dict(tris=12,   footprint="max",   size=(0.2, 0.2),    z=(0.0, 0.2)),
@@ -348,6 +363,11 @@ class Piece:
         material, normals recalculated, transforms identity. Validation of
         origin and size is the validator's job, not this function's."""
         bm = self.bm
+        if self.category == "prop" and PROP_SCALE != 1.0:
+            # Props are modelled at real size and built at PROP_SCALE, scaled
+            # about the origin so the base stays on z = 0 and the origin at the
+            # base centre (breaks.md 2026-10-21).
+            bmesh.ops.scale(bm, vec=(PROP_SCALE, PROP_SCALE, PROP_SCALE), verts=list(bm.verts))
         # No remove_doubles here: primitives are separate closed shells, and
         # merging coincident corners across shells fuses them and flips normals.
         bmesh.ops.recalc_face_normals(bm, faces=bm.faces)

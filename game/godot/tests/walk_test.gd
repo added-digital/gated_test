@@ -25,6 +25,18 @@ extends Node3D
 ##    arc (0.07 m at the tips, 0.47 m at the crest); the capsule climbs it
 ##    with no step-up logic, and the loader leaves no pond blocker on the
 ##    three water cells under the bridge's footprint.
+## 5. The world's edge (re-walk, kit breaks.md 2026-10-21): from the gravel
+##    tile at the garden's south-west corner (-2.5, -6.5) walk west for 120
+##    frames (2 s, 7 m): off the garden's west edge at x = -3, 0.5 m from
+##    the start, 0.30 m down onto the loader's invisible WorldFloor and on.
+##    The feet must never go below -0.5 m, must end standing within 0.3 m of
+##    ground level (at about -0.30 or above), and must have reached the
+##    WorldFloor (below the gravel slab's bottom, -0.10) so the check cannot
+##    pass without leaving the garden. West, not the diagonal: heading
+##    south-west the capsule slides along the fence on y = -7 to its end and
+##    wedges on the slab's corner edge against the last culm, where
+##    move_and_slide cancels every frame's motion (scratch run 2026-10-21:
+##    stuck at (-3.09, -6.69) from frame 17 on, feet -0.013, never leaving).
 
 const TEAHOUSE := preload("res://scenes/teahouse.tscn")
 const PLAYER := preload("res://scenes/player.tscn")
@@ -34,10 +46,17 @@ const ROUTE: Array[Vector2] = [Vector2(2.5, -1.5), Vector2(2.5, -0.5), Vector2(2
 const TABLE := Vector2(2.5, 2.0)      # the chabudai, 0.8 m square, at the room's centre
 const BRIDGE_START := Vector2(1.5, -4.5)
 const BRIDGE_END := Vector2(-2.5, -4.5)
+const EDGE_START := Vector2(-2.5, -6.5)   # the garden's south-west gravel tile
+const EDGE_DIR := Vector2(-1, 0)          # west, Blender: the nearest edge with no fence
+const WORLD_FLOOR := -0.30                # teahouse_loader.gd's WorldFloor top
+const SLAB_BOTTOM := -0.10                # the gravel slab's underside: below it the body has left the garden
+const EDGE_DROP_LIMIT := -0.5             # the feet must never go below this
+const GROUND_TOLERANCE := 0.3             # m: how far from ground level the walk may end
 const ARRIVE := 0.3        # m: the task's arrival tolerance
 const REACHED := 0.1       # m: close enough to steer for the next waypoint (the last one uses ARRIVE)
 const WALK_FRAMES := 900   # physics frames allowed for the walk
 const BRIDGE_FRAMES := 600 # physics frames allowed for the 4 m bridge crossing
+const EDGE_FRAMES := 120   # 2 s heading west off the garden: 7 m at 3.5 m/s
 const PUSH_FRAMES := 180   # 3 s of pushing against something that should hold
 
 var teahouse: Node3D
@@ -70,7 +89,7 @@ func _ready() -> void:
 	player = PLAYER.instantiate()
 	player.position = to_godot(Vector3(SPAWN.x, SPAWN.y, 0.0))
 	add_child(player)
-	print("teahouse: %d pieces; player spawned at %s, Godot %s, facing -z" % [teahouse.get_child_count(), where(), player.position])
+	print("teahouse: %d pieces; player spawned at %s, Godot %s, facing -z" % [teahouse.placed, where(), player.position])
 	await settle()
 	check(player.is_on_floor() and absf(player.position.y) < 0.05, "player stands on the stone path after settling, feet at y = %.3f" % player.position.y)
 
@@ -83,6 +102,8 @@ func _ready() -> void:
 	check(reach.x > 0.5, "pond holds: furthest x = %.2f, blocked before the pond cell centre x = 0.5 (cell edge x = 1.0)" % reach.x)
 
 	await cross_bridge()
+
+	await walk_off_edge()
 
 	print("RESULT: %d failure(s)" % failures)
 	get_tree().quit(0 if failures == 0 else 1)
@@ -165,6 +186,39 @@ func cross_bridge() -> void:
 	check(highest > 0.3, "the capsule climbed the deck's arc (highest feet %.2f m, the crest is 0.47 m)" % highest)
 	check(player.is_on_floor() and absf(player.position.y) < 0.05, "back on the gravel after the bridge, feet at y = %.3f" % player.position.y)
 	check(frames < BRIDGE_FRAMES, "crossing took %d physics frames, under %d" % [frames, BRIDGE_FRAMES])
+
+
+## Place the player on the south-west gravel tile, settle, then walk west for
+## EDGE_FRAMES frames: off the garden's west edge and onto the WorldFloor.
+## Tracks the lowest feet height on the way and when the body left the garden.
+func walk_off_edge() -> void:
+	player.position = to_godot(Vector3(EDGE_START.x, EDGE_START.y, 0.0))
+	await settle()
+	print("edge: from %s west off the garden's south-west corner (edge x = -3) for %d frames" % [where(), EDGE_FRAMES])
+	var dir := to_godot(Vector3(EDGE_DIR.x, EDGE_DIR.y, 0.0)).normalized()
+	var lowest := player.position.y
+	var left_garden_at := -1   # the frame the feet first went below the slab's bottom
+	var respawned_at := -1     # the frame the body was put back at the spawn point
+	var prev_y := player.position.y
+	for i in EDGE_FRAMES:
+		player.auto_move = dir
+		await get_tree().physics_frame
+		lowest = minf(lowest, player.position.y)
+		if left_garden_at < 0 and player.position.y < SLAB_BOTTOM:
+			left_garden_at = i + 1
+			print("  frame %3d: below the slab's bottom at %s" % [i + 1, where()])
+		if respawned_at < 0 and prev_y < -0.2 and player.position.y > -0.05 and player.position.distance_to(player.spawn_point) < 0.5:
+			respawned_at = i + 1
+			print("  frame %3d: back at the spawn point, %s" % [i + 1, where()])
+		prev_y = player.position.y
+		if (i + 1) % 30 == 0:
+			print("  frame %3d: %s on floor: %s %s" % [i + 1, where(), player.is_on_floor(), hits()])
+	player.auto_move = Vector3.ZERO
+	await settle()
+	print("edge walk ended after %d frames at %s; lowest feet %.3f m; %s; %s" % [EDGE_FRAMES, where(), lowest, "left the garden at frame %d" % left_garden_at if left_garden_at > 0 else "never left the garden", "respawned at frame %d" % respawned_at if respawned_at > 0 else "never respawned"])
+	check(lowest >= EDGE_DROP_LIMIT, "the world's edge holds: feet never dropped below %.1f m (lowest %.3f m)" % [EDGE_DROP_LIMIT, lowest])
+	check(lowest < SLAB_BOTTOM, "the body really left the garden (lowest feet %.3f m, below the slab's bottom %.2f)" % [lowest, SLAB_BOTTOM])
+	check(respawned_at > 0, "stepping off the garden returned the walker to the start (respawned at frame %d)" % respawned_at)
 
 
 ## Place the player at start, settle, then push in a Blender direction for

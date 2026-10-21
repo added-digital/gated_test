@@ -20,8 +20,8 @@ it, and read the frame rate.
    `project.godot` forces the palette to Lossless, no mipmaps, and the GLBs
    carry nearest filtering.
 3. Press F5 (Run Project). `scenes/main.tscn` is the main scene: the tea house,
-   the contract sun (elevation 40, azimuth 35, warm ambient) and the player at
-   the south end of the stone path, facing the house.
+   the contract sun (elevation 40, azimuth 35, warm ambient, SSAO on) and the
+   player at the south end of the stone path, facing the house.
 
 ## Controls
 
@@ -58,6 +58,19 @@ pond's south row and lands on the gravel west of it.
 - Scale: the doorway (2 m) should feel like a doorway at eye height 1.6 m.
   The camera is 90 degrees horizontal (`keep_aspect` KEEP_WIDTH), the capsule
   0.30 m: the scale pass's numbers (kit `breaks.md`, 2026-10-21).
+- The re-walk's fixes (kit `breaks.md`, 2026-10-21), to confirm by eye:
+  the sakura canopies should read as separate blobs, not one pink mass. The
+  kit now colours touching blobs differently and `main.tscn`'s environment
+  has SSAO on (radius 0.5, intensity 2.0; the ambient is unchanged). The
+  headless tests cannot render SSAO: only your GPU shows it, so note whether
+  the blobs separate. The pond tiles should read as one sunken pool with no
+  ridge between cells (the kit's change; the loader's blockers are as before).
+- The world's edge: walk off the garden anywhere and you are put back at the
+  start of the stone path the moment your feet drop below the deepest slab
+  (`FALL_LIMIT` -0.25 m in `player.gd`). An invisible floor (the loader's
+  `WorldFloor`, 60 x 60 m, top at y = -0.30) sits under everything as a
+  backstop. No ground piece was added (the designer's call); real boundaries
+  wait for a toy that needs them.
 
 ## The headless proof
 
@@ -70,7 +83,17 @@ arriving within 0.3 m; then two negative checks: pushing north into the
 closed shoji at (0.5, 0.0) must not cross the wall line, pushing west into
 the pond from the gravel (1.5, -3.5) must stop at the tile's edge; then the
 bridge: from the gravel (1.5, -4.5) west across the bridge to the gravel
-(-2.5, -4.5), arriving within 0.3 m with the feet back on the ground.
+(-2.5, -4.5), arriving within 0.3 m with the feet back on the ground; last,
+the world's edge: from the south-west gravel tile (-2.5, -6.5) walk west for
+120 frames, off the garden's west edge (x = -3) onto the invisible floor.
+The feet must never drop below -0.5 m, must end standing within 0.3 m of
+ground level (at about -0.30 or above), and must have reached that floor
+(below the slab's bottom, -0.10), so the check cannot pass without leaving
+the garden. (West, not the diagonal the re-walk asked for: heading
+south-west the capsule slides along the fence on y = -7 to its end and
+wedges on the slab's corner against the last culm, where `move_and_slide`
+cancels every frame's motion; a scratch run on 2026-10-21 sat at
+(-3.09, -6.69) from frame 17 to 120 without ever leaving.)
 
 ```
 tests/run.sh                                        # macOS/Linux, or Git Bash on Windows
@@ -79,19 +102,26 @@ GODOT=/path/to/Godot_v4.6.1-stable tests/run.sh     # another binary (4.3 also p
 
 `GODOT` defaults to the 4.6.1 Linux binary in the AI's scratchpad.
 
-Last verified run (clean cache, 2026-10-21, Godot 4.6.1.stable.official,
-after the scale pass): 141 pieces, walk in 128 of the 900 physics frames
-allowed, ends 0.08 m from (2.5, 1.0) with nothing touching the capsule
-(the table is 1.08 m away); closed shoji holds at y = -0.32; pond holds at
-x = 1.30; the bridge crossing takes 71 frames, ends 0.05 m from (-2.5, -4.5),
-feet up to 0.47 m on the crest and back on the gravel at 0.006 m.
-`tests/load_test.tscn` checks the build itself: 141 bodies on 141 non-fx
-placements, 6 pond blockers (9 water cells, 3 of them decked by the bridge's
-footprint), 10 convex and 131 trimesh shapes, rotation sign, palette
-128 x 64 lossless, nearest, no mipmaps, sun. Before the scale pass the same
-tests passed on the 3 x 2 room on 4.6.1 (110 pieces, 135 frames, 0.20 m)
-and on 4.3 on 2026-10-20 (155 frames, 0.24 m, y = -0.37, x = 1.35, with the
-old 0.35 m capsule at 3 m/s).
+Last verified run (2026-10-21, Godot 4.6.1.stable.official, after the
+re-walk's fixes, on the kit build with the rimless water tile and the 1.2x
+props): 141 pieces, walk in 128 of the 900 physics frames allowed, ends
+0.08 m from (2.5, 1.0) with nothing touching the capsule (the table is
+1.08 m away); closed shoji holds at y = -0.32; pond holds at x = 1.30; the
+bridge crossing takes 71 frames, ends 0.05 m from (-2.5, -4.5), feet up to
+0.47 m on the crest and back on the gravel at 0.007 m; the edge walk is
+below the slab's bottom at frame 17, standing on the invisible floor at
+frame 26, lowest feet -0.299 m, ends at (-9.50, -6.50) with the feet at
+-0.299 m. The same numbers came out before the kit's re-walk build (the
+scale pass's GLBs), 14 checks, exit 0. `tests/load_test.tscn` checks the
+build itself: 141 piece bodies on 141 non-fx placements plus the
+`WorldFloor` as the Teahouse's last child (a box, top at -0.30, reaching
+x and z -30..30, no mesh), 6 pond blockers (9 water cells, 3 of them decked
+by the bridge's footprint), 10 convex and 131 trimesh shapes, rotation sign,
+palette 128 x 64 lossless, nearest, no mipmaps, sun, SSAO on at radius 0.5
+and intensity 2.0 (21 checks, exit 0). Before the scale pass the same tests
+passed on the 3 x 2 room on 4.6.1 (110 pieces, 135 frames, 0.20 m) and on
+4.3 on 2026-10-20 (155 frames, 0.24 m, y = -0.37, x = 1.35, with the old
+0.35 m capsule at 3 m/s).
 
 ## Files
 
@@ -99,10 +129,10 @@ old 0.35 m capsule at 3 m/s).
 | --- | --- |
 | `project.godot` | config 5, Godot 4.6, Forward+, default physics, WASD input map, palette import defaults |
 | `kit/glb/*.glb`, `kit/scenes/teahouse.json` | byte-identical copies from `/home/user/sakura-kit/build/glb` and `scenes/` |
-| `scripts/teahouse_loader.gd` | reads the JSON at `_ready`, places each piece at `(x, z, -y)`, `rotation_degrees.y = rot * 90`, trimesh/convex collision by category, box blocker on `walkable: false` floors except cells under a bridge's `footprint` (a garden piece named `*bridge*`; the footprint turns with `rot`) |
-| `scripts/player.gd` | the walker: capsule 0.30 x 1.80 and the camera at 1.60 with a 90-degree horizontal field of view (both in `player.tscn`), 3.5 m/s, mouse look, gravity. `auto_move` is how tests drive it; about 45 lines, read it top to bottom |
-| `scenes/main.tscn` | tea house + sun + ambient + player |
-| `tests/walk_test.gd` | the scripted walk, the two negative checks and the bridge crossing; `tests/load_test.gd` checks the build, the bridge-footprint blocker rule, rotation sign, palette and sun |
+| `scripts/teahouse_loader.gd` | reads the JSON at `_ready`, places each piece at `(x, z, -y)`, `rotation_degrees.y = rot * 90`, trimesh/convex collision by category, box blocker on `walkable: false` floors except cells under a bridge's `footprint` (a garden piece named `*bridge*`; the footprint turns with `rot`); last, the invisible `WorldFloor` (StaticBody3D, 60 x 1 x 60 m box, top at y = -0.30) so nothing falls off the world |
+| `scripts/player.gd` | the walker: capsule 0.30 x 1.80 and the camera at 1.60 with a 90-degree horizontal field of view (both in `player.tscn`), 3.5 m/s, mouse look, gravity; back to the spawn point if the feet drop below -5 m. `auto_move` is how tests drive it; about 55 lines, read it top to bottom |
+| `scenes/main.tscn` | tea house + sun + ambient (SSAO on, radius 0.5, intensity 2.0) + player |
+| `tests/walk_test.gd` | the scripted walk, the two negative checks, the bridge crossing and the walk off the world's edge; `tests/load_test.gd` checks the build, the bridge-footprint blocker rule, the `WorldFloor`, rotation sign, palette, sun and SSAO |
 
 ## Snags: where to log them
 
@@ -121,6 +151,12 @@ Known already, waiting for your call (not fixed, by the rules of this rung):
   walked end to end in the headless test; the pond water is 0.20 m below
   the rim. The eaves still stop 0.2 m past the wall, so the engawa is not
   under the roof (the decided numbers; a deeper eave is a later call).
+- The fence's end at the garden's south-west corner is a pocket: pushing
+  south-west there, the capsule balances on the slab's corner edge against
+  the last culm and `move_and_slide` cancels its motion every frame (feet at
+  -0.013, contact normals (-0.53, 0, -0.85) and (-0.35, 0, -0.94)). Turn and
+  walk any other way to leave it. A kit/physics snag for `breaks.md`, not
+  fixed here.
 - Godot 4.3 does not expose the GLBs' glTF extras as node metadata; the loader
   takes category and walkable from the JSON instead. The kit's scaffold
   `godot/import_scene.gd` reads `get_meta("extras")` and would get nothing.

@@ -117,7 +117,13 @@ def validate(obj, strict_tris: bool = True) -> dict:
     else:
         check("origin_centred_xy", abs(cx) < tol and abs(cy) < tol, f"bbox centre x={cx:.4f} y={cy:.4f}")
     if category == "floor":
-        check("floor_top_at_zero", -tol <= z1 <= zmax + tol, f"top z={z1:.4f} (walking surface at 0, detail may rise to {zmax})")
+        if bool(obj.get("sakura_walkable", True)):
+            check("floor_top_at_zero", -tol <= z1 <= zmax + tol, f"top z={z1:.4f} (walking surface at 0, detail may rise to {zmax})")
+        else:
+            # A non-walkable floor is a sunken surface: the pond's water lies at
+            # WATER_Z across the whole tile, no rim, so water tiles meet as one
+            # sheet (breaks.md 2026-10-21). Same check name: it is the floor's top.
+            check("floor_top_at_zero", abs(z1 - C.WATER_Z) < tol, f"top z={z1:.4f} (a non-walkable floor is a sunken surface at {C.WATER_Z})")
         check("floor_thickness", z0 >= zmin - tol, f"bottom z={z0:.4f} (min {zmin})")
         check("footprint_exact", abs(w - size_x) < tol and abs(d - size_y) < tol, f"{w:.3f} x {d:.3f}, must be {size_x} x {size_y}")
     else:

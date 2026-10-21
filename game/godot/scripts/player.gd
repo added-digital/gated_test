@@ -6,11 +6,16 @@ extends CharacterBody3D
 ## WASD walks, gravity pulls. No jump, no step-up logic.
 ##
 ## The node's origin is at the feet, like the kit's pieces, so spawning the
-## player at a floor tile's position stands it on that tile.
+## player at a floor tile's position stands it on that tile. That first
+## position is the spawn point: if the feet ever drop below FALL_LIMIT (the
+## world has an invisible floor at -0.30, so only a hole in it gets you
+## there) the body is put back at the spawn point, still (re-walk, kit
+## breaks.md 2026-10-21).
 
 const SPEED := 3.5                   # walking speed, m/s
 const LOOK := 0.002                  # radians per mouse pixel
 const PITCH_LIMIT := deg_to_rad(80)  # how far the head tilts up or down
+const FALL_LIMIT := -0.25            # m: below the deepest slab, so stepping off the garden's edge returns you to the start
 
 ## Tests drive the body with this instead of the keyboard: a direction in the
 ## world's xz plane, set every physics frame. Zero means "read the keys".
@@ -18,11 +23,15 @@ var auto_move := Vector3.ZERO
 
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
+## Where the body stood when it entered the tree: the respawn point.
+var spawn_point := Vector3.ZERO
+
 @onready var head: Node3D = $Head    # carries the camera at 1.60 m
 
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	spawn_point = global_position
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -36,6 +45,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if global_position.y < FALL_LIMIT:
+		global_position = spawn_point   # fell out of the world: back to the start
+		velocity = Vector3.ZERO
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	var dir := auto_move

@@ -5,7 +5,9 @@ extends Node3D
 ## sign matches Blender, the palette is nearest + no mipmaps, and main.tscn's
 ## sun points where the contract says. Prints PASS/FAIL per check and quits
 ## with 0 only if all pass. The counts come from the JSON itself (141
-## placements after the scale pass, kit breaks.md 2026-10-21).
+## placements after the scale pass, kit breaks.md 2026-10-21). The loader's
+## last child is the WorldFloor (the re-walk, 2026-10-21): one more
+## StaticBody3D, with a box and no mesh, not a piece.
 
 const TEAHOUSE := preload("res://scenes/teahouse.tscn")
 const MAIN := preload("res://scenes/main.tscn")
@@ -48,13 +50,14 @@ func _ready() -> void:
 
 	print("teahouse built in %d ms; JSON placements=%d, loader placed=%d, skipped=%s" % [build_ms, placements.size(), teahouse.placed, teahouse.skipped])
 	check(placements.size() == 141, "JSON has 141 placements (got %d)" % placements.size())
-	check(teahouse.placed == 141 and teahouse.get_child_count() == 141, "141 pieces instanced as children (placed=%d, children=%d)" % [teahouse.placed, teahouse.get_child_count()])
+	check(teahouse.placed == 141 and teahouse.get_child_count() == 142, "141 pieces instanced as children, then the WorldFloor (placed=%d, children=%d)" % [teahouse.placed, teahouse.get_child_count()])
+	_check_world_floor(teahouse)
 	check(teahouse.skipped.is_empty(), "no placement skipped for a missing GLB")
 	print("bridge footprints: %s; water cells=%d, decked by a bridge=%s" % [teahouse.bridges, expect_water, decked])
 	check(teahouse.bridges.size() == 1 and decked.size() == 3, "one bridge decks 3 of the %d water cells (got %d bridge(s), %d decked)" % [expect_water, teahouse.bridges.size(), decked.size()])
 
 	var meshes := teahouse.find_children("*", "MeshInstance3D", true, false)
-	var bodies := teahouse.find_children("*", "StaticBody3D", true, false)
+	var bodies := teahouse.find_children("*", "StaticBody3D", true, false).filter(func(b): return b.name != "WorldFloor")
 	var shapes := teahouse.find_children("*", "CollisionShape3D", true, false)
 	var blockers := teahouse.find_children("Blocker", "CollisionShape3D", true, false)
 	var trimesh := 0
@@ -64,8 +67,8 @@ func _ready() -> void:
 			trimesh += 1
 		elif s.shape is ConvexPolygonShape3D:
 			convex += 1
-	print("mesh instances=%d, static bodies=%d, collision shapes=%d (trimesh=%d, convex=%d, box blockers=%d)" % [meshes.size(), bodies.size(), shapes.size(), trimesh, convex, blockers.size()])
-	check(bodies.size() == expect_bodies, "StaticBody3D count %d == non-fx placements %d" % [bodies.size(), expect_bodies])
+	print("mesh instances=%d, piece static bodies=%d, collision shapes=%d (trimesh=%d, convex=%d, box blockers=%d, plus the WorldFloor's box)" % [meshes.size(), bodies.size(), shapes.size(), trimesh, convex, blockers.size()])
+	check(bodies.size() == expect_bodies, "piece StaticBody3D count %d == non-fx placements %d (the WorldFloor not counted)" % [bodies.size(), expect_bodies])
 	check(blockers.size() == expect_blockers, "pond blockers %d == walkable:false floors not under the bridge %d (%d water cells, 3 decked)" % [blockers.size(), expect_blockers, expect_water])
 	check(convex == expect_convex and trimesh == expect_trimesh, "%d convex (prop+tree) and %d trimesh shapes (got %d, %d)" % [expect_convex, expect_trimesh, convex, trimesh])
 
@@ -75,6 +78,26 @@ func _ready() -> void:
 
 	print("RESULT: %d failure(s)" % failures)
 	get_tree().quit(0 if failures == 0 else 1)
+
+
+## The WorldFloor: the Teahouse's last child, a StaticBody3D with one box whose
+## top is at -0.30 (the deepest slab's bottom) spanning at least -20..20 in x
+## and z, and no mesh (the ground is not a piece).
+func _check_world_floor(teahouse: Node3D) -> void:
+	var body := teahouse.get_child(teahouse.get_child_count() - 1)
+	var ok := body is StaticBody3D and body.name == "WorldFloor"
+	var top := NAN
+	var half := Vector2.ZERO
+	if ok and body.get_child_count() == 1 and body.get_child(0) is CollisionShape3D and body.get_child(0).shape is BoxShape3D:
+		var cs: CollisionShape3D = body.get_child(0)
+		var box: BoxShape3D = cs.shape
+		top = cs.global_position.y + box.size.y / 2.0
+		half = Vector2(box.size.x, box.size.z) / 2.0 - Vector2(absf(cs.global_position.x), absf(cs.global_position.z))
+	else:
+		ok = false
+	print("WorldFloor: %s, box top at y = %.2f, reaches x and z +-(%.0f, %.0f), meshes under it: %d" % [body.name, top, half.x, half.y, body.find_children("*", "MeshInstance3D", true, false).size()])
+	check(ok and is_equal_approx(top, -0.30) and half.x >= 20.0 and half.y >= 20.0, "WorldFloor is a StaticBody3D box with its top at -0.30 spanning at least x, z -20..20")
+	check(ok and body.find_children("*", "MeshInstance3D", true, false).is_empty(), "WorldFloor is invisible (no mesh)")
 
 
 ## Blender rot 1 is +90 deg about +Z (counter-clockwise seen from above). For a
@@ -150,8 +173,9 @@ func _check_sun() -> void:
 	var elevation := rad_to_deg(asin(-dir.y))
 	print("sun direction %s, elevation %.1f deg; expected %s (elevation 40, azimuth 35)" % [dir, elevation, expected])
 	check(dir.distance_to(expected) < 0.002, "sun matches the contract sun")
-	check(main.get_node("Teahouse").get_child_count() == 141, "main.tscn's Teahouse also built 141 pieces")
+	check(main.get_node("Teahouse").placed == 141 and main.get_node("Teahouse").get_child_count() == 142, "main.tscn's Teahouse also built 141 pieces plus the WorldFloor")
 	var env: Environment = main.get_node("WorldEnvironment").environment
-	print("ambient source=%d (2 = colour) colour=%s energy=%.2f; sun energy=%.2f shadows=%s" % [env.ambient_light_source, env.ambient_light_color, env.ambient_light_energy, sun.light_energy, sun.shadow_enabled])
+	print("ambient source=%d (2 = colour) colour=%s energy=%.2f; sun energy=%.2f shadows=%s; ssao enabled=%s radius=%.2f intensity=%.2f" % [env.ambient_light_source, env.ambient_light_color, env.ambient_light_energy, sun.light_energy, sun.shadow_enabled, env.ssao_enabled, env.ssao_radius, env.ssao_intensity])
 	check(env.ambient_light_source == Environment.AMBIENT_SOURCE_COLOR and env.ambient_light_energy > 0.0, "warm ambient light is on (contract AMBIENT colour)")
+	check(env.ssao_enabled and is_equal_approx(env.ssao_radius, 0.5) and is_equal_approx(env.ssao_intensity, 2.0), "SSAO is on, radius 0.5, intensity 2.0 (canopy contrast, re-walk 2026-10-21)")
 	main.queue_free()

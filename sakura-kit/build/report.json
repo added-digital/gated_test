@@ -807,12 +807,12 @@
   "name": "sakura_floor_water",
   "category": "floor",
   "ok": true,
-  "tris": 36,
+  "tris": 12,
   "budget": 64,
   "size": [
    1.0,
    1.0,
-   0.3
+   0.1
   ],
   "checks": [
    {
@@ -836,13 +836,13 @@
    {
     "check": "tri_budget",
     "ok": true,
-    "detail": "36 tris, budget 64",
+    "detail": "12 tris, budget 64",
     "level": "error"
    },
    {
     "check": "has_geometry",
     "ok": true,
-    "detail": "18 faces",
+    "detail": "6 faces",
     "level": "error"
    },
    {
@@ -884,7 +884,7 @@
    {
     "check": "floor_top_at_zero",
     "ok": true,
-    "detail": "top z=0.0000 (walking surface at 0, detail may rise to 0.02)",
+    "detail": "top z=-0.2000 (a non-walkable floor is a sunken surface at -0.2)",
     "level": "error"
    },
    {
@@ -2352,9 +2352,9 @@
   "tris": 84,
   "budget": 450,
   "size": [
-   0.55,
-   0.55,
-   0.082
+   0.66,
+   0.66,
+   0.098
   ],
   "checks": [
    {
@@ -2432,19 +2432,19 @@
    {
     "check": "height_within",
     "ok": true,
-    "detail": "height 0.082, max 2.5",
+    "detail": "height 0.098, max 3.0",
     "level": "error"
    },
    {
     "check": "footprint_max",
     "ok": true,
-    "detail": "0.550 x 0.550, max 1.0 x 1.0",
+    "detail": "0.660 x 0.660, max 1.2 x 1.2",
     "level": "error"
    },
    {
     "check": "not_degenerate",
     "ok": true,
-    "detail": "largest dimension 0.550",
+    "detail": "largest dimension 0.660",
     "level": "error"
    },
    {
@@ -2480,9 +2480,9 @@
   "tris": 440,
   "budget": 450,
   "size": [
-   0.278,
-   0.274,
-   0.33
+   0.472,
+   0.465,
+   0.604
   ],
   "checks": [
    {
@@ -2560,19 +2560,19 @@
    {
     "check": "height_within",
     "ok": true,
-    "detail": "height 0.330, max 2.5",
+    "detail": "height 0.604, max 3.0",
     "level": "error"
    },
    {
     "check": "footprint_max",
     "ok": true,
-    "detail": "0.278 x 0.274, max 1.0 x 1.0",
+    "detail": "0.472 x 0.465, max 1.2 x 1.2",
     "level": "error"
    },
    {
     "check": "not_degenerate",
     "ok": true,
-    "detail": "largest dimension 0.330",
+    "detail": "largest dimension 0.604",
     "level": "error"
    },
    {
@@ -2608,9 +2608,9 @@
   "tris": 320,
   "budget": 450,
   "size": [
-   0.323,
-   0.34,
-   0.7
+   0.388,
+   0.408,
+   0.84
   ],
   "checks": [
    {
@@ -2688,19 +2688,19 @@
    {
     "check": "height_within",
     "ok": true,
-    "detail": "height 0.700, max 2.5",
+    "detail": "height 0.840, max 3.0",
     "level": "error"
    },
    {
     "check": "footprint_max",
     "ok": true,
-    "detail": "0.323 x 0.340, max 1.0 x 1.0",
+    "detail": "0.388 x 0.408, max 1.2 x 1.2",
     "level": "error"
    },
    {
     "check": "not_degenerate",
     "ok": true,
-    "detail": "largest dimension 0.700",
+    "detail": "largest dimension 0.840",
     "level": "error"
    },
    {
@@ -2736,9 +2736,9 @@
   "tris": 132,
   "budget": 450,
   "size": [
-   0.761,
-   0.8,
-   0.33
+   0.913,
+   0.96,
+   0.396
   ],
   "checks": [
    {
@@ -2816,19 +2816,19 @@
    {
     "check": "height_within",
     "ok": true,
-    "detail": "height 0.330, max 2.5",
+    "detail": "height 0.396, max 3.0",
     "level": "error"
    },
    {
     "check": "footprint_max",
     "ok": true,
-    "detail": "0.761 x 0.800, max 1.0 x 1.0",
+    "detail": "0.913 x 0.960, max 1.2 x 1.2",
     "level": "error"
    },
    {
     "check": "not_degenerate",
     "ok": true,
-    "detail": "largest dimension 0.800",
+    "detail": "largest dimension 0.960",
     "level": "error"
    },
    {
@@ -2864,9 +2864,9 @@
   "tris": 324,
   "budget": 450,
   "size": [
-   0.4,
-   0.28,
-   0.108
+   0.48,
+   0.336,
+   0.13
   ],
   "checks": [
    {
@@ -2944,19 +2944,19 @@
    {
     "check": "height_within",
     "ok": true,
-    "detail": "height 0.108, max 2.5",
+    "detail": "height 0.130, max 3.0",
     "level": "error"
    },
    {
     "check": "footprint_max",
     "ok": true,
-    "detail": "0.400 x 0.280, max 1.0 x 1.0",
+    "detail": "0.480 x 0.336, max 1.2 x 1.2",
     "level": "error"
    },
    {
     "check": "not_degenerate",
     "ok": true,
-    "detail": "largest dimension 0.400",
+    "detail": "largest dimension 0.480",
     "level": "error"
    },
    {

@@ -1,13 +1,16 @@
 Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
 
-teahouse built in 31 ms; JSON placements=141, loader placed=141, skipped=[]
+teahouse built in 32 ms; JSON placements=141, loader placed=141, skipped=[]
 PASS  JSON has 141 placements (got 141)
-PASS  141 pieces instanced as children (placed=141, children=141)
+PASS  141 pieces instanced as children, then the WorldFloor (placed=141, children=142)
+WorldFloor: WorldFloor, box top at y = -0.30, reaches x and z +-(30, 30), meshes under it: 0
+PASS  WorldFloor is a StaticBody3D box with its top at -0.30 spanning at least x, z -20..20
+PASS  WorldFloor is invisible (no mesh)
 PASS  no placement skipped for a missing GLB
 bridge footprints: [[P: (-2.0, -5.1), S: (3.0, 1.2)]]; water cells=9, decked by a bridge=[(-1.5, -4.5), (-0.5, -4.5), (0.5, -4.5)]
 PASS  one bridge decks 3 of the 9 water cells (got 1 bridge(s), 3 decked)
-mesh instances=141, static bodies=141, collision shapes=147 (trimesh=131, convex=10, box blockers=6)
-PASS  StaticBody3D count 141 == non-fx placements 141
+mesh instances=141, piece static bodies=141, collision shapes=148 (trimesh=131, convex=10, box blockers=6, plus the WorldFloor's box)
+PASS  piece StaticBody3D count 141 == non-fx placements 141 (the WorldFloor not counted)
 PASS  pond blockers 6 == walkable:false floors not under the bridge 6 (9 water cells, 3 decked)
 PASS  10 convex (prop+tree) and 131 trimesh shapes (got 10, 131)
 stone path rot 0 at (2.5, 0.0, 5.5), rot 1 at (2.5, 0.0, 6.5): max vertex error vs counter-clockwise 0.0000 m, vs clockwise 1.4142 m
@@ -22,7 +25,8 @@ PASS  palette sampled nearest
 PASS  palette uncompressed (format 4)
 sun direction (-0.439385, -0.642788, -0.627507), elevation 40.0 deg; expected (-0.4394, -0.6428, -0.6275) (elevation 40, azimuth 35)
 PASS  sun matches the contract sun
-PASS  main.tscn's Teahouse also built 141 pieces
-ambient source=2 (2 = colour) colour=(0.93, 0.92, 0.9, 1.0) energy=0.90; sun energy=1.50 shadows=true
+PASS  main.tscn's Teahouse also built 141 pieces plus the WorldFloor
+ambient source=2 (2 = colour) colour=(0.93, 0.92, 0.9, 1.0) energy=0.90; sun energy=1.50 shadows=true; ssao enabled=true radius=0.50 intensity=2.00
 PASS  warm ambient light is on (contract AMBIENT colour)
+PASS  SSAO is on, radius 0.5, intensity 2.0 (canopy contrast, re-walk 2026-10-21)
 RESULT: 0 failure(s)

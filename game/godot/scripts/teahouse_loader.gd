@@ -14,9 +14,21 @@ extends Node3D
 ## bridge: a garden piece whose name contains "bridge" and whose placement
 ## carries the optional "footprint": [w, d] (metres along Blender x and y at
 ## rot 0; an odd rot swaps them). There the bridge's own trimesh is the floor.
+##
+## Last, an invisible floor under everything (the WorldFloor, see below) so
+## the walker cannot fall off the world's edge: the garden keeps its hard
+## edge and no ground piece is added (the re-walk, kit breaks.md 2026-10-21).
 
 const TRIMESH := ["floor", "wall", "door", "pillar", "roof", "garden"]
 const CONVEX := ["prop", "tree"]
+
+## The WorldFloor: a StaticBody3D with one box, no mesh, its top at
+## WORLD_FLOOR_Y = -0.30 (the bottom of the deepest slab, the water tile; the
+## other slabs stop at -0.10) and WORLD_FLOOR_SIZE m on a side centred on the
+## origin (x and z from -30 to 30; the garden spans -3..6 by -7.5..4.5).
+const WORLD_FLOOR_Y := -0.30
+const WORLD_FLOOR_SIZE := 60.0
+const WORLD_FLOOR_THICKNESS := 1.0
 
 @export var scene_json := "res://kit/scenes/teahouse.json"
 @export var glb_dir := "res://kit/glb/"
@@ -51,10 +63,27 @@ func _ready() -> void:
 		add_child(inst)
 		_add_collision(inst, p, shape_cache)
 		placed += 1
+	_add_world_floor()   # after the pieces: child i stays placement i for i < placed
 
 
 static func blender_to_godot(b: Vector3) -> Vector3:
 	return Vector3(b.x, b.z, -b.y)
+
+
+## The invisible floor the whole world stands on: a box WORLD_FLOOR_SIZE
+## square and WORLD_FLOOR_THICKNESS thick whose top face is at WORLD_FLOOR_Y.
+## Off the garden's edge the walker drops 0.30 m onto it and keeps walking;
+## nothing falls out of the world.
+func _add_world_floor() -> void:
+	var body := StaticBody3D.new()
+	body.name = "WorldFloor"
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(WORLD_FLOOR_SIZE, WORLD_FLOOR_THICKNESS, WORLD_FLOOR_SIZE)
+	shape.shape = box
+	shape.position = Vector3(0.0, WORLD_FLOOR_Y - WORLD_FLOOR_THICKNESS / 2.0, 0.0)
+	body.add_child(shape)
+	add_child(body)
 
 
 ## The Blender-xy rectangle each bridge covers: its placement's "footprint"
