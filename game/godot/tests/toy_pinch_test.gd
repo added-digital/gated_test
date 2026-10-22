@@ -1,15 +1,19 @@
 extends Node2D
 ## Scripted play of toy 4, PINCH (prototypes/pinch/pinch.tscn), headless,
-## day 1 of the build. The walker and the dreamer are driven through the
-## input actions (Input.action_press), E and the number keys through the
-## input system. The run: a clean start on day 1; walk to the bunk and sleep
-## (slept_1, the dream is up); hold PINCH, grab two ideas, force the block,
-## a hard fall crosses the limit (lucidity 2, 4, 5, 6 against the acts
-## table, the aperture matching effective / 8) and wakes suddenly; the
-## picker keeps the second idea (tally 1, day 2, one mark on the wall);
-## sleep again, grab one idea, lie in the bed and wake gently (day 3,
-## nothing lost); the dark mask covers the same 3 tiles each day. Prints
-## PASS/FAIL per check and quits with 0 only if every check passes.
+## day 1 of the build (the loop). The walker and the dreamer are driven
+## through the input actions (Input.action_press), E and the number keys
+## through the input system. The run: a clean start on day 1; walk to the
+## bunk and sleep (slept_1, the dream is up); hold PINCH, grab two ideas,
+## force the block, a hard fall crosses the limit (lucidity 2, 4, 5, 6
+## against the acts table, the aperture matching effective / 8) and wakes
+## suddenly; the picker keeps the second idea (tally 1, day 2, one mark on
+## the wall); sleep again, grab one idea, lie in the bed and wake gently
+## (day 3, nothing lost); the dark mask covers the same 3 tiles each day.
+## Since day 2 the dream deals rooms (tests/toy_pinch_dream_test.gd) and
+## the stub's two ideas, block and bed live in the bed room, dealt last;
+## each night this test jumps straight there (jump_to_room) and the day-1
+## checks run unchanged. Prints PASS/FAIL per check and quits with 0 only
+## if every check passes.
 
 const TOY := preload("res://prototypes/pinch/pinch.tscn")
 const WALK_FRAMES := 900   # 15 s at 60 Hz: the longest walk here is under 400 px
@@ -67,6 +71,7 @@ func _ready() -> void:
 	check(dream != null and dream.get_parent() == toy and dream.name == "Dream", "the dream is the active scene")
 	check(harness.summary().contains("slept_1"), "the harness recorded the milestone slept_1")
 	dream.woke.connect(func(sudden: bool, carried: Array) -> void: wakes.append([sudden, carried]))
+	check(dream.jump_to_room("bed") and dream.current_room_id() == "bed", "day 2: jumped to the bed room, dealt last, where the stub's ideas, block and bed live")
 
 	# (c) Lucidity, by the acts table.
 	check(dream.lucidity == 0 and dream.effective() == 0, "lucidity starts at 0, effective 0")
@@ -135,6 +140,7 @@ func _ready() -> void:
 	dream = toy.dream
 	check(dream != null and toy.village == null and harness.summary().contains("slept_2"), "asleep again: the dream is up and slept_2 recorded")
 	dream.woke.connect(func(sudden: bool, carried: Array) -> void: wakes.append([sudden, carried]))
+	check(dream.jump_to_room("bed") and dream.current_room_id() == "bed", "day 2: night 2 jumped to the bed room as well")
 	Input.action_press("pinch")
 	await settle()
 	frames = await walk_dreamer_until(dream, func() -> bool: return dream.idea_in_reach() != null)

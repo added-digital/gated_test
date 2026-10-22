@@ -1,0 +1,36 @@
+{
+  "label": "{name}. {hint}",
+  "words": {
+    "door": "door",
+    "exit": "exit",
+    "goat": "goat",
+    "current": "current",
+    "soft": "soft",
+    "spot": "a quiet spot",
+    "hazard": "cold water",
+    "bed": "your bed",
+    "block": "a block"
+  },
+  "rooms": [
+    {
+      "id": "tutorial",
+      "name": "The gap",
+      "hint": "Asleep, the current carries you. Pinch over the far floor to land. Standing pinched in the exit takes you on."
+    },
+    {
+      "id": "a",
+      "name": "The soft wall",
+      "hint": "Drift through the soft wall. Pinch on the far side, one jump up to the exit; stand pinched in it to go on."
+    },
+    {
+      "id": "b",
+      "name": "The goat",
+      "hint": "Wait for the goat and let it carry you over. Pinch above the far floor; stand pinched in the exit to go on."
+    },
+    {
+      "id": "bed",
+      "name": "Your bed",
+      "hint": "Pinch and E to take an idea or push the block. E at your bed wakes you gently with everything."
+    }
+  ]
+}

@@ -1,16 +1,7 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://prototypes/pinch/dream.gd" id="1_dream"]
 [ext_resource type="Script" path="res://prototypes/pinch/dreamer.gd" id="2_dreamer"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
-size = Vector2(1152, 48)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
-size = Vector2(16, 648)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_block"]
-size = Vector2(64, 64)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_dreamer"]
 size = Vector2(28, 56)
@@ -21,97 +12,12 @@ script = ExtResource("1_dream")
 [node name="Camera" type="Camera2D" parent="."]
 position = Vector2(576, 324)
 
-[node name="Room" type="Node2D" parent="." groups=["soft"]]
-
-[node name="Floor" type="StaticBody2D" parent="Room"]
-position = Vector2(576, 624)
-
-[node name="Shape" type="CollisionShape2D" parent="Room/Floor"]
-shape = SubResource("RectangleShape2D_floor")
-
-[node name="Box" type="ColorRect" parent="Room/Floor"]
-offset_left = -576.0
-offset_top = -24.0
-offset_right = 576.0
-offset_bottom = 24.0
-color = Color(0.28, 0.28, 0.34, 1)
-
-[node name="Ceiling" type="StaticBody2D" parent="Room"]
-position = Vector2(576, 8)
-
-[node name="Shape" type="CollisionShape2D" parent="Room/Ceiling"]
-shape = SubResource("RectangleShape2D_floor")
-
-[node name="Box" type="ColorRect" parent="Room/Ceiling"]
-offset_left = -576.0
-offset_top = -24.0
-offset_right = 576.0
-offset_bottom = 8.0
-color = Color(0.28, 0.28, 0.34, 1)
-
-[node name="WallLeft" type="StaticBody2D" parent="Room"]
-position = Vector2(8, 324)
-
-[node name="Shape" type="CollisionShape2D" parent="Room/WallLeft"]
-shape = SubResource("RectangleShape2D_wall")
-
-[node name="Box" type="ColorRect" parent="Room/WallLeft"]
-offset_left = -8.0
-offset_top = -324.0
-offset_right = 8.0
-offset_bottom = 324.0
-color = Color(0.28, 0.28, 0.34, 1)
-
-[node name="WallRight" type="StaticBody2D" parent="Room"]
-position = Vector2(1144, 324)
-
-[node name="Shape" type="CollisionShape2D" parent="Room/WallRight"]
-shape = SubResource("RectangleShape2D_wall")
-
-[node name="Box" type="ColorRect" parent="Room/WallRight"]
-offset_left = -8.0
-offset_top = -324.0
-offset_right = 8.0
-offset_bottom = 324.0
-color = Color(0.28, 0.28, 0.34, 1)
-
-[node name="Bed" type="ColorRect" parent="." groups=["soft"]]
-offset_left = 760.0
-offset_top = 568.0
-offset_right = 880.0
-offset_bottom = 600.0
-color = Color(0.4, 0.4, 0.52, 1)
-
-[node name="Name" type="Label" parent="Bed"]
-offset_top = -26.0
-offset_right = 120.0
-offset_bottom = -4.0
-horizontal_alignment = 1
-
-[node name="Block" type="StaticBody2D" parent="." groups=["soft"]]
-position = Vector2(1000, 568)
-
-[node name="Shape" type="CollisionShape2D" parent="Block"]
-shape = SubResource("RectangleShape2D_block")
-
-[node name="Box" type="ColorRect" parent="Block"]
-offset_left = -32.0
-offset_top = -32.0
-offset_right = 32.0
-offset_bottom = 32.0
-color = Color(0.5, 0.5, 0.56, 1)
-
-[node name="Name" type="Label" parent="Block"]
-offset_left = -60.0
-offset_top = -58.0
-offset_right = 60.0
-offset_bottom = -36.0
-horizontal_alignment = 1
-
-[node name="Ideas" type="Node2D" parent="."]
+[node name="Rooms" type="Node2D" parent="."]
 
 [node name="Dreamer" type="CharacterBody2D" parent="."]
-position = Vector2(300, 548)
+position = Vector2(120, 548)
+collision_layer = 16
+collision_mask = 9
 script = ExtResource("2_dreamer")
 
 [node name="Shape" type="CollisionShape2D" parent="Dreamer"]
@@ -126,6 +32,16 @@ color = Color(0.6, 0.6, 0.66, 1)
 
 [node name="Hat" type="Node2D" parent="Dreamer"]
 position = Vector2(0, -28)
+
+[node name="Hud" type="CanvasLayer" parent="."]
+layer = 4
+
+[node name="RoomLabel" type="Label" parent="Hud"]
+offset_left = 16.0
+offset_top = 22.0
+offset_right = 1136.0
+offset_bottom = 46.0
+horizontal_alignment = 1
 
 [node name="Frame" type="CanvasLayer" parent="."]
 layer = 5

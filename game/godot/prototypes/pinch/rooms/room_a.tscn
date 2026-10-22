@@ -1,0 +1,78 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://prototypes/pinch/rooms/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://prototypes/pinch/rooms/box.gd" id="2_box"]
+[ext_resource type="Script" path="res://prototypes/pinch/rooms/zone.gd" id="3_zone"]
+
+[node name="Room" type="Node2D"]
+script = ExtResource("1_room")
+id = "a"
+
+[node name="Crisp" type="Node2D" parent="."]
+
+[node name="FloorNear" type="StaticBody2D" parent="Crisp"]
+position = Vector2(0, 600)
+script = ExtResource("2_box")
+size = Vector2(380, 48)
+
+[node name="FloorFar" type="StaticBody2D" parent="Crisp"]
+position = Vector2(580, 600)
+script = ExtResource("2_box")
+size = Vector2(572, 48)
+
+[node name="Ledge" type="StaticBody2D" parent="Crisp"]
+position = Vector2(760, 536)
+script = ExtResource("2_box")
+size = Vector2(392, 64)
+
+[node name="Soft" type="Node2D" parent="."]
+
+[node name="Wonders" type="Node2D" parent="."]
+
+[node name="Wall" type="Area2D" parent="Wonders"]
+position = Vector2(440, 120)
+script = ExtResource("3_zone")
+size = Vector2(80, 480)
+role = "wonder"
+id = "a_wall"
+kind = "soft_wall"
+word = "soft"
+
+[node name="Quiet" type="Area2D" parent="Wonders"]
+position = Vector2(780, 440)
+script = ExtResource("3_zone")
+size = Vector2(80, 96)
+role = "wonder"
+id = "a_spot"
+kind = "spot"
+word = "spot"
+
+[node name="Currents" type="Node2D" parent="."]
+
+[node name="Updraft" type="Area2D" parent="Currents"]
+position = Vector2(640, 440)
+script = ExtResource("3_zone")
+size = Vector2(80, 160)
+role = "current"
+velocity = Vector2(0, -80)
+word = "current"
+
+[node name="Door" type="Marker2D" parent="."]
+position = Vector2(100, 548)
+
+[node name="Exit" type="Area2D" parent="."]
+position = Vector2(1040, 456)
+script = ExtResource("3_zone")
+size = Vector2(100, 80)
+role = "exit"
+word = "exit"
+
+[node name="IdeaSpots" type="Node2D" parent="."]
+
+[node name="Spot1" type="Marker2D" parent="IdeaSpots"]
+position = Vector2(300, 580)
+
+[node name="Spot2" type="Marker2D" parent="IdeaSpots"]
+position = Vector2(960, 516)
+
+[node name="Ideas" type="Node2D" parent="."]

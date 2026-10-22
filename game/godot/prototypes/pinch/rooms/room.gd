@@ -1,0 +1,86 @@
+extends Node2D
+## One screen of the dream (toy 4, PINCH): 1152 x 648 of grey boxes. A room
+## scene declares its crisp and soft geometry (box.gd), its currents,
+## wonders, exit and hazards (zone.gd, goat.gd), its Door (a Marker2D: where
+## the dreamer appears) and its idea spawn spots (Marker2Ds under IdeaSpots,
+## unused until day 3). The bed room also holds Bed and Block. The bounds
+## (left, right, top, and the net below that only the asleep body touches)
+## are built here so no room forgets them. Every word drawn comes from
+## data/rooms.json, handed in as `words` by the dream before add_child.
+
+const SIZE := Vector2(1152, 648)
+const WALL := 16.0
+const LAYER_BOUNDS := 1
+const LAYER_NET := 8
+const BOUND_COLOR := Color(0.28, 0.28, 0.34)
+
+@export var id := ""
+
+var words: Dictionary = {}   # rooms.json "words"; set by the dream
+
+@onready var door: Marker2D = $Door
+@onready var exit: Area2D = get_node_or_null("Exit")
+@onready var ideas: Node2D = $Ideas
+
+
+func _ready() -> void:
+	_bound("Left", Rect2(0, 0, WALL, SIZE.y), LAYER_BOUNDS, true)
+	_bound("Right", Rect2(SIZE.x - WALL, 0, WALL, SIZE.y), LAYER_BOUNDS, true)
+	_bound("Top", Rect2(0, 0, SIZE.x, WALL), LAYER_BOUNDS, true)
+	_bound("Net", Rect2(0, SIZE.y, SIZE.x, WALL), LAYER_NET, false)
+	var door_label := Label.new()
+	door_label.text = word("door")
+	door_label.position = door.position + Vector2(-60, -70)
+	door_label.size = Vector2(120, 22)
+	door_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	add_child(door_label)
+	for node in find_children("*", "", true, false):
+		if "word" in node and node.word != "":
+			node.set_label(word(node.word))
+	var bed_name: Label = get_node_or_null("Bed/Name")
+	if bed_name != null:
+		bed_name.text = word("bed")
+
+
+## A word from rooms.json; the key itself when the file lacks it.
+func word(key: String) -> String:
+	return str(words.get(key, key))
+
+
+func bed() -> ColorRect:
+	return get_node_or_null("Bed") as ColorRect
+
+
+func block() -> StaticBody2D:
+	return get_node_or_null("Block") as StaticBody2D
+
+
+## Where ideas may lie in this room, in order.
+func idea_spots() -> Array[Vector2]:
+	var spots: Array[Vector2] = []
+	var holder: Node2D = get_node_or_null("IdeaSpots")
+	if holder != null:
+		for marker in holder.get_children():
+			if marker is Marker2D:
+				spots.append(marker.position)
+	return spots
+
+
+func _bound(bound_name: String, rect: Rect2, layer: int, drawn: bool) -> void:
+	var wall := StaticBody2D.new()
+	wall.name = bound_name
+	wall.position = rect.position + rect.size / 2.0
+	wall.collision_layer = layer
+	wall.collision_mask = 0
+	var shape := CollisionShape2D.new()
+	var box := RectangleShape2D.new()
+	box.size = rect.size
+	shape.shape = box
+	wall.add_child(shape)
+	if drawn:
+		var color := ColorRect.new()
+		color.position = -rect.size / 2.0
+		color.size = rect.size
+		color.color = BOUND_COLOR
+		wall.add_child(color)
+	add_child(wall)
