@@ -1,0 +1,29 @@
+{
+  "day_label": "Day {day}",
+  "sleep_prompt": "E to sleep",
+  "wake_sudden": "You woke. Keep one.",
+  "wake_sudden_one": "You woke. One idea stayed under your hat.",
+  "wake_sudden_none": "You woke with nothing under your hat.",
+  "wake_gentle": "You woke gently.",
+  "keep_one": "1 or 2 to keep it",
+  "tally_title": "Woke suddenly",
+  "tally_mark": "|",
+  "buildings": {
+    "long_house": "Long House",
+    "jorun_hut": "Jorun's hut",
+    "stove_shed": "stove shed"
+  },
+  "markers": {
+    "bunk": "bunk",
+    "table": "table"
+  },
+  "plots": {
+    "sixteen_stairs": "Sixteen Stairs",
+    "bos_loft": "Bo's loft",
+    "lantern_post": "lantern post"
+  },
+  "dream": {
+    "bed": "your bed",
+    "block": "a block"
+  }
+}
