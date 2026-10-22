@@ -7,6 +7,7 @@ Read this first, every session. Rung, question, evidence, kill date.
 Who is on what (see `SESSIONS.md`). One owner per task; the other session pulls.
 
 - 2026-10-21 · Gated - cloud · the *gated* page, version 1: done, published; republish on request.
+- 2026-10-22 · Gated - cloud · PINCH, the loop toy (rung 3, toy 4): building day 1 of 5 per `game/godot/prototypes/pinch/SPEC.md`.
 - 2026-10-21 · Gated - local · first run of the three toys on the GPU, the chimes in sequence, observations below, then confidants.
 
 ## Hand-offs
@@ -17,10 +18,14 @@ Who is on what (see `SESSIONS.md`). One owner per task; the other session pulls.
 
 - 2026-10-21 · Gated - cloud -> Gated - local · done: `toy_help_test.gd` waits on the toy's own clock in real seconds (`wait_until`, process delta, timeout seconds + 5) instead of a frame count; headless at `--fixed-fps 60` and `--fixed-fps 120` both 35 PASS, 0 FAIL, "request 2's clock ran out after 40.0 s" · next: re-run it windowed on the 120 Hz display without `--max-fps` · run: `godot --path . res://tests/toy_help_test.tscn`
 
+- 2026-10-22 · Gated - cloud -> Gated - local · done: concept chosen (PINCH, `game/concepts/pass-2/1-pinch.md`), the toy spec written (`game/godot/prototypes/pinch/SPEC.md`) · next: play each day's build in the evening and write three observations under Log; book one confidant for the week of 2026-11-03 · run: `git pull`, then `game/godot/prototypes/pinch/pinch.tscn` with F6 once day 1 lands
+
 ## Decisions
 
 - 2026-10-21 · Engine: Godot stays (4.6). Re-decided only through a written kill line.
 - 2026-10-21 · Walk: walkable after the scale pass. Rung 2 passed.
+- 2026-10-22 · Concept: PINCH (a village by day, the village's dream by night, the village grows from the ideas found there; lucidity is the night's constraint), chosen by the designer from two concept passes (`game/concepts/`). Setting is the designer's own north; the sakura kit is not used by this toy and stays on the shelf.
+- 2026-10-22 · Deviation, written down: toy 4 tests a loop at 20 minutes, not a verb at 5, because the reference research showed that for a Dave-type game the loop is the unit (one verb alone was "one-dimensional"). Toys 1 to 3 retire into it: Pim's memory becomes Jorun's and Tove's, Help's clock becomes breakfast, the far sound becomes the crisp idea across the room. Their kill dates lapse.
 
 ## Goal (rung 1)
 
@@ -43,6 +48,7 @@ Question: which single interaction is worth repeating? Proof: three grey-box toy
 | 1 Remember | I believe choosing replies to a character who remembers what you said holds a confidant 5 minutes because it makes your decisions feel important. | choose, with consequence | 2026-10-24 |
 | 2 Help | I believe helping someone in a rush holds a confidant 5 minutes because it makes you feel like something important is happening. | help, under urgency | 2026-10-28 |
 | 3 Far sound | I believe hearing something interesting far away but being blocked from getting there holds a confidant 5 minutes because it turns on brain activity to find a way there. | find the way | 2026-10-31 |
+| 4 PINCH, the loop toy | I believe pinch-to-grab under a closing frame, paid off by one building standing on the street per idea each morning, with grey boxes holds a confidant 20 minutes because the frame is a bar the body reads without being told and the lit window is a reward the eye reads without being told, so each half makes the other one matter. (Drafted by the AI; the designer's words replace it at the gate.) | pinch to grab | 2026-11-10 |
 
 Rules in force: grey boxes only; a kit piece only if a line names it as the verb's object; no goals, menus, polish, or a second verb in one toy; two sessions per toy; a confidant plays each one.
 
