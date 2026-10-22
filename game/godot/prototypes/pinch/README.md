@@ -45,6 +45,7 @@ procedure, and how to read the session log, is in
 | Q | set the top idea down as a step (pinched, on a floor) |
 | 1 2 3 | choose (the idea to keep after a sudden waking; a pill at the bunk) or cycle the idea in the hand at breakfast |
 | H | the sleep gauge on or off; the choice holds for the rest of the session |
+| Tab | the dev bar (the strip along the bottom: what you can do right now, and the room's hint for its first seconds) off or on; the choice holds for the session |
 | Esc | nothing here: the mouse is never taken (the choices can also be clicked) |
 | F8 or close the window | end the session (closing writes the log) |
 
@@ -178,8 +179,15 @@ you is the answer to the question; the gap before it is the thinking.
 ## Known
 
 - Grey boxes, every one. No art, no sound, no blur: soft things are drawn
-  dim and vanish while pinched; within two steps of the limit they dim
-  further.
+  pale with a dashed edge and vanish while pinched (within two steps of
+  the limit they dim further); a quiet spot is a slowly pulsing ring; a
+  current carries a row of small arrows drifting its way; cold water is
+  hatched; the goat has horns and wears its name beside it, not under
+  the rider.
+- The dev bar along the bottom lists only what can be done right now
+  (computed from the state, words in `data/devbar.json`); Tab hides it.
+  The room's one-line hint shows in its right half for four seconds after
+  a room is entered, then fades; the room's name stays at the top left.
 - A step set down floats where you put it, even past a ledge's end; that
   is how the climb and the draft are meant to be solved, and it looks like
   a bug.
@@ -207,7 +215,8 @@ you is the answer to the question; the gap before it is the thinking.
 | `dream.tscn` / `.gd` | the deck of rooms, the frame, lucidity, the gauge, the blink |
 | `dreamer.gd` | the body in the dream: asleep drift, pinched physics, the hat stack, the squash and the stretch |
 | `rooms/room_*.tscn` | the tutorial, rooms a to f, the ladder, the bed; `room.gd`, `box.gd`, `zone.gd`, `goat.gd` are their parts |
-| `data/rooms.json`, `ideas.json`, `characters.json`, `village.json` | every word the player reads |
+| `data/rooms.json`, `ideas.json`, `characters.json`, `village.json`, `devbar.json` | every word the player reads |
+| `devbar.gd`, `label_kit.gd` | the dev bar; the backed labels every scene draws its words with |
 | `../../tests/toy_pinch_*_test.gd` | the headless proofs; `pinch_driver.gd` is the scripted player the balance and four-night tests share |
 
 Headless, from the project folder (import first):
@@ -221,5 +230,6 @@ Four nights like a person who is learning: night 1 clumsy, night 2
 competent, the pills made the morning Tove asks and one taken on night 3,
 every breakfast sat through; it ends with `slept_4`, two buildings standing
 and the summary printed. `RESULT: 0 failure(s)` and exit 0; it leaves one
-`pinch_*` log in `toy_sessions/`. The other five pinch tests are run the
-same way (`toy_pinch_test`, `_dream_`, `_ideas_`, `_day_`, `_balance_`).
+`pinch_*` log in `toy_sessions/`. The other six pinch tests are run the
+same way (`toy_pinch_test`, `_dream_`, `_ideas_`, `_day_`, `_balance_`,
+`_readability_`).

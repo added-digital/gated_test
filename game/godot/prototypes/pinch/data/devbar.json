@@ -1,0 +1,25 @@
+{
+  "separator": " · ",
+  "toggle": "Tab hides this",
+  "dream": {
+    "asleep": "drift · hold Shift to pinch",
+    "current": "let it carry you",
+    "wonder": "stay: wonder",
+    "pinched": "A D walk · Space jump · release Shift to drift",
+    "falling": "release Shift to drift",
+    "grab": "E grab",
+    "set_down": "Q set down",
+    "push": "E push",
+    "exit": "walk in, pinched",
+    "bed": "E lie down, keep everything"
+  },
+  "street": {
+    "walk": "A D walk",
+    "talk": "E talk",
+    "sleep": "E sleep",
+    "pill": "1 take a pill",
+    "make": "hold E 3 s make",
+    "breakfast": "E offer {idea} · 1 2 3 change · walk away ends",
+    "breakfast_one": "E offer {idea} · walk away ends"
+  }
+}

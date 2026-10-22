@@ -68,7 +68,7 @@ func _ready() -> void:
 	check(night2.size() == 5 and night2[0] != "tutorial" and night2[4] == "bed" and not night2.has("tutorial"), "night 2 deals no tutorial: %s" % [night2])
 	check(dream.current_room_id() == "tutorial" and dream.room.id == "tutorial" and entered.is_empty(), "the tutorial is the room in play (dealt in _ready, before anyone could listen)")
 	var tutorial_words: Dictionary = dream.room_words("tutorial")
-	check(dream.room_label.text == str(rooms_json.label).format({"name": tutorial_words.name, "hint": tutorial_words.hint}) and dream.room_label.text.contains("exit"), "the room label reads '%s'" % dream.room_label.text)
+	check(dream.room_label.text == str(rooms_json.label).format({"name": tutorial_words.name}) and dream.room_label.text == str(tutorial_words.name) and dream.hint_text() == str(tutorial_words.hint) and dream.hint_text().contains("Pinch"), "the room label reads '%s'; its hint is in the dev bar: '%s'" % [dream.room_label.text, dream.hint_text()])
 	check(dreamer.collision_layer == 16 and dreamer.collision_mask == 9, "asleep the dreamer is on layer 16 and masks bounds and net (1 | 8 = %d)" % dreamer.collision_mask)
 	check(dream.frame_top.get_parent().name == "Frame" and dream.frame_top.get_parent().get_parent() == dream, "the frame belongs to the dream, not the room")
 
@@ -266,14 +266,16 @@ func _ready() -> void:
 
 
 ## The four frame rects leave a hole of the shown aperture * screen, centred
-## on the dreamer and clamped inside the screen (day 3; before, the screen's middle).
+## on the dreamer and clamped inside the screen (day 3; before, the screen's
+## middle), rounded to whole pixels, the side rects reaching FRAME_OVERLAP px
+## into the top and bottom ones (the readability pass: no seam).
 func check_frame() -> void:
 	var screen: Vector2 = get_viewport().get_visible_rect().size
-	var expected: Vector2 = screen * dream.shown_aperture()
-	var corner: Vector2 = (dream.dreamer_screen_position() - expected / 2.0).clamp(Vector2.ZERO, screen - expected)
+	var expected: Vector2 = (screen * dream.shown_aperture()).round()
+	var corner: Vector2 = (dream.dreamer_screen_position() - expected / 2.0).clamp(Vector2.ZERO, screen - expected).round()
 	var hole: Rect2 = dream.frame_open
 	var ok: bool = hole.size.is_equal_approx(expected) and hole.position.is_equal_approx(corner)
-	ok = ok and dream.frame_top.size.is_equal_approx(Vector2(screen.x, hole.position.y)) and dream.frame_left.size.is_equal_approx(Vector2(hole.position.x, hole.size.y))
+	ok = ok and dream.frame_top.size.is_equal_approx(Vector2(screen.x, hole.position.y)) and dream.frame_left.size.is_equal_approx(Vector2(hole.position.x, hole.size.y + 2.0 * dream.FRAME_OVERLAP))
 	check(ok, "the frame leaves %.0f x %.0f open at %s (shown %.3f, aperture %.3f)" % [hole.size.x, hole.size.y, hole.position, dream.shown_aperture(), dream.aperture()])
 
 

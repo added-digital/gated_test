@@ -44,6 +44,27 @@ extends Node2D
 ## slides from the hand to the face over SLIDE seconds before it goes.
 ## Every word on screen comes from data/village.json and
 ## data/characters.json, idea names from data/ideas.json; rewrite those.
+##
+## The readability pass. THE DEV BAR (devbar.gd, data/devbar.json): a
+## strip along the bottom on its own layer listing ONLY what can be done
+## now (devbar_text(): walk; talk by a character; sleep at the bunk, and a
+## pill when there are pills; make at the stove shed once Tove has asked;
+## at breakfast, offer the idea in the hand, change it, walk away); Tab
+## toggles it (toggle_devbar; state.devbar_visible, kept for the session).
+## LABELS (PinchLabel): every label sits on a dark backing sized to its
+## text; the markers' words sit inside their boxes (so the ideas on the
+## table never cover "table"); the "table" word hides during breakfast;
+## an idea's name on the table is PIECE_LABEL_WIDTH wide at one of
+## PIECE_LABEL_ROWS heights and hidden while breakfast is on (the hand's
+## shows); the lantern post's word is drawn once, by the plot. THE WANT
+## LINES at the table are stacked: the left face's lowest, the right
+## face's highest, WANT_STEP apart, each right-aligned to its own face
+## with a leader down to its head, so none share a line and no leader
+## crosses another's words; a face sitting at the table wears its name on
+## its body. A character's want line is their "moved" line (characters.
+## json) once their plot stands (want_text). A CLAIM is said as two lines:
+## the owner's short claims line for CLAIM_GAP seconds, then the idea's own
+## line (say_for's queue), never one run-on sentence.
 
 signal slept
 signal acted(kind: String, detail: String)
@@ -51,7 +72,9 @@ signal acted(kind: String, detail: String)
 const WORDS_FILE := "res://prototypes/pinch/data/village.json"
 const IDEAS_FILE := "res://prototypes/pinch/data/ideas.json"
 const CHARACTERS_FILE := "res://prototypes/pinch/data/characters.json"
+const DEVBAR_FILE := "res://prototypes/pinch/data/devbar.json"
 const PANEL := preload("res://prototypes/_shared/text_panel.tscn")
+const DEVBAR := preload("res://prototypes/pinch/devbar.gd")
 const LOST_FADE := 6.0           # s the lost stack takes to fade over the bunk
 const PIECE := Vector2(32, 24)   # px: one idea as a rect, on the table or over the bunk
 const STREET_WIDTH := 4608.0   # px: four screens of 1152
@@ -66,6 +89,7 @@ const BREAKFAST := 90.0        # s: three heads, one every HEAD_DROP
 const HEAD_DROP := 30.0        # s between heads dropping
 const MAKING := 3.0            # s E is held at the stove shed to make the pills
 const LINE_STAYS := 3.0        # s a line stays on screen
+const CLAIM_GAP := 1.5         # s the owner's claims line shows before the idea's own line follows it
 const REQUEST_STAYS := 6.0     # s a request line stays
 const WANT_STAYS := 4.0        # s the want line shows over a head after a talk
 const SEAT_GAP := 56.0         # px between the three seats at the table
@@ -78,6 +102,17 @@ const NOD_FRAMES := 10         # frames the nod takes, down and back
 const SLIDE := 0.4             # s the claimed idea's rect takes to slide from the hand to the face
 const SLIDE_ABOVE := 30.0      # px above the claiming face where the slide ends
 const CAPSULE := Vector2(26, 52)
+const WANT_WIDTH := 480.0        # px: a want line's box, one line at WANT_FONT
+const WANT_FONT := 14
+const WANT_ABOVE := 70.0         # px above the head's top where the lowest want line at the table sits
+const WANT_STEP := 22.0          # px between the three want lines at the table: the left face lowest, the right highest
+const WANT_END := 6.0            # px a want line's right end reaches past its face's middle at the table
+const LEADER_COLOR := Color(0.8, 0.8, 0.85, 0.8)
+const PIECE_LABEL_WIDTH := 240.0 # px: an idea's name over its rect (the table, the hand, the lost stack)
+const PIECE_LABEL_ROWS := 3      # neighbouring pieces' names at this many heights, so none share a line
+const PIECE_LABEL_STEP := 18.0
+const SMALL_LABEL_WIDTH := 160.0
+const PLOT_LABEL_WIDTH := 220.0
 const WINDOW := Vector2(18, 22)
 const WALL := Color(0.5, 0.5, 0.5)
 const MARKER := Color(0.72, 0.72, 0.72)
@@ -119,6 +154,10 @@ var ideas: Array = []         # ideas.json
 var characters: Array = []    # characters.json "characters", in order
 var want_line := "{name}: {want}"
 var tally_wall: Label = null  # the marks on the Long House wall, one per sudden waking
+var table_label: Label = null # the table's word, hidden while breakfast is on
+var devbar: CanvasLayer = null     # the dev bar: what can be done now
+var devbar_words: Dictionary = {}  # devbar.json
+var devbar_visible := true         # Tab toggles it; mirrored in state.devbar_visible
 var table_ideas: Node2D = null   # the kept ideas on the table, one labelled rect each
 var lost_stack: Node2D = null    # the ideas lost at waking, fading over the bunk; null when none
 var plots: Node2D = null         # the plots as they stand today: outline, scaffold or building
@@ -159,11 +198,14 @@ func _ready() -> void:
 	var people_json: Dictionary = loaded if loaded is Dictionary else {}
 	characters = people_json.get("characters", [])
 	want_line = str(people_json.get("want_line", want_line))
+	loaded = PinchState.load_json(DEVBAR_FILE)
+	devbar_words = loaded if loaded is Dictionary else {}
 	if panel == null:
 		panel = PANEL.instantiate()
 		add_child(panel)
 	_build_street()
 	_build_people()
+	_build_devbar()
 	prompt_label.visible = false
 	refresh()
 	if wake_line != "":
@@ -205,6 +247,7 @@ func _process(delta: float) -> void:
 		making = 0.0
 		walker.frozen = false
 	_update_prompt()
+	devbar.set_actions(devbar_text())
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -219,6 +262,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			var who := character_in_reach()
 			if who != "":
 				talk(who)
+	elif event.is_action_pressed("devbar_toggle"):
+		toggle_devbar()
 	elif breakfast_on:
 		for i in 3:
 			if event.is_action_pressed("choice_%d" % (i + 1)):
@@ -234,21 +279,32 @@ func _unhandled_input(event: InputEvent) -> void:
 ## each end.
 func refresh() -> void:
 	day_label.text = str(words.get("day_label", "{day}")).format({"day": state.day})
-	tally_wall.text = str(words.get("tally_mark", "|")).repeat(state.tally)
+	PinchLabel.set_text(tally_wall, str(words.get("tally_mark", "|")).repeat(state.tally))
 	for piece in table_ideas.get_children():
 		table_ideas.remove_child(piece)
 		piece.queue_free()
 	for i in state.ideas_kept.size():
 		_add_piece(table_ideas, state.ideas_kept[i], Vector2(TABLE.position.x + 8 + i * (PIECE.x + 6), TABLE.position.y - PIECE.y), i)
+	_show_table_words()
 	_draw_plots()
 	_draw_small_things()
 	_place_people()
+	for who in people:
+		PinchLabel.set_text(_want_label(people[who]), want_text(who))
 	_update_hand()
 	var lit := lit_extent()
 	mask_left.position = Vector2.ZERO
 	mask_left.size = Vector2(STREET_WIDTH / 2.0 - lit, STREET_HEIGHT)
 	mask_right.position = Vector2(STREET_WIDTH / 2.0 + lit, 0)
 	mask_right.size = Vector2(STREET_WIDTH / 2.0 - lit, STREET_HEIGHT)
+
+
+## The table's word and the names of the pieces on it show between meals and
+## hide while breakfast is on (the hand's name is the one that matters then).
+func _show_table_words() -> void:
+	table_label.visible = not breakfast_on
+	for piece in table_ideas.get_children():
+		piece.get_node("Name").visible = not breakfast_on
 
 
 func lit_tiles() -> int:
@@ -574,6 +630,17 @@ func line_for(who: String) -> Dictionary:
 	return {"id": "greeting", "text": str(c.get("greeting", ""))}
 
 
+## A character's want line as shown over their head: "{name}: {want}", or
+## their "moved" line in its place once their plot stands (the want is met).
+func want_text(who: String) -> String:
+	var c := character(who)
+	var plot := str(c.get("plot", ""))
+	var want := str(c.get("want", ""))
+	if plot != "" and state.ideas_built.has(plot) and c.has("moved"):
+		want = str(c.get("moved", ""))
+	return want_line.format({"name": str(c.get("name", who)), "want": want})
+
+
 ## E next to a character: the line, the want over the head, the memory.
 func talk(who: String) -> String:
 	var c := character(who)
@@ -629,11 +696,12 @@ func start_breakfast() -> void:
 	for i in characters.size():
 		var c: Dictionary = characters[i]
 		var who := str(c.get("id", ""))
-		var seat := _capsule(c, Vector2(TABLE.get_center().x + (i - (characters.size() - 1) / 2.0) * SEAT_GAP, GROUND_Y), true)
+		var seat := _capsule(c, Vector2(TABLE.get_center().x + (i - (characters.size() - 1) / 2.0) * SEAT_GAP, GROUND_Y), true, i)
 		seats_node.add_child(seat)
 		seats[who] = seat
 		seat_state[who] = "awake"
 		people[who].visible = false
+	_show_table_words()
 	_update_hand()
 	acted.emit("breakfast", "start")
 
@@ -756,7 +824,8 @@ func offer() -> bool:
 		else:
 			state.small_things.append(id)
 			acted.emit("small_thing", id)
-		say_for((str(c.get("claims", "")) + " " + str(idea.get("line", ""))).strip_edges(), LINE_STAYS, true)
+		say_for(str(c.get("claims", "")), CLAIM_GAP, true)   # the owner's short line first...
+		say_for(str(idea.get("line", "")), LINE_STAYS)       # ...then the idea's own line, CLAIM_GAP later
 		acted.emit("told", "%s:%s" % [id, who])
 		_claim_feel(who, id)
 		hand_index = clampi(hand_index, 0, maxi(0, state.ideas_kept.size() - 1))
@@ -810,6 +879,52 @@ func _update_prompt() -> void:
 	prompt_label.visible = text != ""
 
 
+# --- the dev bar -----------------------------------------------------------------
+
+## ONLY what can be done right now, in devbar.json's words: at breakfast,
+## offer the idea in the hand (and change it when there are several), or
+## walk away; else walk, and sleep at the bunk (a pill first when there
+## are pills), make at the stove shed once asked, or talk by a character.
+## Nothing once asleep.
+func devbar_text() -> String:
+	if _slept:
+		return ""
+	var w: Dictionary = devbar_words.get("street", {})
+	if breakfast_on:
+		var id := hand_idea()
+		if id == "":
+			return ""
+		var key := "breakfast" if state.ideas_kept.size() > 1 else "breakfast_one"
+		return str(w.get(key, "")).format({"idea": idea_name(id)})
+	var parts: Array[String] = [str(w.get("walk", ""))]
+	if bunk_in_range():
+		parts.append(str(w.get("sleep", "")))
+		if state.has_pills and not state.pill_tonight:
+			parts.append(str(w.get("pill", "")))
+	elif can_make():
+		parts.append(str(w.get("make", "")))
+	elif character_in_reach() != "":
+		parts.append(str(w.get("talk", "")))
+	return str(devbar_words.get("separator", " · ")).join(parts)
+
+
+func toggle_devbar() -> void:
+	devbar_visible = not devbar_visible
+	state.devbar_visible = devbar_visible
+	devbar.visible = devbar_visible
+	acted.emit("devbar", "on" if devbar_visible else "off")
+
+
+func _build_devbar() -> void:
+	devbar = DEVBAR.new()
+	devbar.name = "DevBar"
+	add_child(devbar)
+	devbar.set_toggle_word(str(devbar_words.get("toggle", "")))
+	devbar_visible = state.devbar_visible
+	devbar.visible = devbar_visible
+	devbar.set_actions(devbar_text())
+
+
 # --- drawing -------------------------------------------------------------------
 
 func _build_street() -> void:
@@ -822,11 +937,11 @@ func _build_street() -> void:
 		_add_box(rect, WALL)
 		_add_label(str(buildings.get(entry[1], entry[1])), Vector2(rect.position.x, rect.position.y - 26), rect.size.x)
 	_add_box(TABLE, MARKER)
-	_add_label(str(markers.get("table", "")), Vector2(TABLE.position.x, TABLE.position.y - 22), TABLE.size.x)
+	table_label = _add_label(str(markers.get("table", "")), _inside(TABLE), TABLE.size.x)
 	_add_box(STOVE, MARKER)
-	_add_label(str(markers.get("stove", "")), Vector2(STOVE.position.x - 30, STOVE.position.y - 22), STOVE.size.x + 60)
+	_add_label(str(markers.get("stove", "")), _inside(STOVE) - Vector2(30, 0), STOVE.size.x + 60)
 	_add_box(BUNK, MARKER)
-	_add_label(str(markers.get("bunk", "")), Vector2(BUNK.position.x, BUNK.position.y - 22), BUNK.size.x)
+	_add_label(str(markers.get("bunk", "")), _inside(BUNK), BUNK.size.x)
 	_add_label(str(words.get("tally_title", "")), Vector2(TABLE.position.x, TABLE.position.y - 150), 200.0, HORIZONTAL_ALIGNMENT_LEFT)
 	tally_wall = _add_label("", Vector2(TABLE.position.x, TABLE.position.y - 126), 300.0, HORIZONTAL_ALIGNMENT_LEFT)
 	plots = _holder("Plots")
@@ -846,6 +961,11 @@ func _holder(holder_name: String) -> Node2D:
 	holder.name = holder_name
 	street.add_child(holder)
 	return holder
+
+
+## Where a marker's word sits: inside its box, one line tall, vertically centred.
+func _inside(rect: Rect2) -> Vector2:
+	return Vector2(rect.position.x, rect.position.y + (rect.size.y - PinchLabel.LINE) / 2.0)
 
 
 func _build_people() -> void:
@@ -884,12 +1004,13 @@ func _draw_plots() -> void:
 		var local := Rect2(Vector2.ZERO, rect.size)
 		var what := plot_state(id)
 		node.set_meta("state", what)
+		var label_at := Vector2((rect.size.x - PLOT_LABEL_WIDTH) / 2.0, -26)
 		if what == "built":
 			_rect_under(node, local, WALL)
 			var window := _rect_under(node, Rect2(Vector2(rect.size.x / 2.0 - WINDOW.x / 2.0, rect.size.y * 0.3), WINDOW), WINDOW_LIT)
 			window.name = "Window"
 			window.modulate.a = window_alpha(id)
-			_label_under(node, idea_name(str(state.ideas_built[id])), Vector2(-60, -26), rect.size.x + 120).name = "Name"
+			_label_under(node, idea_name(str(state.ideas_built[id])), label_at, PLOT_LABEL_WIDTH).name = "Name"
 		elif what == "scaffold":
 			_outline_under(node, local, OUTLINE)
 			var bars: Array[ColorRect] = []
@@ -901,22 +1022,22 @@ func _draw_plots() -> void:
 			for i in bars.size():
 				bars[i].set_meta("bar", i)   # shown one by one, CROSSBAR_EVERY apart, from the claim (_draw_feel)
 				bars[i].visible = not _claimed_at.has(id)
-			_label_under(node, str(markers.get("scaffold", "")), Vector2(-60, -26), rect.size.x + 120).name = "Name"
+			_label_under(node, str(markers.get("scaffold", "")), label_at, PLOT_LABEL_WIDTH).name = "Name"
 		elif id == "lantern_post" and _small_thing_for("lantern_post") != "":
 			_rect_under(node, Rect2(rect.size.x / 2.0 - 4, 40, 8, rect.size.y - 40), SMALL)
 			_rect_under(node, Rect2(rect.size.x / 2.0 - 12, 16, 24, 28), WINDOW_LIT)
 			node.set_meta("state", "small_thing")
-			_label_under(node, str(words.get("small_things", {}).get("lantern_post", "")), Vector2(-60, -26), rect.size.x + 120).name = "Name"
+			_label_under(node, str(words.get("small_things", {}).get("lantern_post", "")), label_at, PLOT_LABEL_WIDTH).name = "Name"
 		else:
 			_outline_under(node, local, OUTLINE)
-			_label_under(node, str(plot_names.get(id, id)), Vector2(-60, -26), rect.size.x + 120).name = "Name"
+			_label_under(node, str(plot_names.get(id, id)), label_at, PLOT_LABEL_WIDTH).name = "Name"
 		plots.add_child(node)
 		plot_nodes[id] = node
 
 
 ## The small things on the street: a bench or a sign in the gaps between
 ## the buildings, labelled from village.json by what the idea becomes; the
-## lantern is drawn on its post by _draw_plots.
+## lantern is drawn and labelled on its post by _draw_plots (once).
 func _draw_small_things() -> void:
 	for thing in small_things.get_children():
 		small_things.remove_child(thing)
@@ -941,8 +1062,8 @@ func _draw_small_things() -> void:
 				_rect_under(node, Rect2(-20, -14, 40, 6), SMALL)
 				_rect_under(node, Rect2(-16, -8, 4, 8), SMALL)
 				_rect_under(node, Rect2(12, -8, 4, 8), SMALL)
-		var label := str(names.get(becomes, names.get("default", "{name}"))).replace("{name}", str(idea_entry(id).get("name", id)))
-		_label_under(node, label, Vector2(-60, -88), 120).name = "Name"
+			var label := str(names.get(becomes, names.get("default", "{name}"))).replace("{name}", str(idea_entry(id).get("name", id)))
+			_label_under(node, label, Vector2(-SMALL_LABEL_WIDTH / 2.0, -88), SMALL_LABEL_WIDTH).name = "Name"
 		small_things.add_child(node)
 
 
@@ -955,9 +1076,12 @@ func _small_thing_for(becomes: String) -> String:
 
 
 ## A person: a grey capsule standing at `at` (its feet), two eyes, the name
-## over the head and, above that, the want line (shown at the table; on the
-## street only after a talk).
-func _capsule(c: Dictionary, at: Vector2, at_table: bool) -> Node2D:
+## (over the head on the street; on the body at the table, where the table's
+## things sit over the heads) and the want line (shown at the table; on the
+## street only after a talk, centred over the head). At the table the want
+## is the `seat`-th from the left: right-aligned to the face's middle,
+## WANT_ABOVE + seat * WANT_STEP px above the head, with a leader down to it.
+func _capsule(c: Dictionary, at: Vector2, at_table: bool, seat := 0) -> Node2D:
 	var who := str(c.get("id", ""))
 	var node := Node2D.new()
 	node.name = "%s_%s" % ["Seat" if at_table else "Person", who]
@@ -978,22 +1102,32 @@ func _capsule(c: Dictionary, at: Vector2, at_table: bool) -> Node2D:
 		eye.color = EYE
 		face.add_child(eye)
 	_set_eyes(node, true)
-	var name_label := Label.new()
+	var name_at := Vector2(-60, -CAPSULE.y + 20) if at_table else Vector2(-60, -CAPSULE.y - 26)
+	var name_label := PinchLabel.make(str(c.get("name", who)), name_at, 120)
 	name_label.name = "Name"
-	name_label.text = str(c.get("name", who))
-	name_label.position = Vector2(-60, -CAPSULE.y - 26)
-	name_label.size = Vector2(120, 22)
-	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	node.add_child(name_label)
-	var want := Label.new()
+	var want: Label
+	if at_table:
+		var top := -CAPSULE.y - WANT_ABOVE - PinchLabel.LINE - seat * WANT_STEP
+		want = PinchLabel.make(want_text(who), Vector2(WANT_END - WANT_WIDTH, top), WANT_WIDTH, HORIZONTAL_ALIGNMENT_RIGHT, WANT_FONT)
+		var leader := ColorRect.new()
+		leader.name = "Leader"
+		leader.color = LEADER_COLOR
+		leader.position = Vector2(-0.5, top + PinchLabel.LINE)
+		leader.size = Vector2(1, -CAPSULE.y - (top + PinchLabel.LINE))
+		node.add_child(leader)
+	else:
+		want = PinchLabel.make(want_text(who), Vector2(-WANT_WIDTH / 2.0, -CAPSULE.y - 48), WANT_WIDTH, HORIZONTAL_ALIGNMENT_CENTER, WANT_FONT)
 	want.name = "Want"
-	want.text = want_line.format({"name": str(c.get("name", who)), "want": str(c.get("want", ""))})
-	want.position = Vector2(-180, -CAPSULE.y - 48)
-	want.size = Vector2(360, 22)
-	want.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	want.visible = at_table
 	node.add_child(want)
 	return node
+
+
+## A want line's box on the street, for the designer's eye and the tests.
+func want_rect(node: Node2D) -> Rect2:
+	var want := _want_label(node)
+	return Rect2(node.position + want.position, Vector2(WANT_WIDTH, PinchLabel.LINE))
 
 
 ## The points of a capsule (a stadium) `size` big, its top-left at the origin.
@@ -1023,7 +1157,8 @@ func _want_label(node: Node2D) -> Label:
 
 
 ## One idea as a white rect with a black edge and its name above (the
-## dream's look, small), under `holder`.
+## dream's look, small), under `holder`; the `index`-th of a row has its
+## name at one of PIECE_LABEL_ROWS heights, so neighbours' never share a line.
 func _add_piece(holder: Node2D, id: String, at: Vector2, index: int) -> Node2D:
 	var piece := Node2D.new()
 	piece.name = "Idea_%s" % id
@@ -1038,11 +1173,8 @@ func _add_piece(holder: Node2D, id: String, at: Vector2, index: int) -> Node2D:
 	face.size = PIECE
 	face.color = Color.WHITE
 	piece.add_child(face)
-	var label := Label.new()
-	label.text = idea_name(id)
-	label.position = Vector2(PIECE.x / 2.0 - 100, -24 - (index % 2) * 18)
-	label.size = Vector2(200, 22)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	var label := PinchLabel.make(idea_name(id), Vector2(PIECE.x / 2.0 - PIECE_LABEL_WIDTH / 2.0, -24 - (index % PIECE_LABEL_ROWS) * PIECE_LABEL_STEP), PIECE_LABEL_WIDTH)
+	label.name = "Name"
 	piece.add_child(label)
 	holder.add_child(piece)
 	return piece
@@ -1074,11 +1206,8 @@ func _add_label(text: String, at: Vector2, width: float, align := HORIZONTAL_ALI
 	return _label_under(street, text, at, width, align)
 
 
+## A one-line word on a dark backing (PinchLabel), `width` wide at `at`.
 func _label_under(holder: Node, text: String, at: Vector2, width: float, align := HORIZONTAL_ALIGNMENT_CENTER) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.position = at
-	label.size = Vector2(width, 22)
-	label.horizontal_alignment = align
+	var label := PinchLabel.make(text, at, width, align)
 	holder.add_child(label)
 	return label

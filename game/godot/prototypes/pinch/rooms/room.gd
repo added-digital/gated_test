@@ -6,20 +6,29 @@ extends Node2D
 ## the dealer lays one idea on one of them, day 3). The bed room also holds
 ## Bed, Block and an Exit the dream keeps only when the bed is dealt early.
 ## A Label with the metadata `word` shows that word from rooms.json (the
-## ladder's sign). The bounds
-## (left, right, top, and the net below that only the asleep body touches)
-## are built here so no room forgets them. Every word drawn comes from
-## data/rooms.json, handed in as `words` by the dream before add_child.
+## ladder's sign). The bounds (left, right, top, and the net below that
+## only the asleep body touches) are built here so no room forgets them.
+## The door's word (the readability pass) sits LEFT of the door at the
+## floor line (DOOR_LABEL_WIDTH wide, DOOR_LABEL_GAP px short of the body,
+## DOOR_LABEL_DOWN px under the door's middle), on a backing: beside the
+## body, not under it, and below the sleep gauge's lowest label, so they
+## never share a line. The bed's name (room_bed.tscn) is backed here too.
+## Every word drawn comes from data/rooms.json, handed in as `words` by
+## the dream before add_child.
 
 const SIZE := Vector2(1152, 648)
 const WALL := 16.0
 const LAYER_BOUNDS := 1
 const LAYER_NET := 8
 const BOUND_COLOR := Color(0.28, 0.28, 0.34)
+const DOOR_LABEL_WIDTH := 72.0   # "door" is 37 px; 72 keeps the box inside a room whose door is at x 100
+const DOOR_LABEL_GAP := 22.0    # px from the door's middle to the label's right end (the body is 28 wide)
+const DOOR_LABEL_DOWN := 54.0   # px from the door's middle to the label's top: just under the feet, on the floor
 
 @export var id := ""
 
 var words: Dictionary = {}   # rooms.json "words"; set by the dream
+var door_label: Label = null
 
 @onready var door: Marker2D = $Door
 @onready var exit: Area2D = get_node_or_null("Exit")
@@ -31,11 +40,8 @@ func _ready() -> void:
 	_bound("Right", Rect2(SIZE.x - WALL, 0, WALL, SIZE.y), LAYER_BOUNDS, true)
 	_bound("Top", Rect2(0, 0, SIZE.x, WALL), LAYER_BOUNDS, true)
 	_bound("Net", Rect2(0, SIZE.y, SIZE.x, WALL), LAYER_NET, false)
-	var door_label := Label.new()
-	door_label.text = word("door")
-	door_label.position = door.position + Vector2(-60, -70)
-	door_label.size = Vector2(120, 22)
-	door_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	door_label = PinchLabel.make(word("door"), door.position + Vector2(-DOOR_LABEL_GAP - DOOR_LABEL_WIDTH, DOOR_LABEL_DOWN), DOOR_LABEL_WIDTH, HORIZONTAL_ALIGNMENT_RIGHT)
+	door_label.name = "DoorLabel"
 	add_child(door_label)
 	for node in find_children("*", "", true, false):
 		if "word" in node and node.word != "":
@@ -44,7 +50,9 @@ func _ready() -> void:
 			node.text = word(str(node.get_meta("word")))
 	var bed_name: Label = get_node_or_null("Bed/Name")
 	if bed_name != null:
-		bed_name.text = word("bed")
+		bed_name.set_meta("max_width", bed_name.size.x)
+		PinchLabel.back(bed_name)
+		PinchLabel.set_text(bed_name, word("bed"))
 
 
 ## A word from rooms.json; the key itself when the file lacks it.
@@ -77,6 +85,11 @@ func idea_spots() -> Array[Vector2]:
 			if marker is Marker2D:
 				spots.append(marker.position)
 	return spots
+
+
+## The door's word, as a box in the room.
+func door_label_rect() -> Rect2:
+	return Rect2(door_label.position, Vector2(DOOR_LABEL_WIDTH, PinchLabel.LINE))
 
 
 func _bound(bound_name: String, rect: Rect2, layer: int, drawn: bool) -> void:

@@ -37,6 +37,7 @@ var has_pills := false                  # made at the stove shed after Tove's re
 var pill_tonight := false               # a pill taken at the bunk: the limit is PILL_BONUS higher this night only
 var breakfast_done_day := 0             # the last day breakfast happened (or was walked away from)
 var gauge_visible := true               # the sleep gauge is shown; H toggles it and the session remembers (day 5)
+var devbar_visible := true              # the dev bar (what can be done now) is shown; Tab toggles it and the session remembers
 
 
 ## Tiles lit on each side of the Long House: three, plus one per building standing.

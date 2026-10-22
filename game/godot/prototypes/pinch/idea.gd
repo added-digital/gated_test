@@ -5,15 +5,25 @@ extends StaticBody2D
 ## pinched, solid only while pinched (layer CRISP, like a ledge): so a
 ## set-down idea is a step. `position` is its middle. Groups "idea" and
 ## "crisp". The dream spawns these (place_idea) and takes them (grab).
+## The readability pass: the name sits LABEL_ABOVE px over the box's top,
+## higher than a body standing beside it, on a dark backing, with a thin
+## leader down to the box; its box is kept inside the room's width
+## (ROOM_WIDTH) so an idea by a wall is not clipped at the screen's edge.
 
 const SIZE := Vector2(48, 24)
 const LAYER_CRISP := 2
 const SHADOW := Color(0, 0, 0, 0.45)
+const LABEL_WIDTH := 220.0
+const LABEL_ABOVE := 40.0     # px between the box's top and the label's bottom
+const LEADER := Color(0.85, 0.85, 0.85, 0.7)
+const LEADER_WIDTH := 2.0
+const ROOM_WIDTH := 1152.0    # room.gd SIZE.x: the label stays inside it
 
 var id := ""
 var idea_name := ""
 
 var label: Label = null
+var leader: ColorRect = null
 
 
 ## Called before add_child: which idea this is, and its name for the label.
@@ -38,17 +48,27 @@ func _ready() -> void:
 	_rect(-half + Vector2(5, 5), SIZE, SHADOW)
 	_rect(-half - Vector2(2, 2), SIZE + Vector2(4, 4), Color.BLACK)
 	_rect(-half, SIZE, Color.WHITE)
-	label = Label.new()
-	label.text = idea_name
-	label.position = Vector2(-110, -half.y - 28)
-	label.size = Vector2(220, 22)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	var label_top := -half.y - LABEL_ABOVE - PinchLabel.LINE
+	var label_x := clampf(-LABEL_WIDTH / 2.0, 4.0 - position.x, ROOM_WIDTH - 4.0 - LABEL_WIDTH - position.x)
+	label = PinchLabel.make(idea_name, Vector2(label_x, label_top), LABEL_WIDTH)
+	label.name = "Name"
 	add_child(label)
+	leader = ColorRect.new()
+	leader.name = "Leader"
+	leader.color = LEADER
+	leader.position = Vector2(-LEADER_WIDTH / 2.0, label_top + PinchLabel.LINE)
+	leader.size = Vector2(LEADER_WIDTH, LABEL_ABOVE - 2.0)
+	add_child(leader)
 
 
 ## The box, in the room.
 func rect() -> Rect2:
 	return Rect2(position - SIZE / 2.0, SIZE)
+
+
+## The name's box, in the room.
+func label_rect() -> Rect2:
+	return Rect2(position + label.position, Vector2(LABEL_WIDTH, PinchLabel.LINE))
 
 
 func _rect(at: Vector2, size: Vector2, color: Color) -> void:

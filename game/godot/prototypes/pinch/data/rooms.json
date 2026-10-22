@@ -1,6 +1,5 @@
 {
-  "label": "{name}. {hint}",
-  "help": "Hold K to pinch. E takes an idea within reach, Q sets the top one down as a step. A step left behind when you leave a room is lost for the night.",
+  "label": "{name}",
   "gauge": {
     "deep": "deep",
     "light": "light",
@@ -29,47 +28,47 @@
     {
       "id": "tutorial",
       "name": "The gap",
-      "hint": "An idea lies behind you: pinch, step up to it, E. Asleep, the current carries you over the gap. Pinch over the far floor to land; stand pinched in the exit to go on."
+      "hint": "Pinch, step back: E takes the idea. Drift across on the current. Pinch over the far floor."
     },
     {
       "id": "a",
       "name": "The soft wall",
-      "hint": "Drift through the soft wall. Pinch on the far side, one jump up to the exit; stand pinched in it to go on."
+      "hint": "Drift through the soft wall. Pinch on the far side; one jump up to the exit."
     },
     {
       "id": "b",
       "name": "The goat",
-      "hint": "Wait for the goat and let it carry you over. Pinch above the far floor; stand pinched in the exit to go on."
+      "hint": "Wait for the goat and let it carry you over. Pinch above the far floor."
     },
     {
       "id": "c",
       "name": "The climb",
-      "hint": "Pinch and climb; asleep the wind takes you off the ledges. The top is one step too high: Q sets an idea down to stand on. A step you leave behind is lost for the night."
+      "hint": "Climb pinched; asleep, the wind takes you. The top is a step too high: Q makes one."
     },
     {
       "id": "d",
       "name": "The maze",
-      "hint": "Drift into the current and let it lift you through the soft walls. Pinch over the island, not before; the exit is at its far end."
+      "hint": "Drift into the current; it lifts you through the soft walls. Pinch over the island, not before."
     },
     {
       "id": "e",
       "name": "Cold water",
-      "hint": "The water takes you if you pinch over it. Ride the goat round; pinch above the beam on its way back, then down to the far floor."
+      "hint": "The water takes you pinched. Ride the goat; pinch above the beam on its way back."
     },
     {
       "id": "f",
       "name": "The draft",
-      "hint": "Drift right and the draft takes you up through the soft room. Pinch over the shelf on the way up, not before: the idea is there. The way on is the perch above it: ride the draft to the top and pinch over the perch, or Q a step down and jump."
+      "hint": "Drift right; the draft lifts you. Pinch over the shelf: the idea. Ride up to the perch."
     },
     {
       "id": "ladder",
       "name": "The ladder",
-      "hint": "It goes up to somewhere you have not been. Not tonight. Stand pinched in the exit to go on."
+      "hint": "It goes up to somewhere you have not been. Not tonight. Walk on, pinched."
     },
     {
       "id": "bed",
       "name": "Your bed",
-      "hint": "E at your bed wakes you gently with everything under your hat. When the bed comes early, the exit past it is the bet: the night goes on, and the frame with it."
+      "hint": "E at the bed: wake gently with everything. Dealt early, the exit past it is the bet."
     }
   ]
 }

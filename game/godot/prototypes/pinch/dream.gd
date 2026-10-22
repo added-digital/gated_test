@@ -65,6 +65,24 @@ extends Node2D
 ## stays whatever the gauge does. gauge_band() and gauge_fraction() read
 ## it. Idea names come from data/ideas.json, every other word from
 ## data/rooms.json; rewrite those, not this.
+##
+## The readability pass. THE DEV BAR (devbar.gd, data/devbar.json): a thin
+## strip at the bottom of the screen on its own layer above the frame,
+## listing ONLY the actions available right now, computed every drawn
+## frame from the state (devbar_text(): asleep, in a current, over a
+## spot, pinched on the floor or in the air, an idea in reach with room
+## under the hat, an idea to set down, the block to push, the exit near,
+## the bed in reach); its right half shows the room's one-line hint
+## (rooms.json "hint") for the first seconds after entering a room, then
+## fades it (the fixed controls line is gone; the dev bar replaces it);
+## the room's NAME stays as a small label at the top left (rooms.json
+## "label"). Tab toggles the bar (toggle_devbar; state.devbar_visible, kept
+## for the session). THE FRAME's four rects are rounded to whole pixels
+## and the side rects overlap the top and bottom ones by FRAME_OVERLAP px
+## (frame_rects()), so no half-pixel seam shows as a grey line. The gauge
+## sits GAUGE_AT, 24 px higher than before, above the dev bar and clear of
+## the door's word (room.gd), which now sits left of the door at the
+## floor line.
 
 signal woke(sudden: bool, carried: Array)
 signal acted(kind: String, detail: String)
@@ -72,7 +90,9 @@ signal room_entered(id: String)
 
 const IDEAS_FILE := "res://prototypes/pinch/data/ideas.json"
 const ROOMS_FILE := "res://prototypes/pinch/data/rooms.json"
+const DEVBAR_FILE := "res://prototypes/pinch/data/devbar.json"
 const IDEA := preload("res://prototypes/pinch/idea.gd")
+const DEVBAR := preload("res://prototypes/pinch/devbar.gd")
 const ROOM_SCENES := {
 	"tutorial": preload("res://prototypes/pinch/rooms/room_tutorial.tscn"),
 	"a": preload("res://prototypes/pinch/rooms/room_a.tscn"),
@@ -108,7 +128,9 @@ const SHUT := 0.8             # s the frame is shown fully shut at the limit bef
 const STILL := 3.0            # s still inside a spot for its wonder
 const GAUGE_PX := 16.0        # px of bar per point of the limit: 128 px at 8, 160 at 10
 const GAUGE_WIDTH := 18.0     # px: the bar's width
-const GAUGE_AT := Vector2(28, 624)   # the bar's bottom-left corner on the screen
+const GAUGE_AT := Vector2(28, 600)   # the bar's bottom-left corner on the screen: above the dev bar, its labels clear of the door's word
+const EXIT_NEAR := 64.0       # px around the exit zone within which the dev bar says to walk in
+const FRAME_OVERLAP := 1.0    # px the frame's side rects reach into its top and bottom rects: no seam
 const DEEP_TO := 0.4          # effective up to this share of the limit is deep sleep
 const LIGHT_TO := 0.75        # ... up to this, light; past it, waking
 const BAND_COLORS := {
@@ -122,7 +144,6 @@ const GAUGE_LAYER := 6        # above the frame (5), below the text panel (10)
 @onready var dreamer: CharacterBody2D = $Dreamer
 @onready var rooms_holder: Node2D = $Rooms
 @onready var room_label: Label = $Hud/RoomLabel
-@onready var help_label: Label = $Hud/HelpLabel
 @onready var frame_top: ColorRect = $Frame/Top
 @onready var frame_bottom: ColorRect = $Frame/Bottom
 @onready var frame_left: ColorRect = $Frame/Left
@@ -135,6 +156,9 @@ var ideas: Array = []               # ideas.json, in order
 var rooms_data: Array = []          # rooms.json "rooms", in order
 var words: Dictionary = {}          # rooms.json "words"
 var gauge_words: Dictionary = {}    # rooms.json "gauge"
+var devbar_words: Dictionary = {}   # devbar.json
+var devbar: CanvasLayer = null      # the dev bar: what can be done now, on its own layer over the frame
+var devbar_visible := true          # Tab toggles it; mirrored in state.devbar_visible for the session
 var gauge_visible := true           # H toggles it; mirrored in state.gauge_visible for the session
 var gauge: Node2D = null            # the sleep gauge, on its own layer over the frame
 var gauge_bands := {}               # band -> ColorRect
@@ -186,10 +210,12 @@ func _ready() -> void:
 	rooms_data = rooms_json.get("rooms", [])
 	words = rooms_json.get("words", {})
 	label_format = str(rooms_json.get("label", label_format))
-	help_label.text = str(rooms_json.get("help", ""))
 	gauge_words = rooms_json.get("gauge", {})
+	loaded = PinchState.load_json(DEVBAR_FILE)
+	devbar_words = loaded if loaded is Dictionary else {}
 	gauge_visible = state.gauge_visible
 	_build_gauge()
+	_build_devbar()
 	dreamer.hard_landing.connect(fall)
 	dreamer.fell_out.connect(fail.bind("fell"))
 	dreamer.pinch_changed.connect(_apply_soft)
@@ -199,6 +225,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	_update_frame()   # the opening follows the dreamer every drawn frame; four rects, cheap
+	devbar.set_actions(devbar_text())
 
 
 func _physics_process(delta: float) -> void:
@@ -244,6 +271,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		set_down()
 	elif event.is_action_pressed("gauge_toggle"):
 		toggle_gauge()
+	elif event.is_action_pressed("devbar_toggle"):
+		toggle_devbar()
 
 
 # --- the dealer ---------------------------------------------------------------
@@ -411,6 +440,7 @@ func _enter_room(index: int) -> void:
 	blinking = false
 	var entry := room_words(id)
 	room_label.text = label_format.format({"name": str(entry.get("name", id)), "hint": str(entry.get("hint", ""))})
+	devbar.show_hint(str(entry.get("hint", "")))
 	if tonight_ideas.has(id):
 		var spots: Array[Vector2] = room.idea_spots()
 		if not spots.is_empty():
@@ -605,6 +635,78 @@ func block_in_reach() -> bool:
 
 func bed_in_reach() -> bool:
 	return bed != null and dreamer.position.distance_to(bed.position + bed.size / 2.0) <= REACH
+
+
+## A quiet spot the dreamer overlaps whose wonder is still to be had this visit.
+func spot_in_reach() -> Area2D:
+	for node in get_tree().get_nodes_in_group("wonder"):
+		if node.kind == "spot" and not wonders_seen.has(node.id) and node.overlaps_body(dreamer):
+			return node
+	return null
+
+
+## True within EXIT_NEAR px of the room's exit zone.
+func exit_near() -> bool:
+	if room == null or room.exit == null:
+		return false
+	return Rect2(room.exit.position, room.exit.size).grow(EXIT_NEAR).intersects(dreamer.rect())
+
+
+# --- the dev bar -----------------------------------------------------------------
+
+## ONLY what can be done right now, from the state, in devbar.json's words:
+## asleep (drift, pinch) with the current and the spot when inside one;
+## pinched on the floor (walk, jump, let go) or in the air (let go), with
+## the grab when an idea is in reach and the hat has room, the set-down
+## when something is carried on a floor, the push when the block is in
+## reach and unpushed; the exit when near it; the bed when in reach.
+## Nothing while the frame blinks, closes or the night is over.
+func devbar_text() -> String:
+	if not _can_act():
+		return ""
+	var w: Dictionary = devbar_words.get("dream", {})
+	var parts: Array[String] = []
+	if not dreamer.pinched:
+		parts.append(str(w.get("asleep", "")))
+		if not dreamer.carried_by.is_empty():
+			parts.append(str(w.get("current", "")))
+	else:
+		parts.append(str(w.get("pinched" if dreamer.is_on_floor() else "falling", "")))
+		if idea_in_reach() != null and carried.size() < state.carry_limit:
+			parts.append(str(w.get("grab", "")))
+		if dreamer.is_on_floor() and not carried.is_empty():
+			parts.append(str(w.get("set_down", "")))
+		if block != null and not forced and block_in_reach():
+			parts.append(str(w.get("push", "")))
+	if spot_in_reach() != null:
+		parts.append(str(w.get("wonder", "")))
+	if exit_near():
+		parts.append(str(w.get("exit", "")))
+	if bed_in_reach():
+		parts.append(str(w.get("bed", "")))
+	return str(devbar_words.get("separator", " · ")).join(parts)
+
+
+## The room's hint as the dev bar shows it (rooms.json).
+func hint_text() -> String:
+	return devbar.hint_text()
+
+
+func toggle_devbar() -> void:
+	devbar_visible = not devbar_visible
+	state.devbar_visible = devbar_visible
+	devbar.visible = devbar_visible
+	acted.emit("devbar", "on" if devbar_visible else "off")
+
+
+func _build_devbar() -> void:
+	devbar = DEVBAR.new()
+	devbar.name = "DevBar"
+	add_child(devbar)
+	devbar.set_toggle_word(str(devbar_words.get("toggle", "")))
+	devbar_visible = state.devbar_visible
+	devbar.visible = devbar_visible
+	devbar.set_actions(devbar_text())
 
 
 func _can_act() -> bool:
@@ -825,22 +927,32 @@ func frame_center() -> Vector2:
 
 
 ## The opening: shown_aperture() * the viewport, centred on the dreamer,
-## clamped inside the viewport; four black rects around it.
+## clamped inside the viewport, rounded to whole pixels; four black rects
+## around it, the left and right ones reaching FRAME_OVERLAP px into the
+## top and bottom ones (over black), so no seam shows at a shared edge.
 func _update_frame() -> void:
 	if not is_inside_tree():
 		return
 	var screen := get_viewport().get_visible_rect().size
-	var open := screen * shown_aperture()
-	var corner := (dreamer_screen_position() - open / 2.0).clamp(Vector2.ZERO, screen - open)
+	var open := (screen * shown_aperture()).round()
+	var corner := (dreamer_screen_position() - open / 2.0).clamp(Vector2.ZERO, screen - open).round()
 	frame_open = Rect2(corner, open)
 	frame_top.position = Vector2.ZERO
 	frame_top.size = Vector2(screen.x, corner.y)
 	frame_bottom.position = Vector2(0, corner.y + open.y)
 	frame_bottom.size = Vector2(screen.x, screen.y - corner.y - open.y)
-	frame_left.position = Vector2(0, corner.y)
-	frame_left.size = Vector2(corner.x, open.y)
-	frame_right.position = Vector2(corner.x + open.x, corner.y)
-	frame_right.size = Vector2(screen.x - corner.x - open.x, open.y)
+	frame_left.position = Vector2(0, corner.y - FRAME_OVERLAP)
+	frame_left.size = Vector2(corner.x, open.y + FRAME_OVERLAP * 2.0)
+	frame_right.position = Vector2(corner.x + open.x, corner.y - FRAME_OVERLAP)
+	frame_right.size = Vector2(screen.x - corner.x - open.x, open.y + FRAME_OVERLAP * 2.0)
+
+
+## The four frame rects as drawn, in order: top, bottom, left, right.
+func frame_rects() -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+	for rect in [frame_top, frame_bottom, frame_left, frame_right]:
+		rects.append(Rect2(rect.position, rect.size))
+	return rects
 
 
 func _wake(sudden: bool) -> void:

@@ -192,16 +192,18 @@ func check_mask(village: Node2D, day: int) -> void:
 
 
 ## The four frame rects leave a hole of the shown aperture * screen, centred
-## on the dreamer and clamped inside the screen (day 3; before, the screen's middle).
+## on the dreamer and clamped inside the screen (day 3; before, the screen's
+## middle), rounded to whole pixels, the side rects reaching FRAME_OVERLAP px
+## into the top and bottom ones (the readability pass: no seam).
 func check_frame(dream: Node2D) -> void:
 	var screen: Vector2 = get_viewport().get_visible_rect().size
-	var expected: Vector2 = screen * dream.shown_aperture()
-	var corner: Vector2 = (dream.dreamer_screen_position() - expected / 2.0).clamp(Vector2.ZERO, screen - expected)
+	var expected: Vector2 = (screen * dream.shown_aperture()).round()
+	var corner: Vector2 = (dream.dreamer_screen_position() - expected / 2.0).clamp(Vector2.ZERO, screen - expected).round()
 	var hole: Rect2 = dream.frame_open
 	var top: ColorRect = dream.frame_top
 	var left: ColorRect = dream.frame_left
 	var ok := hole.size.is_equal_approx(expected) and hole.position.is_equal_approx(corner)
-	ok = ok and top.size.is_equal_approx(Vector2(screen.x, hole.position.y)) and left.size.is_equal_approx(Vector2(hole.position.x, hole.size.y))
+	ok = ok and top.size.is_equal_approx(Vector2(screen.x, hole.position.y)) and left.size.is_equal_approx(Vector2(hole.position.x, hole.size.y + 2.0 * dream.FRAME_OVERLAP))
 	check(ok, "the frame leaves %.0f x %.0f of %.0f x %.0f open at %s (shown %.3f, aperture %.3f)" % [hole.size.x, hole.size.y, screen.x, screen.y, hole.position, dream.shown_aperture(), dream.aperture()])
 
 

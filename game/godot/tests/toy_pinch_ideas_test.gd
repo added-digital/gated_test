@@ -93,7 +93,7 @@ func _ready() -> void:
 		else:
 			ok = ids.is_empty() and spots.is_empty()
 		check(ok, "room %s: %s on its spots %s" % [id, ids, spots])
-	check(dream.help_label.text == str(rooms_json.help) and dream.help_label.text.contains("Q"), "the help line reads '%s'" % dream.help_label.text)
+	check(dream.devbar_text() == str(dream.devbar_words.dream.asleep) and dream.devbar_text().contains("pinch") and dream.hint_text() == str(dream.room_words("bed").hint), "the dev bar reads '%s' and the room's hint '%s' (the readability pass: the fixed controls line is gone)" % [dream.devbar_text(), dream.hint_text()])
 
 	# ---------------------------------------------------------------- (B) grab, hand, hat, set down
 	await fresh(1)
@@ -453,12 +453,12 @@ func _ready() -> void:
 	check(table_piece.get_child(2).text == name_of(keep_id), "labelled '%s'" % table_piece.get_child(2).text)
 	check(village.lost_stack != null and village.lost_stack.get_child_count() == 1 and village.lost_stack.get_child(0).get_meta("id") == lose_id and village.lost_alpha() > 0.9, "the lost idea floats over the bunk (alpha %.2f)" % village.lost_alpha())
 	check(village.lost_stack.position == Vector2.ZERO and village.lost_stack.get_child(0).position.x > village.BUNK.position.x and village.lost_stack.get_child(0).position.y < village.BUNK.position.y - 40.0, "above the bunk")
-	for i in 180:
-		await get_tree().process_frame
-	check(village.lost_stack != null and village.lost_alpha() < 0.6 and village.lost_alpha() > 0.4, "3 s on: half faded (alpha %.2f)" % village.lost_alpha())
-	for i in 190:
-		await get_tree().process_frame
-	check(village.lost_stack == null and is_zero_approx(village.lost_alpha()), "6 s on: gone")
+	# The fade runs on process delta (village._process), so wait in real
+	# seconds the same way, never a frame count: at 120 Hz 180 frames is 1.5 s.
+	var waited := await wait_seconds(3.0)
+	check(village.lost_stack != null and village.lost_alpha() < 0.6 and village.lost_alpha() > 0.4, "3 s on (%.2f s of process time): half faded (alpha %.2f)" % [waited, village.lost_alpha()])
+	waited = await wait_until_seconds(func() -> bool: return village.lost_stack == null, 6.0)
+	check(village.lost_stack == null and is_zero_approx(village.lost_alpha()) and waited > 2.5 and waited < 4.0, "6 s on: gone (%.2f s after the half)" % waited)
 	check(toy.harness.summary().contains("lost  %s" % lose_id) and toy.harness.summary().contains("kept:%s" % keep_id), "the harness recorded lost %s and kept:%s" % [lose_id, keep_id])
 	Input.action_release("pinch")
 	frames = await walk_walker_to_bunk(village)
@@ -516,6 +516,25 @@ func wait_until(cond: Callable, budget: int) -> int:
 		await get_tree().physics_frame
 		frames += 1
 	return frames
+
+
+## Real seconds, accumulated from process delta (as the village's clocks
+## are), so the wait is the same at any refresh rate. Returns the seconds waited.
+func wait_seconds(seconds: float) -> float:
+	var waited := 0.0
+	while waited < seconds:
+		await get_tree().process_frame
+		waited += get_process_delta_time()
+	return waited
+
+
+## Real seconds until the condition holds or the timeout passes (toy_help_test's wait_until).
+func wait_until_seconds(cond: Callable, timeout: float) -> float:
+	var waited := 0.0
+	while not cond.call() and waited < timeout:
+		await get_tree().process_frame
+		waited += get_process_delta_time()
+	return waited
 
 
 ## Hold one action until the condition holds, or the budget runs out.
