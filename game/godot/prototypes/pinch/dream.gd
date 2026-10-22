@@ -4,13 +4,16 @@ extends Node2D
 ##
 ## Each night deals rooms one at a time under Rooms: the tutorial first on
 ## night 1 only, then ROOMS_PER_NIGHT of the rooms of data/rooms.json
-## shuffled by a generator seeded with state.day (so a test can predict
-## the order with deal()), then the bed room last. On nights where
-## day % 3 == 0 the bed is also dealt in the middle, at position 2, with
-## an exit past it ("your bed in the wrong place"): lie down and the night
-## ends gently with everything; walk past and the night goes on. The
-## dreamer (one body, kept across rooms) is put at each room's Door;
-## standing pinched in a room's Exit deals the next.
+## from a deck (day 5: the rooms shuffled by a generator seeded with the
+## round, a round being DECK_NIGHTS nights; the first night of a round
+## takes the deck's first cards, the second night the rest and then the
+## deck's first card again, so every room comes round within two nights
+## and a test can still predict the order with deal()), then the bed room
+## last. On nights where day % 3 == 0 the bed is also dealt in the middle,
+## at position 2, with an exit past it ("your bed in the wrong place"):
+## lie down and the night ends gently with everything; walk past and the
+## night goes on. The dreamer (one body, kept across rooms) is put at each
+## room's Door; standing pinched in a room's Exit deals the next.
 ##
 ## Ideas (data/ideas.json): the dealer lays one idea per dealt room on one
 ## of the room's IdeaSpots, from the ideas not yet kept or built, shuffled
@@ -38,8 +41,13 @@ extends Node2D
 ## asleep, ride the goat, stay still 3 s in a spot); never below 0;
 ## holding the button is free. effective = lucidity + ideas carried (+1
 ## while one is in hand). A failed screen (fell below the room, or touched
-## a hazard pinched) blinks: the frame shuts for BLINK seconds, then the
-## dreamer is back at the Door.
+## a hazard pinched) blinks (day 5, three phases, blink_phase()): the
+## frame shuts over BLINK_SHUT_FRAMES, holds shut until BLINK seconds have
+## passed since the fail, then the dreamer is back at the Door (dropping
+## in, dreamer.gd) and the frame reopens over BLINK_OPEN_FRAMES; blinking
+## is true for the first two phases only, when nothing counts. Within
+## THIN_STEPS of the limit every soft shape is drawn through the THIN
+## modulate, so the dream visibly thins as the frame nears shut.
 ##
 ## Day 4. The limit is tonight's (state.night_limit(): 8, or 10 with a
 ## pill taken at the bunk). The dealer leaves out ideas that are kept,
@@ -52,9 +60,10 @@ extends Node2D
 ## drawn and labelled from rooms.json "gauge": deep (effective up to
 ## DEEP_TO of the limit), light (to LIGHT_TO), waking (the rest); a needle
 ## at effective, easing like the frame; beside it "ideas n / carry_limit".
-## H toggles it (gauge_visible, on by default, for this night only); the
-## frame stays whatever the gauge does. gauge_band() and gauge_fraction()
-## read it. Idea names come from data/ideas.json, every other word from
+## H toggles it (gauge_visible, on by default; day 5: kept in
+## state.gauge_visible, so the choice holds for the session); the frame
+## stays whatever the gauge does. gauge_band() and gauge_fraction() read
+## it. Idea names come from data/ideas.json, every other word from
 ## data/rooms.json; rewrite those, not this.
 
 signal woke(sudden: bool, carried: Array)
@@ -71,6 +80,7 @@ const ROOM_SCENES := {
 	"c": preload("res://prototypes/pinch/rooms/room_c.tscn"),
 	"d": preload("res://prototypes/pinch/rooms/room_d.tscn"),
 	"e": preload("res://prototypes/pinch/rooms/room_e.tscn"),
+	"f": preload("res://prototypes/pinch/rooms/room_f.tscn"),
 	"ladder": preload("res://prototypes/pinch/rooms/room_ladder.tscn"),
 	"bed": preload("res://prototypes/pinch/rooms/room_bed.tscn"),
 }
@@ -79,6 +89,8 @@ const BED := "bed"
 const LADDER := "ladder"
 const IDEALESS: Array[String] = ["bed", "ladder"]   # rooms the dealer never lays an idea in
 const ROOMS_PER_NIGHT := 4    # SPEC: four dealt plus the bed
+const DECK_NIGHTS := 2        # one shuffled deck of the rooms is dealt out over this many nights
+const DECK_SEED := 46         # the round's deck is shuffled with the seed DECK_SEED + round: 46 deals a, f, b, d on night 1, after the tutorial
 const EARLY_BED_EVERY := 3    # nights where day % 3 == 0 deal the bed early too
 const EARLY_BED_AT := 2       # ... at this position
 const REACH := 72.0           # px: this close to the block's or the bed's middle, E acts on it
@@ -86,7 +98,11 @@ const GRAB_REACH := 40.0      # px between the dreamer's box and an idea's: E ta
 const PUSH := 48.0            # px a forced block slides
 const HAND := 2.0             # s a grabbed idea is in the hand, counting double
 const SET_DOWN_AHEAD := 42.0  # px from the dreamer's middle to a set-down idea's: a 4 px gap
-const BLINK := 1.0            # s the frame stays shut after a failed screen (SPEC: one second)
+const BLINK := 1.0            # s from a failed screen to the dreamer back at the door (SPEC: one second)
+const BLINK_SHUT_FRAMES := 4  # frames the frame takes to shut at a failed screen
+const BLINK_OPEN_FRAMES := 12 # frames the frame takes to reopen once the dreamer is back
+const THIN_STEPS := 2         # effective this close to the limit, or closer: the dream thins
+const THIN := Color(0.55, 0.55, 0.6, 1.0)   # the modulate on every soft shape while the dream is thin
 const EASE := 0.35            # s the shown aperture takes to reach the aperture after an act
 const SHUT := 0.8             # s the frame is shown fully shut at the limit before woke fires
 const STILL := 3.0            # s still inside a spot for its wonder
@@ -119,7 +135,7 @@ var ideas: Array = []               # ideas.json, in order
 var rooms_data: Array = []          # rooms.json "rooms", in order
 var words: Dictionary = {}          # rooms.json "words"
 var gauge_words: Dictionary = {}    # rooms.json "gauge"
-var gauge_visible := true           # H toggles it; forgotten with the night
+var gauge_visible := true           # H toggles it; mirrored in state.gauge_visible for the session
 var gauge: Node2D = null            # the sleep gauge, on its own layer over the frame
 var gauge_bands := {}               # band -> ColorRect
 var gauge_labels := {}              # band -> Label
@@ -139,9 +155,12 @@ var forced := false                 # the block has been pushed (once per visit)
 var woken := false
 var closing := false                # at the limit: the frame is closing, then shut, then woke fires
 var wonders_seen := {}              # wonder id -> true, this visit
-var blinking := false
+var blinking := false               # the blink's shutting and shut phases: nothing counts
 var blink_left := 0.0
 var blinks := 0                     # failed screens this night
+var _shut_frames := 0               # frames into the blink's shutting phase
+var _open_frames := 0               # frames left of the blink's reopening phase
+var _blink_from := 1.0              # the shown aperture when the blink began
 var hard_falls := 0
 var _hand_left := 0.0               # s the newest idea stays in the hand
 var _shown := 1.0                   # the aperture drawn now
@@ -169,6 +188,7 @@ func _ready() -> void:
 	label_format = str(rooms_json.get("label", label_format))
 	help_label.text = str(rooms_json.get("help", ""))
 	gauge_words = rooms_json.get("gauge", {})
+	gauge_visible = state.gauge_visible
 	_build_gauge()
 	dreamer.hard_landing.connect(fall)
 	dreamer.fell_out.connect(fail.bind("fell"))
@@ -200,11 +220,14 @@ func _physics_process(delta: float) -> void:
 			_hand_left = 0.0
 			_changed()   # the idea settles under the hat: effective drops by one
 	if blinking:
+		_shut_frames = mini(_shut_frames + 1, BLINK_SHUT_FRAMES)
 		blink_left -= delta
 		if blink_left <= 0.0:
 			_reopen()
 		_update_frame()
 		return
+	if _open_frames > 0:
+		_open_frames -= 1
 	_update_frame()
 	if _grace > 0:
 		_grace -= 1
@@ -226,31 +249,48 @@ func _unhandled_input(event: InputEvent) -> void:
 # --- the dealer ---------------------------------------------------------------
 
 ## The rooms of one night, in order: the tutorial on night 1 only, then
-## ROOMS_PER_NIGHT of the other rooms shuffled by a generator seeded with
-## the day, then the bed; every EARLY_BED_EVERY-th night the bed is dealt
-## at EARLY_BED_AT as well, with an exit past it.
+## ROOMS_PER_NIGHT cards of the round's deck (deck(): the other rooms
+## shuffled once per DECK_NIGHTS nights; the round's first night takes
+## the first cards, its second the rest and then the first card again),
+## then the bed; every EARLY_BED_EVERY-th night the bed is dealt at
+## EARLY_BED_AT as well, with an exit past it.
 func deal(day: int) -> Array[String]:
-	var pool: Array[String] = []
-	for entry in rooms_data:
-		var id := str(entry.get("id", ""))
-		if id != TUTORIAL and id != BED and ROOM_SCENES.has(id):
-			pool.append(id)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = day
-	for i in range(pool.size() - 1, 0, -1):
-		var j := rng.randi_range(0, i)
-		var swap := pool[i]
-		pool[i] = pool[j]
-		pool[j] = swap
+	var cards := deck(day)
 	var order: Array[String] = []
 	if day == 1:
 		order.append(TUTORIAL)
-	for i in mini(ROOMS_PER_NIGHT, pool.size()):
-		order.append(pool[i])
+	var from := ((day - 1) % DECK_NIGHTS) * ROOMS_PER_NIGHT
+	var i := from
+	while order.size() - (1 if day == 1 else 0) < ROOMS_PER_NIGHT and i < cards.size():
+		order.append(cards[i])
+		i += 1
+	i = 0
+	while order.size() - (1 if day == 1 else 0) < ROOMS_PER_NIGHT and i < from and i < cards.size():
+		order.append(cards[i])   # the deck ran out: its first cards again, in order
+		i += 1
 	if day % EARLY_BED_EVERY == 0 and order.size() > EARLY_BED_AT:
 		order.insert(EARLY_BED_AT, BED)
 	order.append(BED)
 	return order
+
+
+## The deck of a night's round: every room of data/rooms.json but the
+## tutorial and the bed, shuffled by a generator seeded with the round
+## (day 1 and 2 are round 1, 3 and 4 round 2, ...). Pure.
+func deck(day: int) -> Array[String]:
+	var cards: Array[String] = []
+	for entry in rooms_data:
+		var id := str(entry.get("id", ""))
+		if id != TUTORIAL and id != BED and ROOM_SCENES.has(id):
+			cards.append(id)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = DECK_SEED + (day - 1) / DECK_NIGHTS + 1
+	for i in range(cards.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var swap := cards[i]
+		cards[i] = cards[j]
+		cards[j] = swap
+	return cards
 
 
 ## The ideas of one night: room id -> idea id, one per dealt room that may
@@ -377,6 +417,7 @@ func _enter_room(index: int) -> void:
 			place_idea(tonight_ideas[id], spots[spot_index(state.day, index, spots.size())])
 	_settle()
 	_apply_soft(dreamer.pinched)
+	_apply_thin()
 	_update_frame()
 	acted.emit("enter", id)
 	room_entered.emit(id)
@@ -403,9 +444,28 @@ func aperture() -> float:
 	return clampf(1.0 - float(effective()) / float(limit()), 0.0, 1.0)
 
 
-## What the frame shows: shut during a blink, easing to the aperture otherwise.
+## What the frame shows: shutting then shut during a blink, reopening
+## after it, easing to the aperture otherwise.
 func shown_aperture() -> float:
-	return 0.0 if blinking else _shown
+	if blinking:
+		return lerpf(_blink_from, 0.0, _shut_frames / float(BLINK_SHUT_FRAMES))
+	if _open_frames > 0:
+		return _shown * (1.0 - _open_frames / float(BLINK_OPEN_FRAMES))
+	return _shown
+
+
+## The blink's phase: "shutting" (BLINK_SHUT_FRAMES), "shut" (until BLINK
+## seconds have passed), "reopening" (BLINK_OPEN_FRAMES, the dreamer back),
+## or "" when the frame is not blinking.
+func blink_phase() -> String:
+	if blinking:
+		return "shutting" if _shut_frames < BLINK_SHUT_FRAMES else "shut"
+	return "reopening" if _open_frames > 0 else ""
+
+
+## True within THIN_STEPS of the limit: the soft shapes are drawn dimmer.
+func thin() -> bool:
+	return effective() >= limit() - THIN_STEPS
 
 
 ## Take the idea in reach while pinched, room under the hat permitting:
@@ -471,12 +531,15 @@ func fail(reason: String) -> void:
 	if not _can_act():
 		return
 	blinks += 1
+	_blink_from = shown_aperture()   # read before blinking is set: the shut starts from what is shown now
 	blinking = true
 	blink_left = BLINK
+	_shut_frames = 0
+	_open_frames = 0
 	dreamer.freeze()
 	lucidity += 1
 	acted.emit("fail", reason)
-	_shown = 0.0   # a blink is a snap shut; the reopening eases
+	_shown = 0.0   # the frame shuts over BLINK_SHUT_FRAMES, holds, and reopens over BLINK_OPEN_FRAMES
 	_changed()
 
 
@@ -601,13 +664,24 @@ func _apply_soft(pinched: bool) -> void:
 			shape.disabled = pinched
 
 
+## The dreamer back at the door; the frame reopens over BLINK_OPEN_FRAMES
+## (shown_aperture scales the eased value, which is the aperture itself).
+## Within THIN_STEPS of the limit the soft shapes dim (THIN); else plain.
+func _apply_thin() -> void:
+	var modulate := THIN if thin() else Color.WHITE
+	for node in get_tree().get_nodes_in_group("soft"):
+		if node is CanvasItem:
+			node.modulate = modulate
+
+
 func _reopen() -> void:
 	blinking = false
 	_settle()
-	_ease_from = 0.0
-	_ease_to = aperture()
-	_ease_t = 0.0
-	_shown = 0.0
+	_shown = aperture()
+	_ease_from = _shown
+	_ease_to = _shown
+	_ease_t = EASE
+	_open_frames = BLINK_OPEN_FRAMES
 	_update_frame()
 
 
@@ -633,6 +707,7 @@ func _changed() -> void:
 		_needle_from = _needle
 		_needle_to = share
 		_needle_t = 0.0
+	_apply_thin()
 	_update_frame()
 	_update_gauge()
 	if effective() >= limit() and not closing and not woken:
@@ -677,6 +752,7 @@ func gauge_height() -> float:
 
 func toggle_gauge() -> void:
 	gauge_visible = not gauge_visible
+	state.gauge_visible = gauge_visible
 	gauge.visible = gauge_visible
 	acted.emit("gauge", "on" if gauge_visible else "off")
 

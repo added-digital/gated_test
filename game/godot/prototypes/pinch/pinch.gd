@@ -8,7 +8,8 @@ extends Node
 ## moves on (state.new_day: the ideas claimed at yesterday's breakfast are
 ## standing, milestone built:<plot>; the pill has worn off) and the village
 ## comes back with the kept ideas on the table, the wake line first and
-## then whatever the morning brings (a request, breakfast: village.gd).
+## then whatever the morning brings (a request, breakfast: village.gd);
+## the plots raised this morning are handed over so their windows fade in.
 ## The village's doings (talk:<who>, told, told_wrong, made, pill, the
 ## breakfast) go to the harness here. Every word the player reads comes
 ## from data/village.json, data/characters.json and data/ideas.json;
@@ -53,12 +54,13 @@ func idea_name(id: String) -> String:
 	return id
 
 
-func _show_village(wake_line := "") -> void:
+func _show_village(wake_line := "", lit_today: Array[String] = []) -> void:
 	village = VILLAGE.instantiate()
 	village.name = "Village"
 	village.state = state
 	village.panel = panel
 	village.wake_line = wake_line
+	village.lit_today = lit_today
 	village.slept.connect(_on_slept)
 	village.acted.connect(_on_village_acted)
 	add_child(village)
@@ -128,11 +130,12 @@ func _on_woke(sudden: bool, carried: Array) -> void:
 		state.keep(id)
 		harness.milestone("kept:%s" % id)
 	state.ideas_carried.clear()
-	for plot in state.new_day():
+	var raised: Array[String] = state.new_day()
+	for plot in raised:
 		harness.milestone("built:%s" % plot)
 	blackout.visible = false
 	panel.hide_all()
-	_show_village(line)
+	_show_village(line, raised)   # the new buildings' windows fade in this morning
 	if not lost.is_empty():
 		village.fade_lost(lost)
 

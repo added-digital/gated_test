@@ -20,7 +20,10 @@
     "top": "the top",
     "island": "an island",
     "beam": "a beam",
-    "ladder_sign": "you don't know this story yet"
+    "ladder_sign": "you don't know this story yet",
+    "draft": "a draft",
+    "shelf": "a shelf",
+    "perch": "a perch"
   },
   "rooms": [
     {
@@ -52,6 +55,11 @@
       "id": "e",
       "name": "Cold water",
       "hint": "The water takes you if you pinch over it. Ride the goat round; pinch above the beam on its way back, then down to the far floor."
+    },
+    {
+      "id": "f",
+      "name": "The draft",
+      "hint": "Drift right and the draft takes you up through the soft room. Pinch over the shelf on the way up, not before: the idea is there. The way on is the perch above it: ride the draft to the top and pinch over the perch, or Q a step down and jump."
     },
     {
       "id": "ladder",

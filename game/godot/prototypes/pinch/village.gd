@@ -36,6 +36,12 @@ extends Node2D
 ## over the bunk and fade (fade_lost). Lines are said through the shared
 ## text panel (the controller's, or one of its own when run alone): say_for
 ## shows one for some seconds, queued behind the one showing unless `now`.
+## THE FEEL (day 5, drawn only, every number a constant below): the lit
+## window of a building that stands this morning (lit_today, set by the
+## controller) fades in over WINDOW_FADE seconds; a scaffold's crossbars
+## appear one every CROSSBAR_EVERY seconds after the claim; at a claim the
+## face nods (its Face dips NOD_PX over NOD_FRAMES) and the idea's rect
+## slides from the hand to the face over SLIDE seconds before it goes.
 ## Every word on screen comes from data/village.json and
 ## data/characters.json, idea names from data/ideas.json; rewrite those.
 
@@ -65,6 +71,12 @@ const WANT_STAYS := 4.0        # s the want line shows over a head after a talk
 const SEAT_GAP := 56.0         # px between the three seats at the table
 const DROPPED_TILT := 0.45     # rad a dropped head's capsule leans
 const DROPPED_WANT_ALPHA := 0.25
+const WINDOW_FADE := 1.5       # s a new building's lit window takes to fade in, the morning it stands
+const CROSSBAR_EVERY := 1.0    # s between a scaffold's crossbars appearing after the claim
+const NOD_PX := 6.0            # px a claiming face dips
+const NOD_FRAMES := 10         # frames the nod takes, down and back
+const SLIDE := 0.4             # s the claimed idea's rect takes to slide from the hand to the face
+const SLIDE_ABOVE := 30.0      # px above the claiming face where the slide ends
 const CAPSULE := Vector2(26, 52)
 const WINDOW := Vector2(18, 22)
 const WALL := Color(0.5, 0.5, 0.5)
@@ -101,6 +113,7 @@ const SMALL_SLOTS := [2748.0, 2542.0, 1766.0, 2046.0]   # x of the gaps between 
 var state: PinchState         # set by the controller before add_child; a fresh one when run alone
 var panel: CanvasLayer = null # the shared text panel; the controller's, or one of its own
 var wake_line := ""           # set by the controller before add_child: said first thing in the morning
+var lit_today: Array[String] = []   # set by the controller before add_child: the plots that stand since this morning (their windows fade in)
 var words: Dictionary = {}    # village.json
 var ideas: Array = []         # ideas.json
 var characters: Array = []    # characters.json "characters", in order
@@ -127,6 +140,12 @@ var _lost_left := 0.0
 var _lines: Array = []           # [text, seconds] waiting behind the line showing
 var _line_left := 0.0            # s the line showing has left; 0: nothing showing
 var _want_left := {}             # who -> s the want line over a street head has left
+var _day_time := 0.0             # s since this morning began
+var _claimed_at := {}            # plot id -> _day_time of its claim at breakfast (the crossbars count from it)
+var _nods := {}                  # who -> [the seat's Face, frames of the nod left]
+var _slides: Array = []          # [piece, from, to, seconds left] of idea rects sliding to a face
+var slides_node: Node2D = null   # the sliding rects
+var _seats_retiring := false     # breakfast ended on a claim: the faces stay until the nod and the slide are done
 
 
 func _ready() -> void:
@@ -153,6 +172,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_day_time += delta
+	_draw_feel(delta)
 	if _line_left > 0.0:
 		_line_left -= delta
 		if _line_left <= 0.0:
@@ -341,6 +362,102 @@ func take_pill() -> bool:
 	say_for(str(words.get("pill_taken", "")), LINE_STAYS, true)
 	acted.emit("pill", "")
 	return true
+
+
+# --- the feel --------------------------------------------------------------------
+
+## The window of a building that stands since this morning: 0 at the
+## start, 1 after WINDOW_FADE seconds.
+func window_alpha(plot: String) -> float:
+	if not lit_today.has(plot):
+		return 1.0
+	return clampf(_day_time / WINDOW_FADE, 0.0, 1.0)
+
+
+## How many of a scaffold's crossbars show: one more every CROSSBAR_EVERY
+## seconds since the claim; all of them for a scaffold claimed before this
+## morning (none is: claims stand the next day).
+func crossbars_shown(plot: String) -> int:
+	var node := plot_node(plot)
+	if node == null or not _claimed_at.has(plot):
+		return _count_bars(node) if node != null else 0
+	return mini(int((_day_time - float(_claimed_at[plot])) / CROSSBAR_EVERY), _count_bars(node))
+
+
+## px a face at the table is dipped by its nod now; 0 when still.
+func face_dip(who: String) -> float:
+	if not _nods.has(who):
+		return 0.0
+	var left: int = _nods[who][1]
+	return NOD_PX * sin(PI * (NOD_FRAMES - left + 1) / float(NOD_FRAMES + 1))
+
+
+## True while a nod or a slide is being drawn.
+func feel_in_flight() -> bool:
+	return not _nods.is_empty() or not _slides.is_empty()
+
+
+## The idea rects sliding to a face right now.
+func slides_in_flight() -> int:
+	return _slides.size()
+
+
+func _count_bars(node: Node2D) -> int:
+	var n := 0
+	for child in node.get_children():
+		if child.has_meta("bar"):
+			n += 1
+	return n
+
+
+## Every drawn frame: the new windows fade in, the crossbars appear, the
+## nods dip and come back, the slides move and are gone at the face.
+func _draw_feel(delta: float) -> void:
+	for plot in lit_today:
+		var node := plot_node(plot)
+		if node != null and node.has_node("Window"):
+			node.get_node("Window").modulate.a = window_alpha(plot)
+	for plot in _claimed_at:
+		var node := plot_node(plot)
+		if node == null:
+			continue
+		var shown := crossbars_shown(plot)
+		for child in node.get_children():
+			if child.has_meta("bar"):
+				child.visible = int(child.get_meta("bar")) < shown
+	for who in _nods.keys():
+		var face: Node2D = _nods[who][0]
+		if is_instance_valid(face):
+			face.position.y = face_dip(who)
+		_nods[who][1] -= 1
+		if _nods[who][1] <= 0:
+			_nods.erase(who)
+			if is_instance_valid(face):
+				face.position.y = 0.0
+	var done: Array = []
+	for slide in _slides:
+		slide[3] -= delta
+		var piece: Node2D = slide[0]
+		if slide[3] <= 0.0:
+			done.append(slide)
+			slides_node.remove_child(piece)
+			piece.queue_free()
+		else:
+			piece.position = (slide[1] as Vector2).lerp(slide[2], 1.0 - slide[3] / SLIDE)
+	for slide in done:
+		_slides.erase(slide)
+	if _seats_retiring and not feel_in_flight():
+		_seats_retiring = false
+		_clear_seats()
+
+
+## A claim: the face nods and the idea's rect slides from the hand to it.
+func _claim_feel(who: String, id: String) -> void:
+	_nods[who] = [seats[who].get_node("Face"), NOD_FRAMES]
+	var from: Vector2 = walker.position + hand.position + Vector2(-PIECE.x / 2.0, -PIECE.y)
+	var to: Vector2 = seats[who].position + Vector2(-PIECE.x / 2.0, -CAPSULE.y - SLIDE_ABOVE)
+	var piece := _add_piece(slides_node, id, from, 0)
+	_slides.append([piece, from, to, SLIDE])
 
 
 # --- lines ---------------------------------------------------------------------
@@ -533,16 +650,24 @@ func end_breakfast(reason: String) -> void:
 		acted.emit("small_thing", id)
 	state.ideas_kept.clear()
 	state.breakfast_done_day = state.day
-	for seat in seats_node.get_children():
-		seats_node.remove_child(seat)
-		seat.queue_free()
 	seats = {}
+	if feel_in_flight():
+		_seats_retiring = true   # the last claim's nod and slide are still being drawn: the faces go after them
+	else:
+		_clear_seats()
 	for who in people:
 		people[who].visible = true
 	panel.prompt("")
 	say_for(str(words.get("breakfast", {}).get("over", "")), LINE_STAYS)
 	acted.emit("breakfast", reason)
 	refresh()
+
+
+## The faces leave the table.
+func _clear_seats() -> void:
+	for seat in seats_node.get_children():
+		seats_node.remove_child(seat)
+		seat.queue_free()
 
 
 ## The clock moved on by hand (tests, the designer): the heads that should have dropped, drop.
@@ -627,11 +752,13 @@ func offer() -> bool:
 		var becomes := str(idea.get("becomes", ""))
 		if plot_rect(becomes).size != Vector2.ZERO and becomes != "lantern_post":
 			state.ideas_claimed[becomes] = id
+			_claimed_at[becomes] = _day_time
 		else:
 			state.small_things.append(id)
 			acted.emit("small_thing", id)
 		say_for((str(c.get("claims", "")) + " " + str(idea.get("line", ""))).strip_edges(), LINE_STAYS, true)
 		acted.emit("told", "%s:%s" % [id, who])
+		_claim_feel(who, id)
 		hand_index = clampi(hand_index, 0, maxi(0, state.ideas_kept.size() - 1))
 		refresh()
 		if state.ideas_kept.is_empty():
@@ -649,7 +776,7 @@ func offer() -> bool:
 
 ## Whether a seat's eyes are open (awake), for the designer's eye and the tests.
 func seat_eyes_open(who: String) -> bool:
-	return seats.has(who) and seats[who].get_node("EyeL").size.y > 1.5
+	return seats.has(who) and seats[who].get_node("Face/EyeL").size.y > 1.5
 
 
 func _update_hand() -> void:
@@ -707,6 +834,7 @@ func _build_street() -> void:
 	table_ideas = _holder("TableIdeas")
 	people_node = _holder("People")
 	seats_node = _holder("Seats")
+	slides_node = _holder("Slides")
 	hand = Node2D.new()
 	hand.name = "Hand"
 	hand.position = Vector2(0, -58)
@@ -760,13 +888,19 @@ func _draw_plots() -> void:
 			_rect_under(node, local, WALL)
 			var window := _rect_under(node, Rect2(Vector2(rect.size.x / 2.0 - WINDOW.x / 2.0, rect.size.y * 0.3), WINDOW), WINDOW_LIT)
 			window.name = "Window"
+			window.modulate.a = window_alpha(id)
 			_label_under(node, idea_name(str(state.ideas_built[id])), Vector2(-60, -26), rect.size.x + 120).name = "Name"
 		elif what == "scaffold":
 			_outline_under(node, local, OUTLINE)
-			_rect_under(node, Rect2(0, rect.size.y / 3.0, rect.size.x, 3), SCAFFOLD)
-			_rect_under(node, Rect2(0, rect.size.y * 2.0 / 3.0, rect.size.x, 3), SCAFFOLD)
+			var bars: Array[ColorRect] = []
+			bars.append(_rect_under(node, Rect2(0, rect.size.y / 3.0, rect.size.x, 3), SCAFFOLD))
+			bars.append(_rect_under(node, Rect2(0, rect.size.y * 2.0 / 3.0, rect.size.x, 3), SCAFFOLD))
 			var diagonal := _rect_under(node, Rect2(Vector2(3, rect.size.y - 3), Vector2(local.size.length() - 6.0, 3)), SCAFFOLD)
 			diagonal.rotation = -atan2(rect.size.y, rect.size.x)
+			bars.append(diagonal)
+			for i in bars.size():
+				bars[i].set_meta("bar", i)   # shown one by one, CROSSBAR_EVERY apart, from the claim (_draw_feel)
+				bars[i].visible = not _claimed_at.has(id)
 			_label_under(node, str(markers.get("scaffold", "")), Vector2(-60, -26), rect.size.x + 120).name = "Name"
 		elif id == "lantern_post" and _small_thing_for("lantern_post") != "":
 			_rect_under(node, Rect2(rect.size.x / 2.0 - 4, 40, 8, rect.size.y - 40), SMALL)
@@ -829,17 +963,20 @@ func _capsule(c: Dictionary, at: Vector2, at_table: bool) -> Node2D:
 	node.name = "%s_%s" % ["Seat" if at_table else "Person", who]
 	node.position = at
 	node.set_meta("id", who)
+	var face := Node2D.new()   # the body and the eyes: what nods
+	face.name = "Face"
+	node.add_child(face)
 	var body := Polygon2D.new()
 	body.name = "Body"
 	body.color = PERSON
 	body.polygon = _stadium(CAPSULE)
 	body.position = Vector2(-CAPSULE.x / 2.0, -CAPSULE.y)
-	node.add_child(body)
+	face.add_child(body)
 	for i in 2:
 		var eye := ColorRect.new()
 		eye.name = "EyeL" if i == 0 else "EyeR"
 		eye.color = EYE
-		node.add_child(eye)
+		face.add_child(eye)
 	_set_eyes(node, true)
 	var name_label := Label.new()
 	name_label.name = "Name"
@@ -876,7 +1013,7 @@ func _stadium(size: Vector2) -> PackedVector2Array:
 ## Open eyes are 4 x 4 squares; shut eyes are 6 x 1 lines a little lower.
 func _set_eyes(node: Node2D, open: bool) -> void:
 	for i in 2:
-		var eye: ColorRect = node.get_node("EyeL" if i == 0 else "EyeR")
+		var eye: ColorRect = node.get_node("Face/EyeL" if i == 0 else "Face/EyeR")
 		eye.size = Vector2(4, 4) if open else Vector2(6, 1)
 		eye.position = Vector2(-9 + i * 10, -CAPSULE.y + 14) if open else Vector2(-10 + i * 10, -CAPSULE.y + 17)
 
@@ -887,7 +1024,7 @@ func _want_label(node: Node2D) -> Label:
 
 ## One idea as a white rect with a black edge and its name above (the
 ## dream's look, small), under `holder`.
-func _add_piece(holder: Node2D, id: String, at: Vector2, index: int) -> void:
+func _add_piece(holder: Node2D, id: String, at: Vector2, index: int) -> Node2D:
 	var piece := Node2D.new()
 	piece.name = "Idea_%s" % id
 	piece.position = at
@@ -908,6 +1045,7 @@ func _add_piece(holder: Node2D, id: String, at: Vector2, index: int) -> void:
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	piece.add_child(label)
 	holder.add_child(piece)
+	return piece
 
 
 func _add_box(rect: Rect2, color: Color) -> ColorRect:

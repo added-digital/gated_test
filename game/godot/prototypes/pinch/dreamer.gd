@@ -24,6 +24,13 @@ extends CharacterBody2D
 ## is offset to the side. `facing` is the last way the body was pushed,
 ## for the dream's set-down.
 ##
+## The feel (day 5), drawn only, every number a constant below: the body
+## rect squashes (SQUASH) for SQUASH_FRAMES after a pinched landing and
+## stretches (STRETCH) as long at a jump, scaled about the feet; the hat
+## stack dips HAT_BOUNCE px and settles when an idea joins it; at a
+## respawn (a new room, or the door after a blink) the body drops in from
+## DROP_IN px above over DROP_IN_FRAMES, so the reappearance reads.
+##
 ## Collision layers (bits); the whole dream uses these:
 ##   1  BOUNDS  (1)   the room's left, right and top: solid asleep and pinched
 ##   2  CRISP   (2)   floors, ledges, blocks: solid only while pinched
@@ -56,6 +63,13 @@ const HAT_GAP := 2.0                 # px between pieces
 const HAND_OFFSET := 20.0            # px the in-hand piece sits to the side
 const WOBBLE := 3.0                  # px the pieces sway asleep
 const BODY_SIZE := Vector2(28, 56)
+const SQUASH := Vector2(1.2, 0.8)    # the body's scale for SQUASH_FRAMES after a pinched landing
+const STRETCH := Vector2(0.8, 1.2)   # ... and for as long at the start of a jump
+const SQUASH_FRAMES := 6
+const HAT_BOUNCE := 6.0              # px the hat stack dips when an idea joins it, then settles
+const HAT_BOUNCE_FRAMES := 8
+const DROP_IN := 8.0                 # px above its place the body appears at a respawn, drawn only
+const DROP_IN_FRAMES := 8
 const SOFT := Color(0.6, 0.6, 0.66)
 const CRISP := Color(0.88, 0.88, 0.88)
 
@@ -71,11 +85,16 @@ var _drop_from := 0.0        # y where the current fall began
 var _settling := 0           # frames after a respawn during which no current is read (see respawn)
 var _jump_held := false
 var _time := 0.0
+var _squash := Vector2.ONE   # the body's scale while _squash_left > 0
+var _squash_left := 0        # frames of squash or stretch left
+var _bounce_left := 0        # frames of the hat's settle bounce left
+var _drop_in_left := 0       # frames of the respawn drop-in left
 
 
 func _ready() -> void:
 	collision_layer = LAYER_DREAMER
 	collision_mask = MASK_ASLEEP
+	body.pivot_offset = Vector2(BODY_SIZE.x / 2.0, BODY_SIZE.y)   # scaled about the feet
 	_drop_from = position.y
 
 
@@ -97,18 +116,20 @@ func _physics_process(delta: float) -> void:
 	var jump_pressed := jump_now and not _jump_held
 	_jump_held = jump_now
 	if pinched:
-		body.position.y = -28.0
+		body.position.y = -BODY_SIZE.y / 2.0 - drop_in()
 		velocity.x = axis * WALK_SPEED
 		if is_on_floor():
 			velocity.y = 0.0
 			if jump_pressed:
 				velocity.y = -JUMP_SPEED
+				_squash = STRETCH
+				_squash_left = SQUASH_FRAMES
 		else:
 			velocity.y += GRAVITY * delta
 		carried_by = []   # pinched: no current holds the body; never keep a stale (freed) area
 	else:
 		_time += delta
-		body.position.y = -28.0 + sin(_time * 2.0) * BOB
+		body.position.y = -BODY_SIZE.y / 2.0 + sin(_time * 2.0) * BOB - drop_in()
 		carried_by = []
 		var carry := Vector2.ZERO
 		if _settling > 0:
@@ -123,15 +144,47 @@ func _physics_process(delta: float) -> void:
 	var was_on_floor := is_on_floor()
 	var y_before := position.y
 	move_and_slide()
-	if not pinched:
-		return
-	var on_floor := is_on_floor()
-	if was_on_floor and not on_floor:
-		_drop_from = y_before   # the feet left a floor: a jump, or a step off an edge
-	elif on_floor and not was_on_floor and position.y - _drop_from > BODY_HEIGHT:
-		hard_landing.emit()
-	if position.y > ROOM_HEIGHT:
+	if pinched:
+		var on_floor := is_on_floor()
+		if was_on_floor and not on_floor:
+			_drop_from = y_before   # the feet left a floor: a jump, or a step off an edge
+		elif on_floor and not was_on_floor:
+			_squash = SQUASH
+			_squash_left = SQUASH_FRAMES
+			if position.y - _drop_from > BODY_HEIGHT:
+				hard_landing.emit()
+	_draw_feel()
+	if pinched and position.y > ROOM_HEIGHT:
 		fell_out.emit()
+
+
+## The frame counters of the feel, after the step: the body's squash or
+## stretch, then the counters tick down.
+func _draw_feel() -> void:
+	body.scale = _squash if _squash_left > 0 else Vector2.ONE
+	if _squash_left > 0:
+		_squash_left -= 1
+	if _bounce_left > 0:
+		_bounce_left -= 1
+	if _drop_in_left > 0:
+		_drop_in_left -= 1
+
+
+## px the body is drawn above its place, settling from DROP_IN to 0 after a respawn.
+func drop_in() -> float:
+	return DROP_IN * _drop_in_left / float(DROP_IN_FRAMES)
+
+
+## px the hat stack is dipped by the settle bounce now; 0 when settled.
+func hat_bounce() -> float:
+	if _bounce_left <= 0:
+		return 0.0
+	return HAT_BOUNCE * sin(PI * (HAT_BOUNCE_FRAMES - _bounce_left + 1) / float(HAT_BOUNCE_FRAMES + 1))
+
+
+## The body's scale now: SQUASH, STRETCH or one.
+func body_scale() -> Vector2:
+	return body.scale
 
 
 ## True while the body is not moving (hovering, or standing with no input).
@@ -155,6 +208,7 @@ func respawn(at: Vector2) -> void:
 	velocity = Vector2.ZERO
 	_drop_from = at.y
 	_settling = 2
+	_drop_in_left = DROP_IN_FRAMES
 	frozen = false
 	visible = true
 
@@ -168,6 +222,8 @@ func rect() -> Rect2:
 ## one to the side while it is in the hand.
 func set_hat(count: int, top_in_hand := false) -> void:
 	in_hand = top_in_hand and count > 0
+	if count > hat.get_child_count():
+		_bounce_left = HAT_BOUNCE_FRAMES   # an idea joined the pile: it settles with a bounce
 	for piece in hat.get_children():
 		hat.remove_child(piece)
 		piece.queue_free()
@@ -198,7 +254,7 @@ func hat_top_offset() -> float:
 ## The pile follows the head (the body bobs asleep); each piece sways asleep
 ## and sits still pinched; the in-hand piece sits to the side the body faces.
 func _place_hat() -> void:
-	hat.position = Vector2(0.0, body.position.y)
+	hat.position = Vector2(0.0, body.position.y + hat_bounce())
 	var count := hat.get_child_count()
 	for i in count:
 		var piece: ColorRect = hat.get_child(i)

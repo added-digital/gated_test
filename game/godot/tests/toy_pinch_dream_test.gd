@@ -3,7 +3,7 @@ extends Node2D
 ## dream.tscn alone, with a fresh PinchState), headless. The dreamer is
 ## driven through the input actions (Input.action_press) with frame
 ## budgets; positions, lucidity and the frame are read back. The run, night
-## 1: the dealer (tutorial first, four of the six rooms in the seeded
+## 1: the dealer (tutorial first, four of the seven rooms in the seeded
 ## order, the bed last; night 2 has no tutorial; since day 3 the seeded
 ## night 1 happens to hold a and b, which this test drives, and the frame
 ## follows the dreamer and eases, so check_frame reads the shown
@@ -58,10 +58,10 @@ func _ready() -> void:
 
 	# (7) The dealer, night 1.
 	var order: Array = dream.rooms_tonight()
-	check(order.size() == 6 and order[0] == "tutorial" and order[5] == "bed", "night 1 deals 6 rooms (day 3: four of six plus the tutorial and the bed), the tutorial first and the bed last: %s" % [order])
+	check(order.size() == 6 and order[0] == "tutorial" and order[5] == "bed", "night 1 deals 6 rooms (four of the seven rooms plus the tutorial and the bed), the tutorial first and the bed last: %s" % [order])
 	var middle: Array = order.slice(1, 5)
 	middle.sort()
-	var pool: Array = ["a", "b", "c", "d", "e", "ladder"]
+	var pool: Array = ["a", "b", "c", "d", "e", "f", "ladder"]   # day 5: room f joined the pool
 	check(middle.size() == 4 and middle.has("a") and middle.has("b") and middle[0] != middle[1] and middle[1] != middle[2] and middle[2] != middle[3] and pool.has(middle[0]) and pool.has(middle[1]) and pool.has(middle[2]) and pool.has(middle[3]), "four rooms lie between them, each once, a and b among them: %s" % [order])
 	check(order == dream.deal(1) and dream.deal(1) == dream.deal(1), "the order is the deal seeded by day 1, the same each time")
 	var night2: Array = dream.deal(2)

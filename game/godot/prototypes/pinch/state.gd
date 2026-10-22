@@ -15,6 +15,8 @@ extends Resource
 ## talked:<who>, asked:<request>, said:<who>:<line>, made:pills. Conditions
 ## on a line or a request (an "if" list in data/characters.json) are flag
 ## names, or tally:N, tally>=N, day:N, day>=N, has_pills (holds()).
+## gauge_visible (day 5) is the one setting: H in the dream toggles the
+## sleep gauge and the choice holds for the rest of the session.
 
 const TILE := 256.0          # px: one tile of street; the dark recedes one tile per building
 const BASE_LIT_TILES := 3    # tiles lit on each side of the Long House before anything stands
@@ -34,6 +36,7 @@ var flags := {}                         # memory: name -> true
 var has_pills := false                  # made at the stove shed after Tove's request
 var pill_tonight := false               # a pill taken at the bunk: the limit is PILL_BONUS higher this night only
 var breakfast_done_day := 0             # the last day breakfast happened (or was walked away from)
+var gauge_visible := true               # the sleep gauge is shown; H toggles it and the session remembers (day 5)
 
 
 ## Tiles lit on each side of the Long House: three, plus one per building standing.
