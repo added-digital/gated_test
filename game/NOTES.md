@@ -7,7 +7,7 @@ Read this first, every session. Rung, question, evidence, kill date.
 Who is on what (see `SESSIONS.md`). One owner per task; the other session pulls.
 
 - 2026-10-21 · Gated - cloud · the *gated* page, version 1: done, published; republish on request.
-- 2026-10-22 · Gated - cloud · PINCH, the loop toy (rung 3, toy 4): all five build days landed; next: a readability pass (dev bar, text, colours, labels; the fade waits in seconds), then the loop rebuild from the designer's direction when they say go.
+- 2026-10-22 · Gated - cloud · PINCH, the loop toy (rung 3, toy 4): all five build days landed; the readability pass is building; then the second loop (toy 4b, `prototypes/pinch/SPEC-2.md`: a chosen target per night, branching rooms, scraps, the self-pinch, the Desk), three build days, on the designer's go of 2026-10-22.
 - 2026-10-21 · Gated - local · first run of the three toys on the GPU, the chimes in sequence, observations below, then confidants.
 - 2026-10-22 · Gated - local · PINCH day 1, the evening play on the GPU, three observations under Log: done.
 - 2026-10-22 · Gated - local · PINCH days 2 and 3, the evening play on the GPU (the frame at each step), three observations each under Log: done.
@@ -36,6 +36,7 @@ Who is on what (see `SESSIONS.md`). One owner per task; the other session pulls.
 - 2026-10-21 · Engine: Godot stays (4.6). Re-decided only through a written kill line.
 - 2026-10-21 · Walk: walkable after the scale pass. Rung 2 passed.
 - 2026-10-22 · Concept: PINCH (a village by day, the village's dream by night, the village grows from the ideas found there; lucidity is the night's constraint), chosen by the designer from two concept passes (`game/concepts/`). Setting is the designer's own north; the sakura kit is not used by this toy and stays on the shelf.
+- 2026-10-22 · Second loop: after playing the first, the designer asked for a night that is a choice (a target on a visible map, branching rooms, a free exit that keeps only scraps, the Desk as the surface burst) and said yes to the self-pinch. Built as toy 4b per `SPEC-2.md`; the kill date stays 2026-11-10.
 - 2026-10-22 · Deviation, written down: toy 4 tests a loop at 20 minutes, not a verb at 5, because the reference research showed that for a Dave-type game the loop is the unit (one verb alone was "one-dimensional"). Toys 1 to 3 retire into it: Pim's memory becomes Jorun's and Tove's, Help's clock becomes breakfast, the far sound becomes the crisp idea across the room. Their kill dates lapse.
 
 ## Goal (rung 1)
