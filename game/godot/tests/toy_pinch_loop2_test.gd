@@ -236,7 +236,13 @@ func _ready() -> void:
 	check(not dream.has_method("grab") and dream.ideas_in_room() == ["pills"] and dream.lucidity == lucidity_at_idea and not dream.grab_scrap(), "there is no grab for an idea (day B): it is reached, never carried; grab_scrap finds nothing")
 	check(dream.can_reach() and dream.devbar_text().contains(str(dw.reach)) and not dw.has("grab"), "the dev bar offers the reach: '%s'" % dream.devbar_text())
 	await press_key(KEY_E)
-	check(reaches == [["bo", "pills"]] and wakes.size() == 1 and wakes[0][0] == false and wakes[0][1] == ["round", "square", "long"], "E: reached(bo, pills), then woke(false, the three scraps) at once")
+	var shown_at_e: float = dream.shown_aperture()
+	check(reaches == [["bo", "pills"]] and wakes.is_empty() and dream.reaching() and not dream.woken, "E: reached(bo, pills) at once; the reach's opening begins (day C: 0.6 s before the waking)")
+	for i in 6:
+		await get_tree().physics_frame
+	check(dream.reaching() and dream.shown_aperture() > shown_at_e and goal_idea_node.rise() > 0.0 and sleeper.snore_scale() > 1.0, "6 frames on: the frame is opening (%.3f -> %.3f), the idea's name has risen %.1f px, the snore mark has grown (x%.2f)" % [shown_at_e, dream.shown_aperture(), goal_idea_node.rise(), sleeper.snore_scale()])
+	frames = await wait_until(func() -> bool: return wakes.size() == 1, 60)
+	check(frames < 60 and frames + 6 >= 30 and wakes[0][0] == false and wakes[0][1] == ["round", "square", "long"] and is_equal_approx(dream.shown_aperture(), 1.0), "then woke(false, the three scraps) about 0.6 s after the E (%d frames), the frame open to full" % (frames + 6))
 	check(dream.woken and dream.scraps_carried == ["round", "square", "long"] and acts.has(["reach", "pills"]), "the night is over with the three scraps still at the hip; acted reach:pills")
 	Input.action_release("pinch")
 	Input.action_release("move_right")
@@ -267,8 +273,8 @@ func _ready() -> void:
 	frames = await hold_until("move_right", func() -> bool: return dream.can_reach(), 600)
 	check(frames < 600, "at the idea")
 	await press_key(KEY_E)
-	await settle()
-	check(wakes.size() == 1 and wakes[0][0] == false and reaches == [["bo", "pills"]] and toy.dream == null and not toy.picking, "E: the night ended gently, no picker")
+	frames = await wait_until(func() -> bool: return toy.dream == null, 90)   # the reach's opening (0.6 s, day C), then the waking
+	check(frames < 90 and wakes.size() == 1 and wakes[0][0] == false and reaches == [["bo", "pills"]] and toy.dream == null and not toy.picking, "E: the night ended gently after the reach's opening, no picker")
 	check(state.ideas_kept == ["pills"] and state.scraps == ["round", "square"] and state.scraps_carried.is_empty(), "the idea is in ideas_kept and the scraps in state.scraps: %s, %s" % [state.ideas_kept, state.scraps])
 	check(state.reached.get("bo", false) and state.has_flag("reached:bo") and state.has_flag("kept:pills") and state.tally == 0 and state.day == 2, "reached:bo; the tally untouched; day 2")
 	var summary: String = toy.harness.summary()

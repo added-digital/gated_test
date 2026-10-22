@@ -22,13 +22,6 @@
           "text": "It's lit. From the inside, like I said. Every door down there has a name on it now; don't read them all at once."
         },
         {
-          "id": "developed_weak",
-          "if": [
-            "developed_weak:lantern"
-          ],
-          "text": "It's lit, just. Enough for one hall. Next time bring more thoughts and fewer excuses."
-        },
-        {
           "id": "reached",
           "if": [
             "reached:tove"
@@ -75,13 +68,6 @@
             "developed:sixteen_stairs"
           ],
           "text": "Sixteen steps, all of them. Jorun has seen the scaffold. Jorun does not look pleased. Jorun is pleased."
-        },
-        {
-          "id": "developed_weak",
-          "if": [
-            "developed_weak:sixteen_stairs"
-          ],
-          "text": "Eight steps. Half a staircase. I'll take it; the fish won't know the difference."
         },
         {
           "id": "reached",
@@ -140,13 +126,6 @@
             "developed:pills"
           ],
           "text": "You brought the jar up whole. One of those and Jorun will sleep through the thaw. Don't tell her what's in them. I don't know either."
-        },
-        {
-          "id": "developed_weak",
-          "if": [
-            "developed_weak:pills"
-          ],
-          "text": "Half a jar. It'll do for a night or two of quiet. Next time don't rush the desk."
         },
         {
           "id": "reached",

@@ -2,43 +2,46 @@ class_name PinchState
 extends Resource
 ## The one state of toy 4b, PINCH (rung 3, the second loop): what day it
 ## is, the limits, whose dream tonight is, which ideas have been reached,
-## developed, built, the scraps brought home, the tally of sudden wakings
-## and the memory flags. One instance lives in the controller (pinch.gd)
-## and is handed to the village and the dream before they enter the tree;
-## nothing else holds state. Nothing is saved.
+## the outlines waiting on the desk, the things developed and built, the
+## scraps brought home, the tally of sudden wakings and the memory flags.
+## One instance lives in the controller (pinch.gd) and is handed to the
+## village and the dream before they enter the tree; nothing else holds
+## state. Nothing is saved.
 ##
 ## A night (SPEC-2): `target` is whose dream tonight is (set at the wall,
 ## or by the hub's other exit; it stays until changed, and the wall shows
 ## it); `reached` remembers whose idea has been reached (who -> true: the
-## wall names it; a reached branch gives its idea no second time); the
-## idea reached comes home as ideas_kept (on the desk the next morning)
-## and the scraps as `scraps` (shape ids, the Desk's cards, at most
-## KEEP_SCRAPS); scraps_carried are the ones in the dream now, at most
-## CARRY_SCRAPS.
+## wall names it; a reached branch gives its idea no second time, two
+## scraps instead); the idea reached comes home as ideas_kept (on the desk
+## from the next morning on) and the scraps as `scraps` (shape ids, the
+## Desk's cards, at most KEEP_SCRAPS); scraps_carried are the ones in the
+## dream now, at most CARRY_SCRAPS.
 ##
-## A morning (day B, the Desk): the idea is developed as far as the
-## outline is filled. A building idea claimed in full goes to
-## ideas_claimed (plot -> idea: a scaffold today) and stands the next
-## morning (ideas_built, new_day); developed weak it is a small building
-## (weak_buildings[plot]). The pill is `pill_bonus` (+2 full, +1 weak,
-## for every night after: night_limit()). The lantern is `lantern` (every
-## room on the wall is named) or, weak, names every room of one branch
-## (`revealed`, who -> rooms named from the branch's start: also what
-## three scraps alone reveal, one more room at a time).
+## A morning (day C, the Desk): a reached idea's OUTLINE stays on the desk
+## morning after morning until it is complete: `outlines` holds, per idea
+## on the desk, the shape fitted into each of its slots ("" while empty;
+## outline_filled lays it the first time, fill_slot fills one, the light
+## going or walking away keeps what is filled). The thing is developed the
+## moment the last slot fills (develop: the outline goes, the idea leaves
+## the desk, the flag developed:<idea>): in full, only. A building idea goes
+## to ideas_claimed (plot -> idea: a scaffold today) and stands the next
+## morning (ideas_built, new_day). The pill is `pill_bonus` (+FULL_PILL for
+## every night after: night_limit()). The lantern is `lantern` (every room
+## on the wall is named). Three scraps alone reveal one more room of one
+## branch (`revealed`, who -> rooms named from the branch's start).
 ##
 ## Flags (memory, name -> true): built:<plot>, kept:<idea>, talked:<who>,
-## reached:<who>, developed:<idea>, developed_weak:<idea>, asked:<request>,
-## said:<who>:<line>, revealed:<who>. Conditions on a line or a request
-## (an "if" list in data/characters.json) are flag names, or tally:N,
-## tally>=N, day:N, day>=N. gauge_visible and devbar_visible are the two
-## settings (H and Tab in the dream; the choice holds for the session).
+## reached:<who>, developed:<idea>, asked:<request>, said:<who>:<line>,
+## revealed:<who>. Conditions on a line or a request (an "if" list in
+## data/characters.json) are flag names, or tally:N, tally>=N, day:N,
+## day>=N. gauge_visible and devbar_visible are the two settings (H and
+## Tab in the dream; the choice holds for the session).
 
 const TILE := 256.0          # px: one tile of street; the dark recedes one tile per building
 const BASE_LIT_TILES := 3    # tiles lit on each side of the Long House before anything stands
 const CARRY_SCRAPS := 3      # scraps carried in the dream at once (SPEC-2: carry 3)
 const KEEP_SCRAPS := 6       # scraps kept for the Desk at most (SPEC-2: leftovers up to six)
-const FULL_PILL := 2         # the limit grows this much for every night after a pill developed in full
-const WEAK_PILL := 1         # ... and this much for a weak one
+const FULL_PILL := 2         # the limit grows this much for every night after the pill is developed
 
 var day := 1
 var target := ""                        # whose dream tonight (a villager id), "" before the wall is read
@@ -47,13 +50,13 @@ var scraps: Array[String] = []          # scrap shapes brought home, in order: t
 var scraps_carried: Array[String] = []  # scrap shapes at the hip, in the dream now
 var carry_scraps := CARRY_SCRAPS
 var lucidity_limit := 8                 # the limit without a pill; night_limit() is tonight's
-var pill_bonus := 0                     # the pill developed at the Desk: FULL_PILL or WEAK_PILL more, every night after
-var lantern := false                    # the lantern developed in full: the wall names every room
-var revealed := {}                      # who -> rooms of their branch the wall names, from its start (the reveal, the weak lantern)
-var ideas_kept: Array[String] = []      # reached last night: on the desk this morning
+var pill_bonus := 0                     # the pill developed at the Desk: FULL_PILL more, every night after
+var lantern := false                    # the lantern developed: the wall names every room
+var revealed := {}                      # who -> rooms of their branch the wall names, from its start (the reveal)
+var ideas_kept: Array[String] = []      # the ideas on the desk, in the order reached; each leaves it when developed
+var outlines := {}                      # idea id -> Array[String]: per slot the shape fitted, "" while empty (laid by outline_filled)
 var ideas_claimed := {}                 # plot id -> idea id, developed at the Desk today: a scaffold
 var ideas_built := {}                   # plot id -> idea id, standing on the street
-var weak_buildings := {}                # plot id -> true: developed weak, a small building (claimed, then built)
 var tally := 0                          # nights woken suddenly: one mark each on the wall
 var flags := {}                         # memory: name -> true
 var desk_done_day := 0                  # the last day the Desk ran (or was walked away from)
@@ -71,9 +74,10 @@ func night_limit() -> int:
 	return lucidity_limit + pill_bonus
 
 
-## An idea kept at waking: on the desk, and remembered.
+## An idea kept at waking: on the desk (once; its outline waits there), and remembered.
 func keep(id: String) -> void:
-	ideas_kept.append(id)
+	if not ideas_kept.has(id):
+		ideas_kept.append(id)
 	set_flag("kept:%s" % id)
 
 
@@ -87,24 +91,58 @@ func keep_scrap(shape: String) -> bool:
 	return true
 
 
-## An idea reached in its goal room (SPEC-2): the wall names it from now on.
+## An idea reached in its goal room (SPEC-2): the wall names it from now on, and it is on the desk.
 func reach(who: String, idea: String) -> void:
 	reached[who] = true
 	set_flag("reached:%s" % who)
 	keep(idea)
 
 
-## A building idea developed at the Desk: a scaffold on its plot today
-## (standing tomorrow), a small one when developed weak.
-func claim(plot: String, idea: String, weak: bool) -> void:
+# --- the outlines on the desk ----------------------------------------------------
+
+## The outline of an idea on the desk: per slot the shape fitted, "" while
+## empty; laid with `total` empty slots the first time it is asked for
+## (and padded to `total` after). The array is the state's own.
+func outline_filled(idea: String, total: int) -> Array[String]:
+	if not outlines.has(idea):
+		outlines[idea] = [] as Array[String]
+	var filled: Array[String] = outlines[idea]
+	while filled.size() < total:
+		filled.append("")
+	return filled
+
+
+## One slot of an idea's outline filled with a shape (the Desk's fit); kept until the thing is developed.
+func fill_slot(idea: String, index: int, shape: String) -> void:
+	var filled: Array[String] = outline_filled(idea, index + 1)
+	filled[index] = shape
+
+
+## How many slots of an idea's outline are filled (0 for an outline not laid yet).
+func outline_count(idea: String) -> int:
+	var n := 0
+	for shape in outlines.get(idea, []):
+		if shape != "":
+			n += 1
+	return n
+
+
+## The thing developed, in full (every slot filled): the outline goes, the
+## idea leaves the desk, and it is remembered (developed:<idea>).
+func develop(idea: String) -> void:
+	outlines.erase(idea)
+	ideas_kept.erase(idea)
+	set_flag("developed:%s" % idea)
+
+
+## A building idea developed at the Desk: a scaffold on its plot today (standing tomorrow).
+func claim(plot: String, idea: String) -> void:
 	ideas_claimed[plot] = idea
-	if weak:
-		weak_buildings[plot] = true
 
 
 ## The pill developed: the limit is higher for every night after, for good.
-func develop_pill(weak: bool) -> void:
-	pill_bonus += WEAK_PILL if weak else FULL_PILL
+func develop_pill() -> void:
+	pill_bonus += FULL_PILL
 
 
 ## One more room of a branch is known on the wall (three scraps at the Desk). Returns how many are.
@@ -112,12 +150,6 @@ func reveal(who: String, branch_rooms: int) -> int:
 	revealed[who] = mini(int(revealed.get(who, 0)) + 1, branch_rooms)
 	set_flag("revealed:%s" % who)
 	return revealed[who]
-
-
-## Every room of one branch is known (the weak lantern).
-func reveal_all(who: String, branch_rooms: int) -> void:
-	revealed[who] = branch_rooms
-	set_flag("revealed:%s" % who)
 
 
 ## Whether the wall names the `index`-th room of a branch: with the lantern, every one; else as far as revealed.

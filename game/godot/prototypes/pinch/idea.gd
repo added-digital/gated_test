@@ -10,6 +10,8 @@ extends StaticBody2D
 ## higher than a body standing beside it, on a dark backing, with a thin
 ## leader down to the box; its box is kept inside the room's width
 ## (ROOM_WIDTH) so an idea by a wall is not clipped at the screen's edge.
+## The feel (day C): at a reach the name slides up (set_rise: px above
+## its place, the leader stretching with it; rise() reads it back).
 
 const SIZE := Vector2(48, 24)
 const LAYER_CRISP := 2
@@ -25,6 +27,7 @@ var idea_name := ""
 
 var label: Label = null
 var leader: ColorRect = null
+var _label_top := 0.0   # the name's y at rest
 
 
 ## Called before add_child: which idea this is, and its name for the label.
@@ -50,6 +53,7 @@ func _ready() -> void:
 	_rect(-half - Vector2(2, 2), SIZE + Vector2(4, 4), Color.BLACK)
 	_rect(-half, SIZE, Color.WHITE)
 	var label_top := -half.y - LABEL_ABOVE - PinchLabel.LINE
+	_label_top = label_top
 	var label_x := clampf(-LABEL_WIDTH / 2.0, 4.0 - position.x, ROOM_WIDTH - 4.0 - LABEL_WIDTH - position.x)
 	label = PinchLabel.make(idea_name, Vector2(label_x, label_top), LABEL_WIDTH)
 	label.name = "Name"
@@ -60,6 +64,20 @@ func _ready() -> void:
 	leader.position = Vector2(-LEADER_WIDTH / 2.0, label_top + PinchLabel.LINE)
 	leader.size = Vector2(LEADER_WIDTH, LABEL_ABOVE - 2.0)
 	add_child(leader)
+
+
+## The name drawn `px` above its place (the reach), the leader stretched down to the box.
+func set_rise(px: float) -> void:
+	if label == null:
+		return
+	label.position.y = _label_top - px
+	leader.position.y = _label_top + PinchLabel.LINE - px
+	leader.size.y = LABEL_ABOVE - 2.0 + px
+
+
+## px the name is drawn above its place now.
+func rise() -> float:
+	return _label_top - label.position.y if label != null else 0.0
 
 
 ## The box, in the room.

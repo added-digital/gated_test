@@ -12,13 +12,26 @@ extends Node2D
 ## from data/village.json "wall", the names from data/characters.json,
 ## data/ideas.json and data/rooms.json, handed in by the village (setup).
 ## refresh(state) redraws; the readers (shown_branches, goal_text,
-## row_room_names, ...) are for the designer's eye and the tests.
-## `position` is the map's top-left corner.
+## row_room_names, progress_text, ...) are for the designer's eye and the
+## tests. `position` is the map's top-left corner.
 ##
 ## Map knowledge (day B): a room box the state knows (state.room_known:
-## the lantern developed in full names every room; a weak lantern or three
-## scraps at the Desk name a branch's rooms from its start) is drawn wide
-## (NAMED_BOX) with the room's name inside; the rest stay blank boxes.
+## the lantern names every room; three scraps at the Desk name a branch's
+## rooms from its start) is drawn wide (NAMED_BOX) with the room's name
+## inside; the rest stay blank boxes.
+##
+## The outline's progress (day C): a reached idea whose outline waits on
+## the desk (state.ideas_kept) has its count after its name ("2 / 4",
+## village.json wall.progress, from state.outline_count); developed, the
+## name stands alone.
+##
+## The feel (day C), drawn only, every number a constant below: with a
+## target chosen, the chosen row is drawn at full brightness and the
+## others at ROW_DIM (before any target every row rests at ROW_REST); a
+## change eases each row to its level over BRIGHTEN seconds
+## (row_brightness); the goal box of a branch not yet reached (the
+## question mark's) pulses slowly, PULSE either way about its middle over
+## PULSE_PERIOD seconds (goal_pulse_scale); a reached one stands still.
 
 const BOX := Vector2(22, 14)      # px: one room on the map, unknown
 const NAMED_BOX := Vector2(92, 14)   # px: a room the map names
@@ -27,11 +40,17 @@ const ROW := 24.0                 # px between rows
 const NAME_WIDTH := 56.0          # px: the villager's name at a row's left
 const HUB_WIDTH := 110.0          # px: the hub's word beside its box
 const GOAL_WIDTH := 120.0         # px: the question mark or the idea's name after the goal box
+const PROGRESS_WIDTH := 56.0      # px: the outline's count after the idea's name
 const NOTE_WIDTH := 200.0
 const TONIGHT_WIDTH := 170.0
 const FONT := 11
 const ROOM_FONT := 10
 const STEM := 2.0                 # px: the line from the hub down to the rows
+const ROW_REST := 0.85            # every row's brightness before a target is chosen
+const ROW_DIM := 0.5              # the rows not chosen, once one is
+const BRIGHTEN := 0.4             # s a row takes to brighten or dim when the target changes
+const PULSE := 0.12               # the question mark's box swells and shrinks this much either way
+const PULSE_PERIOD := 2.5         # s per swing
 const BOX_COLOR := Color(0.74, 0.74, 0.78)
 const NAMED_COLOR := Color(0.86, 0.86, 0.9)
 const HUB_COLOR := Color(0.86, 0.86, 0.88)
@@ -51,6 +70,9 @@ var note_label: Label = null
 var rows := {}                    # who -> Node2D (the row drawn for that branch)
 var rows_node: Node2D = null
 var _width := 0.0                 # px: the widest row drawn
+var _levels := {}                 # who -> the row's brightness now (ROW_DIM .. 1)
+var _targets := {}                # who -> the brightness the row eases to
+var _time := 0.0
 
 
 ## Before add_child: the words and the names this map draws with.
@@ -80,14 +102,28 @@ func _ready() -> void:
 	add_child(rows_node)
 
 
+func _process(delta: float) -> void:
+	_time += delta
+	for who in rows:
+		var level: float = _levels.get(who, 1.0)
+		var to: float = _targets.get(who, 1.0)
+		level = move_toward(level, to, delta * (1.0 - ROW_DIM) / BRIGHTEN)   # dim to full in BRIGHTEN seconds
+		_levels[who] = level
+		var v := row_brightness(who)
+		(rows[who] as Node2D).modulate = Color(v, v, v, 1.0)
+		var goal: ColorRect = (rows[who] as Node2D).get_node_or_null("Goal")
+		if goal != null:
+			goal.scale = Vector2.ONE * goal_pulse_scale(who)
+
+
 ## A word from village.json "wall"; the key itself when the file lacks it.
 func word(key: String) -> String:
 	return str(words.get(key, key))
 
 
 ## Redrawn from the state: the rows of the talked-to villagers, the room
-## boxes named as far as known, the goal boxes named or not, the note,
-## tonight's target.
+## boxes named as far as known, the goal boxes named or not with the
+## outline's progress, the note, tonight's target, each row's brightness.
 func refresh(state: PinchState) -> void:
 	for row in rows_node.get_children():
 		rows_node.remove_child(row)
@@ -127,14 +163,23 @@ func refresh(state: PinchState) -> void:
 		var reached: bool = state.reached.get(who, false)
 		var goal := _box(row, Vector2(x, (PinchLabel.LINE - BOX.y) / 2.0), BOX, REACHED_COLOR if reached else GOAL_COLOR)
 		goal.name = "Goal"
+		goal.pivot_offset = BOX / 2.0   # the pulse swells about its middle
+		goal.set_meta("pulses", not reached)
 		var idea := str(branch.get("idea", ""))
 		var goal_text := str(idea_names.get(idea, idea)) if reached else word("unknown")
 		var goal_label := PinchLabel.make(goal_text, Vector2(x + BOX.x + 6.0, 0.0), GOAL_WIDTH, HORIZONTAL_ALIGNMENT_LEFT, FONT)
 		goal_label.name = "GoalLabel"
 		row.add_child(goal_label)
+		var progress := ""
+		if reached and state.ideas_kept.has(idea):
+			progress = word("progress").format({"filled": state.outline_count(idea), "total": branch.get("slots", []).size()})
+		var progress_label := PinchLabel.make(progress, Vector2(x + BOX.x + 6.0 + GOAL_WIDTH + 4.0, 0.0), PROGRESS_WIDTH, HORIZONTAL_ALIGNMENT_LEFT, FONT)
+		progress_label.name = "Progress"
+		progress_label.visible = progress != ""
+		row.add_child(progress_label)
 		rows_node.add_child(row)
 		rows[who] = row
-		_width = maxf(_width, x + BOX.x + 6.0 + GOAL_WIDTH)
+		_width = maxf(_width, x + BOX.x + 6.0 + GOAL_WIDTH + 4.0 + PROGRESS_WIDTH)
 	note_label.visible = rows.is_empty()
 	var stem: ColorRect = get_node_or_null("Stem")
 	if stem != null:
@@ -149,6 +194,16 @@ func refresh(state: PinchState) -> void:
 		tonight = word("tonight").format({"name": str(names.get(state.target, state.target))})
 	PinchLabel.set_text(tonight_label, tonight)
 	tonight_label.visible = tonight != ""
+	# Each row's brightness: the chosen one full, the rest dim; all at rest with no target.
+	for who in rows:
+		var level := ROW_REST
+		if tonight != "":
+			level = 1.0 if who == state.target else ROW_DIM
+		_targets[who] = level
+		if not _levels.has(who):
+			_levels[who] = level   # a new row starts where it belongs; a change eases
+		var v := row_brightness(who)
+		(rows[who] as Node2D).modulate = Color(v, v, v, 1.0)
 
 
 # --- readers ---------------------------------------------------------------------
@@ -170,6 +225,36 @@ func goal_text(who: String) -> String:
 	if not rows.has(who):
 		return ""
 	return (rows[who].get_node("GoalLabel") as Label).text
+
+
+## The outline's progress after a branch's idea ("2 / 4"); "" before the idea is reached and once it is developed.
+func progress_text(who: String) -> String:
+	if not rows.has(who):
+		return ""
+	var label: Label = rows[who].get_node("Progress")
+	return label.text if label.visible else ""
+
+
+## How bright a branch's row is drawn now: 1 for the chosen one, ROW_DIM
+## for the rest once a target is chosen, ROW_REST before; eased.
+func row_brightness(who: String) -> float:
+	return float(_levels.get(who, 1.0))
+
+
+## The brightness a branch's row is easing to.
+func row_brightness_target(who: String) -> float:
+	return float(_targets.get(who, 1.0))
+
+
+## The scale of a branch's goal box now: swinging 1 - PULSE .. 1 + PULSE
+## while the branch is unreached (the question mark); 1 once reached.
+func goal_pulse_scale(who: String) -> float:
+	if not rows.has(who):
+		return 1.0
+	var goal: ColorRect = rows[who].get_node("Goal")
+	if not goal.get_meta("pulses", false):
+		return 1.0
+	return 1.0 + PULSE * sin(TAU * _time / PULSE_PERIOD)
 
 
 ## The room boxes of a branch, in order (their room ids).

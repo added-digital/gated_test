@@ -23,17 +23,25 @@ extends Node2D
 ## SCRAPS (data/scraps.json): three shapes, scraps_per_night of them hung
 ## over the hub's and the branch rooms' spots (never the goal room;
 ## deal_scraps is pure), SCRAP_HOVER px up at hand height so they never
-## block a walk; a scrap (scrap.gd) is grabbed with E pinched within
-## GRAB_REACH (+1), carried at the hip up to state.carry_scraps, set down
-## with Q as a small step (+1) and grabbed again. effective = lucidity +
-## scraps carried. Ideas are never carried (day B: the first loop's hat
-## stack is gone): the only idea in a night lies in THE GOAL ROOM, beside
-## the villager asleep (placed by the dealer from the branch, marked
-## `goal`: it cannot be grabbed): E at it while pinched REACHES it:
-## reached(who, idea), then woke(false, scraps) at once; the night ends
-## gently with the idea and every scrap. A branch already reached (day B)
-## gives its idea no second time: where it lay, two scraps hang and a line
-## says so (rooms.json "already"; already_text()).
+## block a walk; the shapes cycle round, square, long, except down a
+## branch whose idea is reached and whose outline still waits on the
+## desk (day C): then the shapes dealt favour the outline's MISSING slot
+## shapes (missing_shapes, cycling them), so a night down a known branch
+## brings what the desk still wants. A scrap (scrap.gd) is grabbed with E
+## pinched within GRAB_REACH (+1), carried at the hip up to
+## state.carry_scraps, set down with Q as a small step (+1) and grabbed
+## again. effective = lucidity + scraps carried. Ideas are never carried
+## (day B: the first loop's hat stack is gone): the only idea in a night
+## lies in THE GOAL ROOM, beside the villager asleep (placed by the dealer
+## from the branch, marked `goal`: it cannot be grabbed): E at it while
+## pinched REACHES it: reached(who, idea) at once, then THE REACH (day C,
+## drawn only): over REACH_OPENS seconds the frame opens to full, the
+## sleeper's snore mark grows once (sleeper.grow_snore) and the idea's
+## name slides up NAME_RISE px (idea.set_rise), nothing counting
+## meanwhile (reaching(), reach_share()); then woke(false, scraps): the
+## night ends gently with the idea and every scrap. A branch already
+## reached (day B) gives its idea no second time: where it lay, two
+## scraps hang and a line says so (rooms.json "already"; already_text()).
 ##
 ## THE SELF-PINCH: holding PINCH for SELF_PINCH seconds standing still on
 ## a floor (no movement input, the body still) wakes the dreamer on
@@ -119,6 +127,8 @@ const SCRAP_ROOMS: Array[String] = ["hub", "a", "b", "c", "d", "e", "f"]   # roo
 const ALREADY_SCRAPS := 2     # scraps hung where the idea was, on a branch already reached
 const SCRAP_HOVER := 64.0     # px a dealt scrap hangs above its spot: at hand height, clear of a body standing under it
 const SCRAP_SPREAD := 40.0    # px sideways between scraps sharing a spot (the hub alone holds all six)
+const REACH_OPENS := 0.6      # s from E at the goal's idea to the gentle waking: the frame opens to full
+const NAME_RISE := 24.0       # px the idea's name slides up in that time
 const SELF_PINCH := 3.0       # s PINCH is held still on a floor to wake on purpose
 const FLICKER_FROM := 1.0     # s into the hold the frame starts to flicker
 const FLICKER := 0.05         # the shown aperture swings this far either way while it flickers
@@ -176,6 +186,9 @@ var goal_idea := ""                 # which idea lies by them ("" elsewhere, and
 var already_label: Label = null     # the "already dreamed" line in a reached branch's goal room
 var _hold := 0.0                    # s PINCH has been held still on a floor (the self-pinch)
 var _self_pinched := false          # the night ended by the self-pinch
+var _reach_t := -1.0                # s into the reach's opening; -1 when not reaching
+var _reach_from := 1.0              # the shown aperture when the reach began
+var _reach_idea: StaticBody2D = null   # the idea reached, whose name rises
 var rooms_data: Array = []          # rooms.json "rooms", in order
 var words: Dictionary = {}          # rooms.json "words"
 var gauge_words: Dictionary = {}    # rooms.json "gauge"
@@ -264,6 +277,16 @@ func _physics_process(delta: float) -> void:
 		return
 	_ease(delta)
 	_update_gauge()
+	if reaching():
+		_reach_t += delta
+		var share := reach_share()
+		_shown = lerpf(_reach_from, 1.0, share)   # the frame opens to full
+		if is_instance_valid(_reach_idea):
+			_reach_idea.set_rise(NAME_RISE * share)   # the idea's name slides up
+		_update_frame()
+		if _reach_t + HOLD_EPSILON >= REACH_OPENS:
+			_wake(false)
+		return
 	if closing:
 		if _shown <= 0.0005:
 			_shut_t += delta
@@ -360,8 +383,10 @@ func available_branches() -> Array[String]:
 
 ## The scraps of one night: room id -> shapes, `count` of them over the
 ## rooms of `order` that have spots (SCRAP_ROOMS; never the goal room),
-## filled room by room, the shapes cycling round, square, long. Pure.
-func deal_scraps(order: Array[String], count: int) -> Dictionary:
+## filled room by room, the shapes cycling round, square, long; with
+## `favour` (day C: the shapes an outline on the desk still wants) the
+## shapes cycle through those instead. Pure.
+func deal_scraps(order: Array[String], count: int, favour: Array = []) -> Dictionary:
 	var dealt := {}
 	var rooms: Array[String] = []
 	for id in order:
@@ -374,8 +399,26 @@ func deal_scraps(order: Array[String], count: int) -> Dictionary:
 		var room_id: String = rooms[mini(i / per, rooms.size() - 1)]
 		if not dealt.has(room_id):
 			dealt[room_id] = [] as Array[String]
-		dealt[room_id].append(str(scrap_shapes[i % scrap_shapes.size()].get("id", "")))
+		var shape := str(favour[i % favour.size()]) if not favour.is_empty() else str(scrap_shapes[i % scrap_shapes.size()].get("id", ""))
+		dealt[room_id].append(shape)
 	return dealt
+
+
+## The shapes a villager's outline still wants (day C): the slots of their
+## idea not yet filled on the desk (state.outlines), in order; none before
+## the idea is reached, none once it is developed (the plain cycle then).
+func missing_shapes(who: String) -> Array[String]:
+	var missing: Array[String] = []
+	var branch := branch_of(who)
+	var idea := str(branch.get("idea", ""))
+	if idea == "" or not state.reached.get(who, false) or state.has_flag("developed:%s" % idea):
+		return missing
+	var filled: Array = state.outlines.get(idea, [])
+	var slots: Array = branch.get("slots", [])
+	for i in slots.size():
+		if i >= filled.size() or str(filled[i]) == "":
+			missing.append(str(slots[i]))
+	return missing
 
 
 ## The shapes hung where the idea was, on a branch already reached: the first ALREADY_SCRAPS of the cycle.
@@ -391,7 +434,7 @@ func already_shapes() -> Array[String]:
 ## place_idea lays an idea by hand.
 func redeal(order: Array[String], with_scraps := true) -> void:
 	tonight = order.duplicate()
-	tonight_scraps = deal_scraps(tonight, scraps_per_night) if with_scraps else {}
+	tonight_scraps = deal_scraps(tonight, scraps_per_night, missing_shapes(state.target)) if with_scraps else {}
 	room_index = -1
 	if room != null:   # the old deal's room goes without a trace: this is a new night
 		rooms_holder.remove_child(room)
@@ -408,7 +451,7 @@ func retarget(who: String) -> void:
 		return
 	state.target = who
 	tonight = deal_branch(who)
-	tonight_scraps = deal_scraps(tonight, scraps_per_night)
+	tonight_scraps = deal_scraps(tonight, scraps_per_night, missing_shapes(who))
 	acted.emit("retarget", who)
 
 
@@ -662,8 +705,9 @@ func grab_scrap() -> bool:
 	return true
 
 
-## E at the goal room's idea while pinched (SPEC-2): reached. The night
-## ends gently at once with the idea and every scrap.
+## E at the goal room's idea while pinched (SPEC-2): reached at once;
+## then the reach's opening (REACH_OPENS seconds, drawn only), and the
+## night ends gently with the idea and every scrap.
 func reach() -> bool:
 	if not _can_act() or not dreamer.pinched or goal_idea == "":
 		return false
@@ -672,8 +716,27 @@ func reach() -> bool:
 		return false
 	acted.emit("reach", goal_idea)
 	reached.emit(goal_who, goal_idea)
-	_wake(false)
+	_reach_t = 0.0
+	_reach_from = shown_aperture()
+	_reach_idea = idea
+	_hold = 0.0        # no flicker through the opening
+	_ease_t = EASE     # no ease fights it
+	_ease_to = 1.0
+	var sleeper: Node2D = room.sleeper()
+	if sleeper != null:
+		sleeper.grow_snore(REACH_OPENS)
+	_update_frame()
 	return true
+
+
+## True from E at the idea until the gentle waking REACH_OPENS seconds later.
+func reaching() -> bool:
+	return _reach_t >= 0.0 and not woken
+
+
+## How far the reach's opening has gone: 0 at the E, 1 at the waking.
+func reach_share() -> float:
+	return clampf(_reach_t / REACH_OPENS, 0.0, 1.0) if _reach_t >= 0.0 else 0.0
 
 
 ## True while the goal room's idea is in reach and the dreamer is pinched.
@@ -938,7 +1001,7 @@ func _build_devbar() -> void:
 
 
 func _can_act() -> bool:
-	return not woken and not closing and not blinking
+	return not woken and not closing and not blinking and not reaching()
 
 
 func _interact() -> void:

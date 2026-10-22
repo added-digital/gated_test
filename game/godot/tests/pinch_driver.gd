@@ -141,8 +141,9 @@ func play_night() -> Dictionary:
 	}
 
 
+## The night goes on: not woken, not closing, not in the reach's opening (day C: the waking follows it).
 func alive() -> bool:
-	return is_instance_valid(dream) and not dream.woken and not dream.closing
+	return is_instance_valid(dream) and not dream.woken and not dream.closing and not dream.reaching()
 
 
 ## True while the routine's room is still the one in play and the night goes on.
@@ -369,10 +370,13 @@ func play_e() -> void:
 	await walk_out()
 
 
-## The draft: up through the soft room, the pinch over the shelf, the
-## scrap, the spot, the draft again to the top and the pinch over the perch.
+## The draft: the quiet spot by the door first (day C: it sits outside the
+## draft), then up through the soft room, the pinch over the shelf, the
+## scrap, the draft again to the top and the pinch over the perch.
 func play_f() -> void:
-	pinch_off()
+	await be_still()
+	if not alive():
+		return
 	await hold_until("move_right", func() -> bool: return dreamer.position.x >= 200.0, 120)
 	if await wrong_pinch(func() -> bool: return dreamer.position.x >= 450.0):
 		await hold_until("move_right", func() -> bool: return dreamer.position.x >= 200.0, 120)
@@ -384,9 +388,6 @@ func play_f() -> void:
 	await land()
 	await take_scrap()
 	await walk_until("move_right", func() -> bool: return dreamer.position.x >= 745.0, 60)
-	await be_still()
-	if not alive():
-		return
 	pinch_off()
 	await frames(2)
 	await wait_until(func() -> bool: return dreamer.position.y <= 125.0 and dreamer.position.x >= 940.0, 480)

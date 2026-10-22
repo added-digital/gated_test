@@ -1,46 +1,54 @@
 extends Node2D
-## The balance of toy 4, PINCH (day 5), measured, not guessed, headless.
-## The driver (tests/pinch_driver.gd) plays dream.tscn alone, with a fresh
-## state each night. Sections: (A) room f, the sixth room, played
-## competently inside 20 s: the draft up through the soft room, the pinch
-## over the shelf, the thoughts hung there, the draft again and the pinch
-## over the perch (its quiet spot sits inside the draft, which moves a
-## body asleep, so day B's rule, stillness asleep, leaves it no wonder); the perch 112 px above the
-## shelf (one step too high); its words from rooms.json; (B) the feel,
-## drawn only: the body squashes 1.2 x 0.8 for 6 frames after a pinched
-## landing and is back after, stretches at a jump, a thought taken sits
-## at the hip (day B: the hat and its bounce are gone), the blink's three
-## phases (shut in 4 frames, held until one second, reopened
-## over 12 with the dreamer back at the door dropping in 8 px), the soft
-## shapes dim within two steps of the limit, H's choice is remembered in
-## the state; (C) a COMPETENT night and a CLUMSY night on nights 1, 2 and
-## 3 with the limit 8 and carry 2, one row each: the acts, lucidity and
-## effective at the end, how the night ended, the ideas brought home, the
-## seconds; then one notch either way, measured too (clumsy at 9,
-## competent at 7). Only the invariants are asserted: a competent night
-## reaches the bed with 2 ideas on at least 2 of the 3 nights; a clumsy
-## night wakes suddenly at least once; no night was stuck. SPEC-2 (day A):
-## the branch dealer replaced the deck, so (A) and (B) deal their rooms by
-## hand (no scraps) with the idea placed where the dealer laid it, and the
-## nights of (C) are the three branches (night 1 Jorun's, 2 Bo's, 3
-## Tove's: the hub, two rooms, the goal room, six scraps); the invariants
-## read "reached" (the idea, with every scrap) where they read "bed". The
-## table has a scraps column (day B: the grab column went with the hat;
-## room f is dealt with its scraps, and what the driver takes there is
-## read back; the quiet spot is taken asleep). Prints the table, PASS/FAIL
-## per check, and quits with 0 only if every check passes.
+## The balance of toy 4b, PINCH (day 5; SPEC-2 day C), measured, not
+## guessed, headless. The driver (tests/pinch_driver.gd) plays dream.tscn
+## alone. Sections: (A) room f, the sixth room, played competently inside
+## 20 s: the quiet spot by the door (day C: moved out of the draft, so its
+## wonder can be had, and is), the draft up through the soft room, the
+## pinch over the shelf, the thoughts hung there, the draft again and the
+## pinch over the perch; the perch 112 px above the shelf (one step too
+## high); its words from rooms.json; (B) the feel, drawn only: the body
+## squashes 1.2 x 0.8 for 6 frames after a pinched landing and is back
+## after, stretches at a jump, a thought taken sits at the hip, the
+## blink's three phases (shut in 4 frames, held until one second,
+## reopened over 12 with the dreamer back at the door dropping in 8 px),
+## the soft shapes dim within two steps of the limit, H's choice is
+## remembered in the state; (C) THE NIGHTS: the competent and the clumsy
+## driver on the three branches (night 1 Jorun's, 2 Bo's, 3 Tove's: the
+## hub, two rooms, the goal room, six scraps), limit 8, carry 3, with the
+## scraps actually taken on the way, one row each: the scraps home (their
+## shapes), the wonders, lucidity and effective at the end, how the night
+## ended (reached, self-pinch, woke), the seconds; then the clumsy driver
+## at 10 (the pill's night), measured too; (D) THE DESK'S ARITHMETIC, with
+## carry 3 and six scraps a night: by the pure sums, how many mornings an
+## outline of 3, 4 or 5 slots takes when every card matches (one card per
+## slot, three a morning); and MEASURED, each branch played competently
+## with ONE state carried across its mornings (the thoughts home fitted
+## where their shapes match, the leftovers kept up to six, the deal of
+## the next night favouring the outline's missing shapes, day C) until
+## the outline is complete or three mornings have passed. Only the
+## invariants are asserted: a competent night reaches the idea on 3 of 3
+## branches; a clumsy night wakes suddenly or pinches itself awake on at
+## least 1; no night was stuck; every outline completes within 3 competent
+## mornings. Prints the tables, PASS/FAIL per check, and quits with 0 only
+## if every check passes.
 
 const DREAM := preload("res://prototypes/pinch/dream.tscn")
 const DRIVER := preload("res://tests/pinch_driver.gd")
 const ROOMS_FILE := "res://prototypes/pinch/data/rooms.json"
+const BRANCHES_FILE := "res://prototypes/pinch/data/branches.json"
 const SOLVE_FRAMES := 1200   # 20 s at 60 Hz: room f must be solved inside this
+const MORNINGS := 3          # an outline must complete within this many competent mornings
+const TARGETS: Array[String] = ["jorun", "bo", "tove"]   # night 1, 2, 3: one branch each
 
 var failures := 0
 var dream: Node2D = null
 var dreamer: CharacterBody2D
 var state: PinchState
 var driver: Node
-var rows: Array[Dictionary] = []
+var branches: Array = []
+var rows: Array[Dictionary] = []        # the nights
+var mornings: Array[Dictionary] = []    # the Desk's arithmetic, measured
+var reached_idea := ""                  # what the dream reported reached this night
 
 
 func check(ok: bool, what: String) -> void:
@@ -51,6 +59,7 @@ func check(ok: bool, what: String) -> void:
 
 func _ready() -> void:
 	var rooms_json: Dictionary = PinchState.load_json(ROOMS_FILE)
+	branches = (PinchState.load_json(BRANCHES_FILE) as Dictionary).get("branches", [])
 	driver = DRIVER.new()
 	driver.name = "Driver"
 	add_child(driver)
@@ -72,6 +81,8 @@ func _ready() -> void:
 	check(dream.scraps_in_room().size() == 6 and dream.ideas_in_room().is_empty() and dream.scraps_node.get_child(0).position.y < shelf.position.y, "six thoughts hang in it, two over the shelf; no idea (day B)")
 	var spot_rect := Rect2(spot.position, spot.size)   # read now: the room goes when the driver leaves it
 	var draft_rect := Rect2(draft.position, draft.size)
+	var door_at: Vector2 = dream.room.door.position
+	check(not draft_rect.intersects(spot_rect) and spot_rect.has_point(door_at) and spot_rect.intersects(dreamer.rect()), "the quiet spot (%s) sits outside the draft (%s), by the door, around the body hovering there (day C)" % [spot_rect, draft_rect])
 	driver.attach(dream, "competent")
 	var started: int = Engine.get_physics_frames()
 	await driver.play_room("f")
@@ -79,8 +90,8 @@ func _ready() -> void:
 	check(dream.current_room_id() == "bed" and dream.room_index == 1, "the driver left room f by the perch's exit: the bed room is in play (%s)" % [driver.did])
 	check(f_frames < SOLVE_FRAMES, "room f solved competently in %d frames (%.1f s)" % [f_frames, f_frames / 60.0])
 	var taken: int = dream.scraps_carried.size()
-	check(taken >= 1 and taken <= 3 and driver.acts.get("grab_scrap", 0) == taken and dream.lucidity == taken and dream.effective() == 2 * taken, "took %d thought(s) (+1 each): lucidity %d, effective %d" % [taken, dream.lucidity, dream.effective()])
-	check(driver.acts.get("wonder", 0) == 0 and draft_rect.encloses(spot_rect), "the quiet spot (%s) sits inside the draft (%s), which moves a body asleep: its wonder is not to be had (day B: a spot's wonder needs stillness asleep)" % [spot_rect, draft_rect])
+	check(driver.acts.get("wonder", 0) == 1 and driver.did.size() > 0 and driver.did[0] == "enter f", "the quiet spot's wonder was had, by the door, before anything else (day C: Bo's branch yields three wonders again)")
+	check(taken >= 1 and taken <= 3 and driver.acts.get("grab_scrap", 0) == taken and dream.lucidity == taken and dream.effective() == 2 * taken, "took %d thought(s) (+1 each) after the wonder (which found lucidity at 0, its floor): lucidity %d, effective %d" % [taken, dream.lucidity, dream.effective()])
 	check(dream.hard_falls == 0 and dream.blinks == 0 and driver.acts.get("fall", 0) == 0 and driver.acts.get("fail", 0) == 0, "no hard fall, no failed screen on the way")
 	# A jump from the shelf alone does not reach the perch; the draft does.
 	dream.redeal(["f", "bed"] as Array[String], false)
@@ -185,75 +196,161 @@ func _ready() -> void:
 	# ---------------------------------------------------------------- (C) the nights: the three branches
 	for night in [1, 2, 3]:
 		for play_mode in ["competent", "clumsy"]:
+			await fresh(night, TARGETS[night - 1])
 			rows.append(await play_night(night, play_mode, 8))
 	for night in [1, 2, 3]:
-		rows.append(await play_night(night, "clumsy", 9))
-	for night in [1, 2, 3]:
-		rows.append(await play_night(night, "competent", 7))
-	print_table()
-	var competent_home := 0
-	var clumsy_woke := 0
+		await fresh(night, TARGETS[night - 1])
+		rows.append(await play_night(night, "clumsy", 10))
+
+	# ---------------------------------------------------------------- (D) the Desk's arithmetic
+	# By the pure sums: every card matching, three a morning.
+	var sums: Array[String] = []
+	for branch in branches:
+		var slots: int = branch.get("slots", []).size()
+		sums.append("%s %d slots: %d morning(s)" % [branch.get("who", ""), slots, ceili(float(slots) / float(PinchState.CARRY_SCRAPS))])
+	check(sums == ["tove 5 slots: 2 morning(s)", "jorun 4 slots: 2 morning(s)", "bo 3 slots: 1 morning(s)"], "with every shape matching and carry 3: %s" % [sums])
+	# Measured: each branch, one state carried across its mornings.
+	var completed := {}
+	for branch in branches:
+		var who := str(branch.get("who", ""))
+		var idea := str(branch.get("idea", ""))
+		var slots: Array = branch.get("slots", [])
+		await fresh(1, who)
+		var carried_state := state
+		var night := 0
+		while night < MORNINGS:
+			night += 1
+			if night > 1:
+				await fresh(night, who, carried_state)
+			var row: Dictionary = await play_night(night, "competent", 8, "mornings")
+			rows.append(row)
+			var result := desk_morning(idea, slots)
+			result["night"] = night
+			result["who"] = who
+			result["home"] = row.home
+			mornings.append(result)
+			check(row.end != "stuck", "%s, morning %d: %s home, %d fitted: %s %d / %d, %s left%s" % [who, night + 1, row.home, result.fitted, idea, result.filled, result.total, result.leftovers, "; COMPLETE" if result.complete else ""])
+			if result.complete:
+				completed[who] = night
+				break
+	print_tables()
+	var competent_reached := 0
+	var clumsy_out := 0
 	var stuck := 0
 	for row in rows:
 		if row.end == "stuck":
 			stuck += 1
-		if row.limit != 8:
+		if row.limit != 8 or row.section != "nights":
 			continue
-		if row.mode == "competent" and row.end == "reached" and row.kept >= 2:
-			competent_home += 1
-		if row.mode == "clumsy" and row.end == "woke":
-			clumsy_woke += 1
+		if row.mode == "competent" and row.end == "reached":
+			competent_reached += 1
+		if row.mode == "clumsy" and (row.end == "woke" or row.end == "self"):
+			clumsy_out += 1
 	check(stuck == 0, "no night was stuck (%d)" % stuck)
-	check(competent_home >= 2, "a competent night reached the idea with at least one scrap on %d of the 3 branches" % competent_home)
-	check(clumsy_woke >= 1, "a clumsy night woke suddenly %d time(s) of 3" % clumsy_woke)
+	check(competent_reached == 3, "a competent night reached the idea on %d of the 3 branches" % competent_reached)
+	check(clumsy_out >= 1, "a clumsy night woke suddenly or pinched itself awake %d time(s) of 3" % clumsy_out)
+	var within := true
+	for branch in branches:
+		within = within and completed.has(str(branch.get("who", "")))
+	check(within and completed.size() == 3, "every outline completes within %d competent mornings: %s" % [MORNINGS, completed])
 
 	print("RESULT: %d failure(s)" % failures)
 	get_tree().quit(0 if failures == 0 else 1)
 
 
-const TARGETS: Array[String] = ["jorun", "bo", "tove"]   # night 1, 2, 3: one branch each
-
-
-## One night of dream.tscn alone on `day` (the target TARGETS[day - 1],
-## every villager talked to), the given limit, played in
-## `play_mode`; the row for the table.
-func play_night(day: int, play_mode: String, limit: int) -> Dictionary:
-	await fresh(day, TARGETS[(day - 1) % TARGETS.size()])
+## One night of dream.tscn alone on `day` with the dream already dealt
+## (fresh), the given limit, played in `play_mode`; the scraps brought
+## home go into the state as the controller would put them (every one on
+## a gentle waking, one on a sudden one), and the idea reached is marked;
+## the row for the table (`section`: "nights" for (C), "mornings" for (D)).
+func play_night(day: int, play_mode: String, limit: int, section := "nights") -> Dictionary:
 	state.lucidity_limit = limit
+	var target: String = state.target
+	reached_idea = ""
+	dream.reached.connect(func(who: String, idea: String) -> void: reached_idea = idea; state.reach(who, idea))
 	driver.attach(dream, play_mode)
 	var row: Dictionary = await driver.play_night()
+	var carried: Array = driver.woke[1] if driver.woke.size() > 1 else []
+	var home: Array[String] = []
+	if row.end == "woke":
+		if not carried.is_empty():
+			home.append(str(carried[0]))   # the picker: the first
+	else:
+		for shape in carried:
+			home.append(str(shape))
+	for shape in home:
+		state.keep_scrap(shape)
 	row["night"] = day
 	row["mode"] = play_mode
 	row["limit"] = limit
+	row["branch"] = target
+	row["home"] = home
+	row["section"] = section
 	row["did"] = driver.did.duplicate()
-	check(row.end != "stuck", "night %d %s (limit %d): %s in %s, lucidity %d, effective %d, %d thing(s) home, %.1f s; %s" % [day, play_mode, limit, row.end, row.rooms, row.lucidity, row.effective, row.kept, row.seconds, row.did])
+	check(row.end != "stuck", "night %d %s (%s, limit %d): %s in %s, home %s, lucidity %d, effective %d, %.1f s; %s" % [day, play_mode, target, limit, row.end, row.rooms, home, row.lucidity, row.effective, row.seconds, row.did])
 	return row
 
 
-## The table: one row per night played.
-func print_table() -> void:
-	print("--- balance (dream.tscn alone, a fresh state each night, one branch per night, carry 3 thoughts) ---")
-	print("%-5s %-9s %-5s %-24s %-6s %-4s %-6s %-5s %-5s %-7s %-9s %-5s %-8s" % ["night", "mode", "limit", "rooms", "scraps", "set", "force", "fall", "fail", "wonder", "lucidity", "eff", "end"] + " home  seconds")
+## The morning's Desk by arithmetic (the village's rule, without the
+## clock): every card home into the first empty slot of its shape, the
+## leftovers kept (up to the state's cap), the thing developed when the
+## last slot fills. Returns {fitted, filled, total, leftovers, complete}.
+func desk_morning(idea: String, slots: Array) -> Dictionary:
+	var filled: Array[String] = state.outline_filled(idea, slots.size())
+	var leftovers: Array[String] = []
+	var fitted := 0
+	for shape in state.scraps:
+		var at := -1
+		for i in slots.size():
+			if filled[i] == "" and (str(slots[i]) == "any" or str(slots[i]) == shape):
+				at = i
+				break
+		if at >= 0:
+			state.fill_slot(idea, at, shape)
+			fitted += 1
+		else:
+			leftovers.append(shape)
+	state.scraps.assign(leftovers.slice(0, PinchState.KEEP_SCRAPS))
+	var complete := state.outline_count(idea) == slots.size()
+	if complete:
+		state.develop(idea)
+	return {"fitted": fitted, "filled": state.outline_count(idea) if not complete else slots.size(), "total": slots.size(), "leftovers": state.scraps.duplicate(), "complete": complete}
+
+
+## The tables: the nights, then the Desk's mornings.
+func print_tables() -> void:
+	print("--- balance (dream.tscn alone, limit 8 unless said, carry 3, six thoughts a night) ---")
+	print("%-5s %-6s %-9s %-5s %-24s %-18s %-4s %-5s %-5s %-7s %-9s %-5s %-8s %s" % ["night", "branch", "mode", "limit", "rooms", "home", "set", "fall", "fail", "wonder", "lucidity", "eff", "end", "seconds"])
 	for row in rows:
 		var a: Dictionary = row.acts
-		print("%-5d %-9s %-5d %-24s %-6d %-4d %-6d %-5d %-5d %-7d %-9d %-5d %-8s %-5d %.1f" % [row.night, row.mode, row.limit, ",".join(row.rooms), a.get("grab_scrap", 0), a.get("set_down_scrap", 0), a.get("force", 0), a.get("fall", 0), a.get("fail", 0), a.get("wonder", 0), row.lucidity, row.effective, row.end, row.kept, row.seconds])
+		print("%-5d %-6s %-9s %-5d %-24s %-18s %-4d %-5d %-5d %-7d %-9d %-5d %-8s %.1f" % [row.night, row.branch, row.mode, row.limit, ",".join(row.rooms), ",".join(row.home), a.get("set_down_scrap", 0), a.get("fall", 0), a.get("fail", 0), a.get("wonder", 0), row.lucidity, row.effective, row.end, row.seconds])
+	print("--- the Desk's arithmetic (one state per branch, competent, the deal favouring what is missing from the second night on) ---")
+	print("%-6s %-7s %-18s %-6s %-9s %-12s %s" % ["branch", "morning", "home", "fitted", "outline", "left over", "complete"])
+	for m in mornings:
+		print("%-6s %-7d %-18s %-6d %-9s %-12s %s" % [m.who, int(m.night) + 1, ",".join(m.home), m.fitted, "%d / %d" % [m.filled, m.total], ",".join(m.leftovers), "yes" if m.complete else "no"])
 	print("--- end ---")
 
 
 ## A new dream on `day` with a fresh state (SPEC-2: with `target` as
-## tonight's dream and every villager talked to); the old one gone.
-func fresh(day: int, target := "") -> void:
+## tonight's dream and every villager talked to), or on `carried` (the
+## state of the mornings before, its day moved on); the old dream gone.
+func fresh(day: int, target := "", carried: PinchState = null) -> void:
 	if dream != null:
 		remove_child(dream)
 		dream.queue_free()
 		await get_tree().physics_frame
 	for action in ["pinch", "move_left", "move_right", "jump"]:
 		Input.action_release(action)
-	state = PinchState.new()
-	state.day = day
+	if carried != null:
+		state = carried
+		state.day = day
+		state.scraps_carried.clear()
+	else:
+		state = PinchState.new()
+		state.day = day
+		for who in TARGETS:
+			state.set_flag("talked:%s" % who)
 	state.target = target
-	for who in TARGETS:
-		state.set_flag("talked:%s" % who)
 	dream = DREAM.instantiate()
 	dream.state = state
 	add_child(dream)

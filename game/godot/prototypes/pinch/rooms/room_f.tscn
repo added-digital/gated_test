@@ -56,9 +56,9 @@ soft = true
 [node name="Wonders" type="Node2D" parent="."]
 
 [node name="Quiet" type="Area2D" parent="Wonders"]
-position = Vector2(720, 220)
+position = Vector2(40, 440)
 script = ExtResource("3_zone")
-size = Vector2(80, 80)
+size = Vector2(110, 110)
 role = "wonder"
 id = "f_spot"
 kind = "spot"

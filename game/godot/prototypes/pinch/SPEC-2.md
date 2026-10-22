@@ -67,19 +67,28 @@ problems, the feel pass, the characters and their memory).
 The Desk is the Long House table by day, and it is a timed, hands-on burst:
 the blue hour, 75 s, with the light draining visibly from the window.
 
-- The idea you reached (if any) is laid on the desk as an **outline** of
-  three to five **slots**; each slot has a shape (round, square, long).
+- A reached idea is laid on the desk as an **outline** of three to five
+  **slots**; each slot has a shape (round, square, long). The outline
+  **stays on the desk, morning after morning, until it is complete**,
+  with whatever is fitted still in it: nothing is lost (day C). With two
+  outlines waiting, the one reached first is on the desk; the wall shows
+  each outline's progress on its branch row ("2 / 4").
 - Your scraps are **cards** beside it, each with a shape. 1 2 3 picks a
   card; A D moves the hand along the slots; E fits the card. A wrong shape
-  does not fit and costs 5 s of fumbling. A fitted card is used up.
-- When the light goes, the idea is **developed as far as it is filled**:
-  all slots, the full thing (the building; the pill at +2); more than half,
-  a weak version (a smaller building; the pill at +1); less, nothing but the
-  scraps' knowledge. Leftover scraps are kept for tomorrow (up to six).
-- With **no idea** reached, the Desk takes scraps alone: three scraps of any
-  shape, fitted to the map's blank outline, reveal one more room on one
-  branch of your choice (the map grows from what you found below).
-- Walking away ends the Desk early with what is fitted.
+  does not fit and costs 5 s of fumbling. A fitted card is used up, and
+  kept in the outline from that moment.
+- Each morning's blue hour limits **how many cards you can fit**; the light
+  going, or walking away, keeps what is filled. The thing is **developed
+  the moment the last slot fills**, in full only (the building; the pill
+  at +2; the lantern): there is no weak version and no "nothing" (the one
+  grade is whole). Leftover scraps are kept for tomorrow (up to six).
+- A reached branch keeps giving two scraps where its idea lay; the idea
+  itself is never lost. Down a reached branch whose outline still waits,
+  the scraps dealt favour the shapes the outline is missing.
+- With **no outline** on the desk (none reached yet, or all developed),
+  the Desk takes scraps alone: three scraps of any shape, fitted to the
+  map's blank outline, reveal one more room on one branch of your choice
+  (the map grows from what you found below).
 
 ## What changes in the toy (counts)
 
@@ -101,8 +110,7 @@ the blue hour, 75 s, with the light draining visibly from the window.
 grab a scrap +1 · set a scrap down (as a step) +1 · force +1 · hard fall +1 ·
 failed screen +1 · wonder −1 once per wonder per visit · floor 0.
 `effective = lucidity + scraps carried` (no in-hand doubling; scraps are
-small). Limit 8, plus 2 per full pill developed, plus 1 per weak pill, for
-every night after.
+small). Limit 8, plus 2 once the pill is developed, for every night after.
 
 ## Out of scope (returns only as a request, after the fourth chosen night)
 
@@ -132,8 +140,9 @@ tests/toy_pinch_loop2_test.gd/.tscn   the second loop, headless
   branch in the fixed order; scraps count +1 and carry 3; the self-pinch
   needs 3 s still and keeps every scrap, not the idea; reaching the idea
   ends the night with it and the scraps; the forced waking keeps one scrap;
-  the Desk fits only matching shapes, costs 5 s on a wrong one, develops full
-  at all slots and weak at more than half, reveals a room from three scraps;
+  the Desk fits only matching shapes, costs 5 s on a wrong one, develops the
+  thing at all slots and keeps an unfinished outline for the next morning,
+  reveals a room from three scraps;
   the pill raises the limit on the next night; the building rises; the
   lantern reveals; a four-night scripted run chooses four targets and ends
   with at least two developed things.
@@ -145,5 +154,5 @@ tests/toy_pinch_loop2_test.gd/.tscn   the second loop, headless
 | Day | Lands | Playable as |
 | --- | --- | --- |
 | A | the wall and the target; the hub and branch dealer; exits with signs; scraps; the three goal rooms with the sleeping villager and the idea; reaching ends the night; the self-pinch; forced waking keeps one scrap; the dev bar's new lines | choose a dream, pinch down its branch, reach the idea or bail out |
-| B | the Desk: outlines, cards, the light, full and weak development, map knowledge; the pill, the building, the lantern; the villagers' new lines; the first-loop leftovers removed | the whole loop, four nights |
+| B | the Desk: outlines, cards, the light, full and weak development (the weak grade was removed on day C), map knowledge; the pill, the building, the lantern; the villagers' new lines; the first-loop leftovers removed | the whole loop, four nights |
 | C | balance measured on the three branches, feel at the wall and the Desk, README rewritten for the confidant, a four-night run | the toy as the confidant will see it |

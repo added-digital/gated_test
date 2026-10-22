@@ -219,7 +219,8 @@ func _ready() -> void:
 		check(dream.grab_scrap(), "(took %s by hand)" % shape)
 	frames = await hold_until("move_right", func() -> bool: return dream.can_reach(), 600)
 	check(frames < 600 and dream.reach(), "reached the pills")
-	await settle()
+	frames = await wait_until(func() -> bool: return toy.dream == null, 90)   # the reach's opening (0.6 s, day C), then the waking
+	check(frames < 90, "(the waking followed the reach's opening)")
 	Input.action_release("pinch")
 	check(state.day == 4 and wakes.size() == 1 and wakes[0][0] == false and state.ideas_kept == ["pills"] and state.scraps == ["round", "square", "long", "round"], "day 4 with the pills and four thoughts (the one from night 1 first)")
 

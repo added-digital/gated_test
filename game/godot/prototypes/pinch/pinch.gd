@@ -18,9 +18,9 @@ extends Node
 ## wake_sudden_scrap, wake_sudden_none) and then whatever the morning
 ## brings (a request, the Desk: village.gd); the plots raised this
 ## morning are handed over so their windows fade in. The village's doings
-## (talk:<who>, target, desk, fit, fumble, desk_full / desk_weak /
-## desk_reveal: milestones desk_full:<idea>, desk_weak:<idea>,
-## desk_reveal:<who>) go to the harness here. Every word the player reads
+## (talk:<who>, target, desk, fit, fumble, desk_kept, desk_full /
+## desk_reveal: milestones desk_full:<idea>, desk_reveal:<who>) go to the
+## harness here. Every word the player reads
 ## comes from data/village.json, data/characters.json, data/ideas.json
 ## and data/scraps.json; rewrite those, not this.
 
@@ -144,7 +144,7 @@ func _on_village_acted(kind: String, detail: String) -> void:
 	match kind:
 		"talk":
 			harness.action("talk:%s" % detail)
-		"desk_full", "desk_weak", "desk_reveal":
+		"desk_full", "desk_reveal":
 			harness.action(kind, detail)
 			harness.milestone("%s:%s" % [kind, detail])
 		_:

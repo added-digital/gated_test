@@ -27,35 +27,39 @@ extends Node2D
 ## ("Tonight: Bo's dream") and the bunk needs: go_to_sleep refuses without
 ## a target while any branch exists (village.json wall.choose_first).
 ##
-## THE DESK (desk.gd, SPEC-2 "The Desk, exactly"; day B): every morning
-## with an idea reached last night (state.ideas_kept) or at least
-## desk.MIN_CARDS scraps (state.scraps), after the wake line and the
-## requests, the walker is put at the table and the Desk is drawn there:
-## the idea's outline (branches.json "slots"; scraps.json's blank outline
-## with no idea), the scraps as cards, the light draining from the Long
-## House window for desk.BLUE_HOUR seconds. 1 2 3 (4 5 6) picks a card,
-## A D moves the hand along the slots, E fits it (fit: a matching shape
-## fills the slot and uses the card; a wrong one costs five seconds, the
-## walker shakes: fumble). The Desk ends when the light goes, every slot
-## is filled, or the walker is DESK_RANGE px from the table (end_desk),
-## and DEVELOPS the idea as far as it is filled (develop): all slots,
-## full; more than half, weak; less, nothing but the scraps used. A
-## building (branches.json develops "building": Sixteen Stairs) is
-## claimed for its plot (state.claim: a scaffold today with its crossbars,
-## standing tomorrow with a lit window; weak, a small building, half the
-## height) and its owner moves out; the pill raises the limit for every
-## night after (state.develop_pill: +2 full, +1 weak) and a jar is kept by
-## the bunk; the lantern in full names every room on the wall
-## (state.lantern) and hangs lit by the Long House door (its light fades
-## in as a new window's does); weak, it names every room of one branch of
-## the player's choice (choose_branch, the picker). With no idea, three
-## scraps fitted to the blank outline reveal one more room on a branch of
-## the player's choice (state.reveal). Leftover cards are kept as scraps,
-## up to the state's cap. A development is said as two lines: the desk's
-## line (village.json "desk"), then the idea's own (ideas.json "line")
-## DEVELOP_GAP seconds later. Milestones go through acted: desk_full,
-## desk_weak, desk_reveal (and desk start / light / filled / walked, fit,
-## fumble as actions).
+## THE DESK (desk.gd, SPEC-2 "The Desk, exactly"; day B, day C): every
+## morning with an outline waiting on the desk (state.ideas_kept: the
+## ideas reached, oldest first) or at least desk.MIN_CARDS scraps
+## (state.scraps), after the wake line and the requests, the walker is
+## put at the table and the Desk is drawn there: the idea's outline
+## (branches.json "slots"; scraps.json's blank outline with no idea) with
+## the slots an earlier morning filled already filled (state.outlines),
+## the scraps as cards, the light draining from the Long House window for
+## desk.BLUE_HOUR seconds. 1 2 3 (4 5 6) picks a card, A D moves the hand
+## along the slots, E fits it (fit: a matching shape fills the slot, uses
+## the card and is kept in the state at once; a wrong one costs five
+## seconds, the walker shakes: fumble). The Desk ends when the light goes,
+## every slot is filled, or the walker is DESK_RANGE px from the table
+## (end_desk). NOTHING IS LOST (day C): an outline not yet complete stays
+## on the desk with what is filled (the "kept" line, action desk_kept),
+## morning after morning; the thing is DEVELOPED the moment the last slot
+## fills (develop), in full only: a building (branches.json develops
+## "building": Sixteen Stairs) is claimed for its plot (state.claim: a
+## scaffold today with its crossbars, standing tomorrow with a lit window)
+## and its owner moves out; the pill raises the limit for every night
+## after (state.develop_pill: +2) and a jar is kept by the bunk; the
+## lantern names every room on the wall (state.lantern) and hangs lit by
+## the Long House door (its light fades in as a new window's does). With
+## no outline, three scraps fitted to the blank outline reveal one more
+## room on a branch of the player's choice (choose_branch, the picker;
+## state.reveal). Leftover cards are kept as scraps, up to the state's
+## cap. A development is said as two lines: the desk's line (village.json
+## "desk"), then the idea's own (ideas.json "line") DEVELOP_GAP seconds
+## later, while the desk stays drawn through its developed show (the
+## outline flashing under the thing's name, desk.DEVELOPED_SHOWS seconds)
+## and goes after. Milestones go through acted: desk_full, desk_reveal
+## (and desk start / light / filled / walked, desk_kept, fit, fumble as
+## actions).
 ##
 ## THE FEEL, drawn only, every number a constant below: the lit window of
 ## a building that stands this morning (lit_today, set by the controller)
@@ -75,6 +79,8 @@ extends Node2D
 ## Gone with day B (the first loop's leftovers): breakfast and its faces,
 ## want lines, claims, head drops and small things; the stove shed's
 ## making and the pill at the bunk; the taller hat; the ideas on the table.
+## Gone with day C: the weak grade and the "nothing" grade of the Desk
+## (the small building, the +1 pill, the one-branch lantern).
 
 signal slept
 signal acted(kind: String, detail: String)
@@ -107,7 +113,6 @@ const DEVELOP_GAP := 1.5       # s the desk's line shows before the idea's own l
 const REQUEST_STAYS := 6.0     # s a request line stays
 const WINDOW_FADE := 1.5       # s a new building's lit window (and the lantern's light) takes to fade in
 const CROSSBAR_EVERY := 1.0    # s between a scaffold's crossbars appearing after the claim
-const SMALL_HEIGHT := 0.5      # a weak building stands this share of its plot's height
 const CAPSULE := Vector2(26, 52)
 const PIECE_LABEL_WIDTH := 240.0 # px: a lost thing's name over its rect
 const PIECE_LABEL_ROWS := 3      # neighbouring pieces' names at this many heights, so none share a line
@@ -246,6 +251,8 @@ func _process(delta: float) -> void:
 			end_desk("light")
 		elif absf(walker.position.x - TABLE.get_center().x) > DESK_RANGE:
 			end_desk("walked")
+	elif desk != null and not desk.developing():
+		_free_desk()   # the developed show is over: the desk goes
 	_update_prompt()
 	devbar.set_actions(devbar_text())
 
@@ -389,11 +396,10 @@ func plot_rect(id: String) -> Rect2:
 	return Rect2()
 
 
-## What stands on a plot today: "empty", "scaffold" (claimed at the Desk),
-## "built" or "small_building" (developed weak, standing).
+## What stands on a plot today: "empty", "scaffold" (claimed at the Desk) or "built".
 func plot_state(plot: String) -> String:
 	if state.ideas_built.has(plot):
-		return "small_building" if state.weak_buildings.has(plot) else "built"
+		return "built"
 	if state.ideas_claimed.has(plot):
 		return "scaffold"
 	return "empty"
@@ -510,24 +516,27 @@ func _build_wall() -> void:
 
 # --- the Desk --------------------------------------------------------------------
 
-## Whether this morning has a Desk: something reached last night, or scraps enough, and not yet today.
+## Whether this morning has a Desk: an outline waiting, or scraps enough, and not yet today.
 func desk_due() -> bool:
 	return state.desk_done_day != state.day and (not state.ideas_kept.is_empty() or state.scraps.size() >= DESK.MIN_CARDS)
 
 
-## The idea on the desk this morning ("" for scraps alone) and its outline's slots.
+## The idea on the desk this morning (the oldest reached and not yet
+## developed; "" for scraps alone), its outline's slots, and the slots
+## filled on earlier mornings (day C: laid in the state the first time).
 func desk_outline() -> Dictionary:
 	if not state.ideas_kept.is_empty():
 		var idea: String = state.ideas_kept[0]
-		var branch := branch_for_idea(idea)
-		return {"idea": idea, "name": idea_name(idea), "slots": branch.get("slots", [])}
-	return {"idea": "", "name": str(scrap_outline.get("name", "")), "slots": scrap_outline.get("slots", ["any", "any", "any"])}
+		var slots: Array = branch_for_idea(idea).get("slots", [])
+		return {"idea": idea, "name": idea_name(idea), "slots": slots, "filled": state.outline_filled(idea, slots.size()).duplicate()}
+	return {"idea": "", "name": str(scrap_outline.get("name", "")), "slots": scrap_outline.get("slots", ["any", "any", "any"]), "filled": []}
 
 
 ## The walker at the table, the outline, the cards, the light: the blue hour begins.
 func start_desk() -> void:
 	if desk_on or _slept or not desk_due():
 		return
+	_free_desk()
 	var outline := desk_outline()
 	desk_on = true
 	walker.position.x = TABLE.get_center().x
@@ -535,11 +544,12 @@ func start_desk() -> void:
 	desk = DESK.new()
 	desk.name = "Desk"
 	desk.position = TABLE.position
-	desk.setup(str(outline.idea), str(outline.name), outline.slots, state.scraps, words.get("desk", {}), scrap_names())
+	desk.setup(str(outline.idea), str(outline.name), outline.slots, state.scraps, words.get("desk", {}), scrap_names(), outline.filled)
 	street.add_child(desk)
 	table_label.visible = false
-	var key := "begin" if outline.idea != "" else "begin_blank"
-	say_for(str(words.get("desk", {}).get(key, "")).format({"name": str(outline.name)}), LINE_STAYS)
+	var before: int = desk.filled_count()
+	var key := "begin_blank" if outline.idea == "" else ("begin_again" if before > 0 else "begin")
+	say_for(str(words.get("desk", {}).get(key, "")).format({"name": str(outline.name), "filled": before, "total": outline.slots.size()}), LINE_STAYS)
 	acted.emit("desk", "start")
 
 
@@ -558,6 +568,8 @@ func fit() -> String:
 		return ""
 	var result: String = desk.fit()
 	if result == "fit":
+		if desk.idea != "":
+			state.fill_slot(desk.idea, desk.hand, desk.filled[desk.hand])   # kept at once: nothing is lost
 		acted.emit("fit", desk.filled[desk.hand])
 		if desk.complete():
 			end_desk("filled")
@@ -568,9 +580,11 @@ func fit() -> String:
 
 
 ## The Desk is over, for `reason` ("light": the blue hour ended; "filled":
-## every slot; "walked": the walker left the table): the idea is developed
-## as far as it is filled, or the scraps alone reveal a room; the leftover
-## cards are kept as scraps, up to the state's cap.
+## every slot; "walked": the walker left the table): a complete outline is
+## developed (the desk stays drawn through its developed show), an
+## incomplete one waits on the desk with what is filled, or the scraps
+## alone reveal a room; the leftover cards are kept as scraps, up to the
+## state's cap.
 func end_desk(reason: String) -> void:
 	if not desk_on:
 		return
@@ -581,66 +595,68 @@ func end_desk(reason: String) -> void:
 	var total: int = desk.slots.size()
 	var leftovers: Array[String] = desk.cards_left()
 	state.scraps.assign(leftovers.slice(0, PinchState.KEEP_SCRAPS))
-	state.ideas_kept.clear()
 	walker_body.position.x = _body_x
-	var node := desk
-	desk = null
-	street.remove_child(node)
-	node.queue_free()
 	table_label.visible = true
 	acted.emit("desk", reason)
 	if reason == "walked":
 		say_for(str(words.get("desk", {}).get("walked", "")), LINE_STAYS, true)
 	if idea != "":
-		var grade := "full" if filled == total else ("weak" if filled * 2 > total else "none")
-		await develop(idea, grade)
+		if filled == total:
+			desk.show_developed(idea_name(idea))   # the node stays through the show; _process takes it away after
+			develop(idea)
+		else:
+			_free_desk()
+			say_for(str(words.get("desk", {}).get("kept", "")).format({"name": idea_name(idea), "filled": filled, "total": total}), LINE_STAYS, reason != "walked")
+			acted.emit("desk_kept", "%s:%d/%d" % [idea, filled, total])
 	elif filled >= total:
+		_free_desk()
 		var who := await choose_branch()
 		if who != "":
 			state.reveal(who, branch_of(who).get("rooms", []).size())
 			say_for(str(words.get("desk", {}).get("reveal", "")).format({"name": str(character(who).get("name", who))}), LINE_STAYS, true)
 			acted.emit("desk_reveal", who)
 	else:
+		_free_desk()
 		say_for(str(words.get("desk", {}).get("reveal_none", "")), LINE_STAYS, true)
 	refresh()
 
 
-## The idea developed as far as the outline was filled: "full", "weak" or "none".
-func develop(idea: String, grade: String) -> void:
+## The desk node goes (after its show, or at once).
+func _free_desk() -> void:
+	if desk == null:
+		return
+	var node := desk
+	desk = null
+	street.remove_child(node)
+	node.queue_free()
+
+
+## The idea developed, in full (every slot of its outline filled): the
+## building claimed, the pill kept, the lantern lit; the outline leaves
+## the desk (state.develop); the two lines; the milestone.
+func develop(idea: String) -> void:
 	var desk_words: Dictionary = words.get("desk", {})
 	var entry := idea_entry(idea)
 	var shown := idea_name(idea)
-	if grade == "none":
-		say_for(str(desk_words.get("none", "")).format({"name": shown}), LINE_STAYS, true)
-		acted.emit("desk_none", idea)
-		return
-	var weak := grade == "weak"
-	var kind := str(branch_for_idea(idea).get("develops", ""))
-	match kind:
+	match str(branch_for_idea(idea).get("develops", "")):
 		"building":
 			var plot := str(entry.get("becomes", ""))
 			if plot_rect(plot).size != Vector2.ZERO:
-				state.claim(plot, idea, weak)
+				state.claim(plot, idea)
 				_claimed_at[plot] = _day_time
 		"pill":
-			state.develop_pill(weak)
+			state.develop_pill()
 		"lantern":
-			if weak:
-				var who := await choose_branch()
-				if who != "":
-					state.reveal_all(who, branch_of(who).get("rooms", []).size())
-			else:
-				state.lantern = true
-				_lantern_lit_at = _day_time
-	state.set_flag(("developed_weak:%s" if weak else "developed:%s") % idea)
-	say_for(str(desk_words.get(grade, "")).format({"name": shown}), DEVELOP_GAP if not weak else LINE_STAYS, true)   # the desk's line first...
-	if not weak:
-		say_for(str(entry.get("line", "")), LINE_STAYS)   # ...then the idea's own line, DEVELOP_GAP later
-	acted.emit("desk_weak" if weak else "desk_full", idea)
+			state.lantern = true
+			_lantern_lit_at = _day_time
+	state.develop(idea)
+	say_for(str(desk_words.get("full", "")).format({"name": shown}), DEVELOP_GAP, true)   # the desk's line first...
+	say_for(str(entry.get("line", "")), LINE_STAYS)   # ...then the idea's own line, DEVELOP_GAP later
+	acted.emit("desk_full", idea)
 
 
 ## The picker over the branches on the wall: which one grows a room (the
-## reveal, the weak lantern). Returns the villager chosen, "" with no branch.
+## reveal). Returns the villager chosen, "" with no branch.
 func choose_branch() -> String:
 	var whos := available_branches()
 	if whos.is_empty():
@@ -953,9 +969,8 @@ func _place_people() -> void:
 
 
 ## The plots as they stand: an outline and the plot's name; a scaffold (the
-## outline, two crossbars, a diagonal, "scaffold"); the building (a filled
-## rect, a lit window, the idea's name); or, developed weak, the small
-## building (half the height, a lit window, the idea's name).
+## outline, two crossbars, a diagonal, "scaffold"); or the building (a
+## filled rect, a lit window, the idea's name).
 func _draw_plots() -> void:
 	for plot in plots.get_children():
 		plots.remove_child(plot)
@@ -976,11 +991,10 @@ func _draw_plots() -> void:
 		var what := plot_state(id)
 		node.set_meta("state", what)
 		var label_at := Vector2((rect.size.x - PLOT_LABEL_WIDTH) / 2.0, -26)
-		if what == "built" or what == "small_building":
-			var height := rect.size.y * (SMALL_HEIGHT if what == "small_building" else 1.0)
-			var body := Rect2(Vector2(0, rect.size.y - height), Vector2(rect.size.x, height))
+		if what == "built":
+			var body := Rect2(Vector2.ZERO, rect.size)
 			_rect_under(node, body, WALL)
-			var window := _rect_under(node, Rect2(Vector2(rect.size.x / 2.0 - WINDOW.x / 2.0, body.position.y + height * 0.3), WINDOW), WINDOW_LIT)
+			var window := _rect_under(node, Rect2(Vector2(rect.size.x / 2.0 - WINDOW.x / 2.0, body.position.y + rect.size.y * 0.3), WINDOW), WINDOW_LIT)
 			window.name = "Window"
 			window.modulate.a = window_alpha(id)
 			_label_under(node, idea_name(str(state.ideas_built[id])), label_at + Vector2(0, body.position.y), PLOT_LABEL_WIDTH).name = "Name"
