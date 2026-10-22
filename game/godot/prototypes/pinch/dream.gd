@@ -39,8 +39,23 @@ extends Node2D
 ## holding the button is free. effective = lucidity + ideas carried (+1
 ## while one is in hand). A failed screen (fell below the room, or touched
 ## a hazard pinched) blinks: the frame shuts for BLINK seconds, then the
-## dreamer is back at the Door. Idea names come from data/ideas.json,
-## every other word from data/rooms.json; rewrite those, not this.
+## dreamer is back at the Door.
+##
+## Day 4. The limit is tonight's (state.night_limit(): 8, or 10 with a
+## pill taken at the bunk). The dealer leaves out ideas that are kept,
+## claimed, built or small things. THE SLEEP GAUGE (IDEAS, the designer's
+## words: a sleep meter with the depths of sleep in it, and how long you
+## can stay): a vertical bar at the bottom left on its own CanvasLayer over
+## the frame (so it can still be read when the frame is nearly shut, which
+## is when the designer wants to know which one the player looks at),
+## GAUGE_PX tall per point of the limit (so the bar grows on a pill night), in three bands
+## drawn and labelled from rooms.json "gauge": deep (effective up to
+## DEEP_TO of the limit), light (to LIGHT_TO), waking (the rest); a needle
+## at effective, easing like the frame; beside it "ideas n / carry_limit".
+## H toggles it (gauge_visible, on by default, for this night only); the
+## frame stays whatever the gauge does. gauge_band() and gauge_fraction()
+## read it. Idea names come from data/ideas.json, every other word from
+## data/rooms.json; rewrite those, not this.
 
 signal woke(sudden: bool, carried: Array)
 signal acted(kind: String, detail: String)
@@ -75,6 +90,18 @@ const BLINK := 1.0            # s the frame stays shut after a failed screen (SP
 const EASE := 0.35            # s the shown aperture takes to reach the aperture after an act
 const SHUT := 0.8             # s the frame is shown fully shut at the limit before woke fires
 const STILL := 3.0            # s still inside a spot for its wonder
+const GAUGE_PX := 16.0        # px of bar per point of the limit: 128 px at 8, 160 at 10
+const GAUGE_WIDTH := 18.0     # px: the bar's width
+const GAUGE_AT := Vector2(28, 624)   # the bar's bottom-left corner on the screen
+const DEEP_TO := 0.4          # effective up to this share of the limit is deep sleep
+const LIGHT_TO := 0.75        # ... up to this, light; past it, waking
+const BAND_COLORS := {
+	"deep": Color(0.2, 0.2, 0.3),
+	"light": Color(0.42, 0.42, 0.52),
+	"waking": Color(0.7, 0.7, 0.74),
+}
+const NEEDLE_COLOR := Color(1.0, 1.0, 1.0)
+const GAUGE_LAYER := 6        # above the frame (5), below the text panel (10)
 
 @onready var dreamer: CharacterBody2D = $Dreamer
 @onready var rooms_holder: Node2D = $Rooms
@@ -91,6 +118,13 @@ var carried: Array[String] = []     # idea ids under the hat, the newest last
 var ideas: Array = []               # ideas.json, in order
 var rooms_data: Array = []          # rooms.json "rooms", in order
 var words: Dictionary = {}          # rooms.json "words"
+var gauge_words: Dictionary = {}    # rooms.json "gauge"
+var gauge_visible := true           # H toggles it; forgotten with the night
+var gauge: Node2D = null            # the sleep gauge, on its own layer over the frame
+var gauge_bands := {}               # band -> ColorRect
+var gauge_labels := {}              # band -> Label
+var gauge_needle: ColorRect = null
+var ideas_label: Label = null       # "ideas n / carry_limit" beside the bar
 var label_format := "{name}. {hint}"
 var tonight: Array[String] = []     # the room ids dealt, in order
 var tonight_ideas := {}             # room id -> idea id the dealer laid there
@@ -117,6 +151,10 @@ var _ease_t := EASE
 var _shut_t := 0.0                  # s the frame has been shut while closing
 var _still := {}                    # spot id -> s the dreamer has been still inside it
 var _grace := 0                     # frames after a respawn in which the polls below are skipped (see _settle)
+var _needle := 0.0                  # the needle drawn now, as a share of the limit
+var _needle_from := 0.0
+var _needle_to := 0.0
+var _needle_t := EASE
 
 
 func _ready() -> void:
@@ -130,6 +168,8 @@ func _ready() -> void:
 	words = rooms_json.get("words", {})
 	label_format = str(rooms_json.get("label", label_format))
 	help_label.text = str(rooms_json.get("help", ""))
+	gauge_words = rooms_json.get("gauge", {})
+	_build_gauge()
 	dreamer.hard_landing.connect(fall)
 	dreamer.fell_out.connect(fail.bind("fell"))
 	dreamer.pinch_changed.connect(_apply_soft)
@@ -145,6 +185,7 @@ func _physics_process(delta: float) -> void:
 	if woken:
 		return
 	_ease(delta)
+	_update_gauge()
 	if closing:
 		if _shown <= 0.0005:
 			_shut_t += delta
@@ -178,6 +219,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		_interact()
 	elif event.is_action_pressed("set_down"):
 		set_down()
+	elif event.is_action_pressed("gauge_toggle"):
+		toggle_gauge()
 
 
 # --- the dealer ---------------------------------------------------------------
@@ -237,13 +280,15 @@ func spot_index(day: int, index: int, count: int) -> int:
 	return (day * 131 + index * 17) % count
 
 
-## The ideas the dealer may lay out: not kept, not built.
+## The ideas the dealer may lay out: not kept, not claimed, not built, not
+## a small thing on the street (day 4: an idea is never nothing).
 func ideas_pool() -> Array[String]:
 	var pool: Array[String] = []
 	for idea in ideas:
 		var id := str(idea.get("id", ""))
-		if not state.ideas_kept.has(id) and not state.ideas_built.values().has(id):
-			pool.append(id)
+		if state.ideas_kept.has(id) or state.ideas_claimed.values().has(id) or state.ideas_built.values().has(id) or state.small_things.has(id):
+			continue
+		pool.append(id)
 	return pool
 
 
@@ -339,8 +384,9 @@ func _enter_room(index: int) -> void:
 
 # --- lucidity -----------------------------------------------------------------
 
+## Tonight's limit: 8, or 10 with a pill (state.night_limit()).
 func limit() -> int:
-	return state.lucidity_limit
+	return state.night_limit()
 
 
 ## Lucidity plus the ideas carried, the one in hand counted twice.
@@ -582,17 +628,112 @@ func _changed() -> void:
 		_ease_from = _shown
 		_ease_to = aperture()
 		_ease_t = 0.0
+	var share := float(effective()) / float(limit())
+	if not is_equal_approx(_needle_to, share):
+		_needle_from = _needle
+		_needle_to = share
+		_needle_t = 0.0
 	_update_frame()
+	_update_gauge()
 	if effective() >= limit() and not closing and not woken:
 		closing = true
 		_shut_t = 0.0
 
 
-## The shown aperture moves from where it was to the aperture over EASE seconds.
+## The shown aperture moves from where it was to the aperture over EASE
+## seconds; the gauge's needle the same way, to effective / limit.
 func _ease(delta: float) -> void:
 	if _ease_t < EASE:
 		_ease_t = minf(_ease_t + delta, EASE)
 		_shown = lerpf(_ease_from, _ease_to, _ease_t / EASE)
+	if _needle_t < EASE:
+		_needle_t = minf(_needle_t + delta, EASE)
+		_needle = lerpf(_needle_from, _needle_to, _needle_t / EASE)
+
+
+# --- the sleep gauge -------------------------------------------------------------
+
+## Which band effective is in tonight: deep (up to DEEP_TO of the limit),
+## light (up to LIGHT_TO), waking (the rest, including the limit itself).
+func gauge_band() -> String:
+	var e := float(effective())
+	var l := float(limit())
+	if e <= l * DEEP_TO + 0.0001:
+		return "deep"
+	if e <= l * LIGHT_TO + 0.0001:
+		return "light"
+	return "waking"
+
+
+## Where the needle is drawn: effective / limit, eased over EASE seconds after an act.
+func gauge_fraction() -> float:
+	return _needle
+
+
+## The bar's full height in px: GAUGE_PX per point of tonight's limit.
+func gauge_height() -> float:
+	return limit() * GAUGE_PX
+
+
+func toggle_gauge() -> void:
+	gauge_visible = not gauge_visible
+	gauge.visible = gauge_visible
+	acted.emit("gauge", "on" if gauge_visible else "off")
+
+
+func _build_gauge() -> void:
+	var layer := CanvasLayer.new()
+	layer.name = "GaugeLayer"
+	layer.layer = GAUGE_LAYER
+	add_child(layer)
+	gauge = Node2D.new()
+	gauge.name = "Gauge"
+	gauge.position = GAUGE_AT
+	layer.add_child(gauge)
+	for band in ["deep", "light", "waking"]:
+		var rect := ColorRect.new()
+		rect.name = band.capitalize()
+		rect.color = BAND_COLORS[band]
+		gauge.add_child(rect)
+		gauge_bands[band] = rect
+		var label := Label.new()
+		label.name = band.capitalize() + "Label"
+		label.text = str(gauge_words.get(band, band))
+		label.size = Vector2(80, 22)
+		label.add_theme_font_size_override("font_size", 13)
+		gauge.add_child(label)
+		gauge_labels[band] = label
+	gauge_needle = ColorRect.new()
+	gauge_needle.name = "Needle"
+	gauge_needle.color = NEEDLE_COLOR
+	gauge_needle.size = Vector2(GAUGE_WIDTH + 10.0, 3)
+	gauge.add_child(gauge_needle)
+	ideas_label = Label.new()
+	ideas_label.name = "Ideas"
+	ideas_label.size = Vector2(160, 22)
+	gauge.add_child(ideas_label)
+	gauge.visible = gauge_visible
+	_update_gauge()
+
+
+## The bands stacked from the bar's bottom (deep) to its top (waking), the
+## needle at the eased share of the limit, the ideas count beside it.
+func _update_gauge() -> void:
+	if gauge == null:
+		return
+	var height := gauge_height()
+	var edges := {"deep": [0.0, DEEP_TO], "light": [DEEP_TO, LIGHT_TO], "waking": [LIGHT_TO, 1.0]}
+	for band in edges:
+		var from: float = edges[band][0] * height
+		var to: float = edges[band][1] * height
+		var rect: ColorRect = gauge_bands[band]
+		rect.position = Vector2(0, -to)
+		rect.size = Vector2(GAUGE_WIDTH, to - from)
+		var label: Label = gauge_labels[band]
+		label.position = Vector2(GAUGE_WIDTH + 8.0, -(from + to) / 2.0 - 11.0)
+	gauge_needle.position = Vector2(-5.0, -_needle * height - 1.5)
+	ideas_label.position = Vector2(GAUGE_WIDTH + 8.0, -height - 26.0)
+	ideas_label.text = str(gauge_words.get("ideas", "{n} / {limit}")).format({"n": carried.size(), "limit": state.carry_limit})
 
 
 # --- the frame -----------------------------------------------------------------

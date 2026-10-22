@@ -1,6 +1,12 @@
 {
   "day_label": "Day {day}",
   "sleep_prompt": "E to sleep",
+  "sleep_prompt_pills": "E to sleep · 1 to take a pill first",
+  "pill_taken": "Bitter. Jorun will not miss one.",
+  "talk_prompt": "E to talk",
+  "make_prompt": "hold E at the stove",
+  "making": "making...",
+  "made": "Something for Jorun, from the herbs on the shelf. Bitter, by the smell of it.",
   "wake_sudden": "You woke. Keep one.",
   "wake_sudden_one": "You woke. One idea stayed under your hat.",
   "wake_sudden_none": "You woke with nothing under your hat.",
@@ -8,6 +14,12 @@
   "keep_one": "1 or 2 to keep it",
   "tally_title": "Woke suddenly",
   "tally_mark": "|",
+  "breakfast": {
+    "offer": "E at a face to offer {idea}",
+    "offer_many": "E at a face to offer {idea} · 1, 2, 3 to change",
+    "asleep": "{name} is asleep. Try another face.",
+    "over": "The telling is done."
+  },
   "buildings": {
     "long_house": "Long House",
     "jorun_hut": "Jorun's hut",
@@ -15,11 +27,19 @@
   },
   "markers": {
     "bunk": "bunk",
-    "table": "table"
+    "table": "table",
+    "stove": "stove",
+    "scaffold": "scaffold"
   },
   "plots": {
     "sixteen_stairs": "Sixteen Stairs",
     "bos_loft": "Bo's loft",
     "lantern_post": "lantern post"
+  },
+  "small_things": {
+    "bench": "a bench",
+    "sign": "a sign",
+    "lantern_post": "a lantern on a post",
+    "default": "{name}, as a bench"
   }
 }

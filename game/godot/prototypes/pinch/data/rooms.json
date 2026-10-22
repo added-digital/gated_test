@@ -1,6 +1,12 @@
 {
   "label": "{name}. {hint}",
   "help": "Hold K to pinch. E takes an idea within reach, Q sets the top one down as a step. A step left behind when you leave a room is lost for the night.",
+  "gauge": {
+    "deep": "deep",
+    "light": "light",
+    "waking": "waking",
+    "ideas": "ideas {n} / {limit}"
+  },
   "words": {
     "door": "door",
     "exit": "exit",

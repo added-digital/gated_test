@@ -2,35 +2,35 @@
   {
     "id": "sixteen_stairs",
     "name": "Sixteen Stairs",
-    "whose": "Jorun",
+    "whose": "jorun",
     "becomes": "sixteen_stairs",
     "line": "Sixteen steps down through the ice. The fish can come up them if they like."
   },
   {
     "id": "door_boat",
     "name": "A Door That Is Also a Boat",
-    "whose": "Jorun",
+    "whose": "jorun",
     "becomes": "bench",
     "line": "Open it and you are already halfway across the lake."
   },
   {
     "id": "smell_of_bread",
     "name": "The Smell of Bread",
-    "whose": "Tove",
+    "whose": "tove",
     "becomes": "bench",
     "line": "No bread anywhere. Follow it and the stove is lit."
   },
   {
     "id": "bos_big_needle",
     "name": "Bo's Big Needle",
-    "whose": "Bo",
+    "whose": "bo",
     "becomes": "bos_loft",
     "line": "A needle the length of a ski. Bo would know what it is for."
   },
   {
     "id": "window_yesterday",
     "name": "A Window Facing Yesterday",
-    "whose": "Tove",
+    "whose": "tove",
     "becomes": "sign",
     "line": "The snow in it has not fallen yet."
   },

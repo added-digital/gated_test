@@ -165,7 +165,8 @@ func _ready() -> void:
 	await settle()
 	check(wakes.size() == 2 and wakes[1][0] == false and wakes[1][1].size() == 1, "E on the bed woke the dreamer gently with 1 idea carried")
 	check(state.day == 3 and state.tally == 1, "day 3, the tally still 1 (%d, %d)" % [state.day, state.tally])
-	check(state.ideas_kept.size() == 2 and state.ideas_kept[0] == second and state.ideas_kept[1] == first, "nothing lost: kept %s" % str(state.ideas_kept))
+	# Day 4: on day 2 the walk from the table to the bunk skipped breakfast, so the idea kept on night 1 became a small thing; night 2's is on the table.
+	check(state.ideas_kept == [first] and state.small_things == [second] and state.breakfast_done_day == 2, "nothing lost: night 2's idea kept %s; night 1's became a small thing at day 2's skipped breakfast %s" % [str(state.ideas_kept), str(state.small_things)])
 	check(harness.summary().contains("woke_gentle") and harness.summary().contains("kept:%s" % first), "the harness recorded woke_gentle and kept:%s" % first)
 	check(panel.say_label.text == words.wake_gentle, "the panel says '%s'" % panel.say_label.text)
 	village = toy.village

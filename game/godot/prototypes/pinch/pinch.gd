@@ -5,9 +5,14 @@ extends Node
 ## shown only once the dream's frame has been shut its SHUT seconds, since
 ## woke fires after that) and marks the tally; the rest float over the
 ## bunk and fade (the village draws them). Gentle keeps all. Then the day
-## moves on and the village comes back with the kept ideas on the table.
-## Every word the player reads comes from data/village.json and
-## data/ideas.json; rewrite those, not this.
+## moves on (state.new_day: the ideas claimed at yesterday's breakfast are
+## standing, milestone built:<plot>; the pill has worn off) and the village
+## comes back with the kept ideas on the table, the wake line first and
+## then whatever the morning brings (a request, breakfast: village.gd).
+## The village's doings (talk:<who>, told, told_wrong, made, pill, the
+## breakfast) go to the harness here. Every word the player reads comes
+## from data/village.json, data/characters.json and data/ideas.json;
+## rewrite those, not this.
 
 const VILLAGE := preload("res://prototypes/pinch/village.tscn")
 const DREAM := preload("res://prototypes/pinch/dream.tscn")
@@ -25,7 +30,6 @@ var ideas: Array = []        # ideas.json, in order
 var village: Node2D = null   # the street, by day
 var dream: Node2D = null     # the dream, by night
 var picking := false         # the keep-one picker is up
-var line_timer := 0.0        # s until the waking line on screen clears (0: nothing to clear)
 
 
 func _ready() -> void:
@@ -35,13 +39,6 @@ func _ready() -> void:
 	ideas = loaded if loaded is Array else []
 	harness.start("pinch")
 	_show_village()
-
-
-func _process(delta: float) -> void:
-	if line_timer > 0.0:
-		line_timer -= delta
-		if line_timer <= 0.0:
-			panel.say("")
 
 
 func get_state() -> PinchState:
@@ -56,11 +53,14 @@ func idea_name(id: String) -> String:
 	return id
 
 
-func _show_village() -> void:
+func _show_village(wake_line := "") -> void:
 	village = VILLAGE.instantiate()
 	village.name = "Village"
 	village.state = state
+	village.panel = panel
+	village.wake_line = wake_line
 	village.slept.connect(_on_slept)
+	village.acted.connect(_on_village_acted)
 	add_child(village)
 
 
@@ -74,7 +74,7 @@ func _show_dream() -> void:
 
 
 func _on_slept() -> void:
-	harness.action("sleep")
+	harness.action("sleep", "pill" if state.pill_tonight else "")
 	harness.milestone("slept_%d" % state.day)
 	remove_child(village)   # out of the tree now, so its ground leaves the physics space before the dreamer's first step
 	village.queue_free()
@@ -87,6 +87,18 @@ func _on_acted(kind: String, detail: String) -> void:
 	harness.action(kind, detail)
 	if kind == "grab":
 		harness.milestone("grabbed")
+
+
+## What the village reports by day: a telling is a milestone, the rest are actions.
+func _on_village_acted(kind: String, detail: String) -> void:
+	match kind:
+		"told":
+			harness.action("told", detail)
+			harness.milestone("told:%s" % detail)
+		"talk":
+			harness.action("talk:%s" % detail)
+		_:
+			harness.action(kind, detail)
 
 
 ## Waking: sudden keeps one (the player picks when two or more were carried)
@@ -113,15 +125,14 @@ func _on_woke(sudden: bool, carried: Array) -> void:
 		lost.append(id)
 		harness.action("lost", id)
 	for id in keep:
-		state.ideas_kept.append(id)
+		state.keep(id)
 		harness.milestone("kept:%s" % id)
 	state.ideas_carried.clear()
-	state.day += 1
+	for plot in state.new_day():
+		harness.milestone("built:%s" % plot)
 	blackout.visible = false
 	panel.hide_all()
-	panel.say(line)
-	line_timer = LINE_STAYS if line != "" else 0.0
-	_show_village()
+	_show_village(line)
 	if not lost.is_empty():
 		village.fade_lost(lost)
 
