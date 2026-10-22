@@ -9,10 +9,16 @@ extends Node2D
 ## suddenly; the picker keeps the second idea (tally 1, day 2, one mark on
 ## the wall); sleep again, grab one idea, lie in the bed and wake gently
 ## (day 3, nothing lost); the dark mask covers the same 3 tiles each day.
-## Since day 2 the dream deals rooms (tests/toy_pinch_dream_test.gd) and
-## the stub's two ideas, block and bed live in the bed room, dealt last;
-## each night this test jumps straight there (jump_to_room) and the day-1
-## checks run unchanged. Prints PASS/FAIL per check and quits with 0 only
+## Since day 2 the dream deals rooms (tests/toy_pinch_dream_test.gd); the
+## block and bed live in the bed room, dealt last, and each night this
+## test jumps straight there (jump_to_room). Since day 3 the dealer lays
+## ideas in the other rooms and none in the bed room, so this test places
+## the stub's two there by hand (place_idea); a grabbed idea is in the
+## hand for 2 s, counting double, so the day-1 numbers (effective 3, 6)
+## are read once it has settled; the frame follows the dreamer and eases
+## (check_frame reads the shown aperture); at the limit the frame is shut
+## 0.8 s before woke fires, so the test waits for it. The day-1 checks are
+## otherwise unchanged. Prints PASS/FAIL per check and quits with 0 only
 ## if every check passes.
 
 const TOY := preload("res://prototypes/pinch/pinch.tscn")
@@ -70,8 +76,10 @@ func _ready() -> void:
 	var dream: Node2D = toy.dream
 	check(dream != null and dream.get_parent() == toy and dream.name == "Dream", "the dream is the active scene")
 	check(harness.summary().contains("slept_1"), "the harness recorded the milestone slept_1")
-	dream.woke.connect(func(sudden: bool, carried: Array) -> void: wakes.append([sudden, carried]))
-	check(dream.jump_to_room("bed") and dream.current_room_id() == "bed", "day 2: jumped to the bed room, dealt last, where the stub's ideas, block and bed live")
+	dream.woke.connect(func(sudden: bool, carried: Array) -> void: wakes.append([sudden, carried, dream.frame_open.size]))
+	check(dream.jump_to_room("bed") and dream.current_room_id() == "bed", "day 2: jumped to the bed room, dealt last, where the block and bed live")
+	dream.place_idea(first, Vector2(460, 588))   # day 3: the bed room holds no ideas; the stub's two are placed by hand
+	dream.place_idea(second, Vector2(640, 588))
 
 	# (c) Lucidity, by the acts table.
 	check(dream.lucidity == 0 and dream.effective() == 0, "lucidity starts at 0, effective 0")
@@ -87,6 +95,8 @@ func _ready() -> void:
 	frames = await walk_dreamer_until(dream, func() -> bool: return dream.idea_in_reach() != null)
 	check(frames < WALK_FRAMES, "walked to the first idea in %d frames, x = %.1f" % [frames, dream.dreamer.position.x])
 	check(dream.grab(), "grab() took the first idea")
+	check(dream.lucidity == 2 and dream.in_hand() and dream.effective() == 4, "day 3: grab: lucidity 2, in hand, effective 4 (%d, %d)" % [dream.lucidity, dream.effective()])
+	await hand_settles()
 	check(dream.lucidity == 2 and dream.effective() == 3, "grab: lucidity 2, effective 3 (%d, %d)" % [dream.lucidity, dream.effective()])
 	check(is_equal_approx(dream.aperture(), 1.0 - 3.0 / 8.0), "aperture 1 - 3/8 = %.3f" % dream.aperture())
 	check_frame(dream)
@@ -95,6 +105,7 @@ func _ready() -> void:
 	check(harness.summary().contains("grabbed"), "the harness recorded the milestone grabbed")
 	frames = await walk_dreamer_until(dream, func() -> bool: return dream.idea_in_reach() != null)
 	check(frames < WALK_FRAMES and dream.grab(), "walked to the second idea in %d frames and grab() took it" % frames)
+	await hand_settles()
 	check(dream.lucidity == 4 and dream.effective() == 6, "second grab: lucidity 4, effective 6 (%d, %d)" % [dream.lucidity, dream.effective()])
 	check(is_equal_approx(dream.aperture(), 0.25), "aperture 1 - 6/8 = %.3f" % dream.aperture())
 	check_frame(dream)
@@ -110,8 +121,10 @@ func _ready() -> void:
 	check(wakes.is_empty() and toy.dream == dream, "effective 7 is under the limit of 8: still dreaming")
 	dream.fall()
 	check(dream.lucidity == 6 and dream.effective() == 8, "fall: lucidity 6, effective 8 (%d, %d)" % [dream.lucidity, dream.effective()])
-	check(wakes.size() == 1 and wakes[0][0] == true and wakes[0][1].size() == 2, "effective 8 >= 8 woke the dreamer suddenly with 2 ideas carried")
-	check(is_equal_approx(dream.aperture(), 0.0) and dream.frame_open.size == Vector2.ZERO, "the frame closed to nothing")
+	check(is_equal_approx(dream.aperture(), 0.0) and dream.closing and wakes.is_empty(), "the aperture is 0: the frame is closing, not yet woken")
+	frames = await wait_until(func() -> bool: return not wakes.is_empty(), 180)
+	check(frames >= 48 and frames < 180 and wakes.size() == 1 and wakes[0][0] == true and wakes[0][1].size() == 2, "effective 8 >= 8 woke the dreamer suddenly with 2 ideas carried, %d frames after the fall (day 3: the frame shuts first)" % frames)
+	check(wakes[0][2] == Vector2.ZERO, "the frame closed to nothing")
 
 	# (d) The keep-one picker.
 	check(toy.dream == null and toy.picking, "the controller put the dream away and the picker is up")
@@ -139,8 +152,9 @@ func _ready() -> void:
 	await settle()
 	dream = toy.dream
 	check(dream != null and toy.village == null and harness.summary().contains("slept_2"), "asleep again: the dream is up and slept_2 recorded")
-	dream.woke.connect(func(sudden: bool, carried: Array) -> void: wakes.append([sudden, carried]))
+	dream.woke.connect(func(sudden: bool, carried: Array) -> void: wakes.append([sudden, carried, dream.frame_open.size]))
 	check(dream.jump_to_room("bed") and dream.current_room_id() == "bed", "day 2: night 2 jumped to the bed room as well")
+	dream.place_idea(first, Vector2(460, 588))   # day 3: placed by hand, as on night 1
 	Input.action_press("pinch")
 	await settle()
 	frames = await walk_dreamer_until(dream, func() -> bool: return dream.idea_in_reach() != null)
@@ -176,16 +190,33 @@ func check_mask(village: Node2D, day: int) -> void:
 	check(is_equal_approx(village.mask_right.position.x, village.STREET_WIDTH / 2.0 + lit) and is_equal_approx(village.mask_right.position.x + village.mask_right.size.x, village.STREET_WIDTH), "day %d: the right mask spans %.0f..%.0f" % [day, village.mask_right.position.x, village.mask_right.position.x + village.mask_right.size.x])
 
 
-## The four frame rects leave a centred hole of aperture * screen.
+## The four frame rects leave a hole of the shown aperture * screen, centred
+## on the dreamer and clamped inside the screen (day 3; before, the screen's middle).
 func check_frame(dream: Node2D) -> void:
 	var screen: Vector2 = get_viewport().get_visible_rect().size
-	var expected: Vector2 = screen * dream.aperture()
+	var expected: Vector2 = screen * dream.shown_aperture()
+	var corner: Vector2 = (dream.dreamer_screen_position() - expected / 2.0).clamp(Vector2.ZERO, screen - expected)
 	var hole: Rect2 = dream.frame_open
 	var top: ColorRect = dream.frame_top
 	var left: ColorRect = dream.frame_left
-	var ok := hole.size.is_equal_approx(expected) and hole.position.is_equal_approx((screen - expected) / 2.0)
+	var ok := hole.size.is_equal_approx(expected) and hole.position.is_equal_approx(corner)
 	ok = ok and top.size.is_equal_approx(Vector2(screen.x, hole.position.y)) and left.size.is_equal_approx(Vector2(hole.position.x, hole.size.y))
-	check(ok, "the frame leaves %.0f x %.0f of %.0f x %.0f open (aperture %.3f)" % [hole.size.x, hole.size.y, screen.x, screen.y, dream.aperture()])
+	check(ok, "the frame leaves %.0f x %.0f of %.0f x %.0f open at %s (shown %.3f, aperture %.3f)" % [hole.size.x, hole.size.y, screen.x, screen.y, hole.position, dream.shown_aperture(), dream.aperture()])
+
+
+## Day 3: a grabbed idea is in the hand for 2 s; wait for it to settle under the hat.
+func hand_settles() -> void:
+	for i in 125:
+		await get_tree().physics_frame
+
+
+## Frames until the condition holds, or the budget runs out.
+func wait_until(cond: Callable, budget: int) -> int:
+	var frames := 0
+	while not cond.call() and frames < budget:
+		await get_tree().physics_frame
+		frames += 1
+	return frames
 
 
 func settle() -> void:

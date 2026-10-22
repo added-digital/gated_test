@@ -52,12 +52,11 @@ word = "block"
 [node name="Door" type="Marker2D" parent="."]
 position = Vector2(120, 548)
 
-[node name="IdeaSpots" type="Node2D" parent="."]
-
-[node name="Spot1" type="Marker2D" parent="IdeaSpots"]
-position = Vector2(460, 580)
-
-[node name="Spot2" type="Marker2D" parent="IdeaSpots"]
-position = Vector2(640, 580)
+[node name="Exit" type="Area2D" parent="."]
+position = Vector2(1040, 520)
+script = ExtResource("3_zone")
+size = Vector2(100, 80)
+role = "exit"
+word = "exit"
 
 [node name="Ideas" type="Node2D" parent="."]

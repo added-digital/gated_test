@@ -1,5 +1,6 @@
 {
   "label": "{name}. {hint}",
+  "help": "Hold K to pinch. E takes an idea within reach, Q sets the top one down as a step. A step left behind when you leave a room is lost for the night.",
   "words": {
     "door": "door",
     "exit": "exit",
@@ -9,13 +10,17 @@
     "spot": "a quiet spot",
     "hazard": "cold water",
     "bed": "your bed",
-    "block": "a block"
+    "block": "a block",
+    "top": "the top",
+    "island": "an island",
+    "beam": "a beam",
+    "ladder_sign": "you don't know this story yet"
   },
   "rooms": [
     {
       "id": "tutorial",
       "name": "The gap",
-      "hint": "Asleep, the current carries you. Pinch over the far floor to land. Standing pinched in the exit takes you on."
+      "hint": "An idea lies behind you: pinch, step up to it, E. Asleep, the current carries you over the gap. Pinch over the far floor to land; stand pinched in the exit to go on."
     },
     {
       "id": "a",
@@ -28,9 +33,29 @@
       "hint": "Wait for the goat and let it carry you over. Pinch above the far floor; stand pinched in the exit to go on."
     },
     {
+      "id": "c",
+      "name": "The climb",
+      "hint": "Pinch and climb; asleep the wind takes you off the ledges. The top is one step too high: Q sets an idea down to stand on. A step you leave behind is lost for the night."
+    },
+    {
+      "id": "d",
+      "name": "The maze",
+      "hint": "Drift into the current and let it lift you through the soft walls. Pinch over the island, not before; the exit is at its far end."
+    },
+    {
+      "id": "e",
+      "name": "Cold water",
+      "hint": "The water takes you if you pinch over it. Ride the goat round; pinch above the beam on its way back, then down to the far floor."
+    },
+    {
+      "id": "ladder",
+      "name": "The ladder",
+      "hint": "It goes up to somewhere you have not been. Not tonight. Stand pinched in the exit to go on."
+    },
+    {
       "id": "bed",
       "name": "Your bed",
-      "hint": "Pinch and E to take an idea or push the block. E at your bed wakes you gently with everything."
+      "hint": "E at your bed wakes you gently with everything under your hat. When the bed comes early, the exit past it is the bet: the night goes on, and the frame with it."
     }
   ]
 }

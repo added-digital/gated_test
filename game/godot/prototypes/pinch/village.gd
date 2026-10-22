@@ -4,12 +4,20 @@ extends Node2D
 ## table and the tally wall; Jorun's hut; the stove shed) and three plots
 ## wait (Sixteen Stairs, Bo's loft, a lantern post). Two black rects mask
 ## the street beyond the lit tiles at each end; they recede one tile per
-## building standing, read from the state. E at the bunk emits slept. Every
-## word on screen comes from data/village.json; rewrite that, not this.
+## building standing, read from the state. E at the bunk emits slept. The
+## ideas kept (state.ideas_kept) lie on the Long House table as small
+## labelled rects until breakfast takes them (day 4); the ideas lost at a
+## sudden waking float over the bunk and fade over LOST_FADE seconds
+## (fade_lost, called by the controller). Every word on screen comes from
+## data/village.json, idea names from data/ideas.json; rewrite those, not
+## this.
 
 signal slept
 
 const WORDS_FILE := "res://prototypes/pinch/data/village.json"
+const IDEAS_FILE := "res://prototypes/pinch/data/ideas.json"
+const LOST_FADE := 6.0           # s the lost stack takes to fade over the bunk
+const PIECE := Vector2(32, 24)   # px: one idea as a rect, on the table or over the bunk
 const STREET_WIDTH := 4608.0   # px: four screens of 1152
 const STREET_HEIGHT := 648.0   # px: one screen; the camera never scrolls up or down
 const GROUND_Y := 540.0        # px: the ground line
@@ -39,8 +47,12 @@ const BUNK := Rect2(2400, 500, 70, 40)    # inside the Long House, right
 
 var state: PinchState         # set by the controller before add_child; a fresh one when run alone
 var words: Dictionary = {}    # village.json
+var ideas: Array = []         # ideas.json, for the names
 var tally_wall: Label = null  # the marks on the Long House wall, one per sudden waking
+var table_ideas: Node2D = null   # the kept ideas on the table, one labelled rect each
+var lost_stack: Node2D = null    # the ideas lost at waking, fading over the bunk; null when none
 var _slept := false
+var _lost_left := 0.0
 
 
 func _ready() -> void:
@@ -48,14 +60,24 @@ func _ready() -> void:
 		state = PinchState.new()
 	var loaded: Variant = PinchState.load_json(WORDS_FILE)
 	words = loaded if loaded is Dictionary else {}
+	loaded = PinchState.load_json(IDEAS_FILE)
+	ideas = loaded if loaded is Array else []
 	_build_street()
 	prompt_label.text = words.get("sleep_prompt", "")
 	prompt_label.visible = false
 	refresh()
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	prompt_label.visible = bunk_in_range() and not _slept
+	if lost_stack != null:
+		_lost_left -= delta
+		if _lost_left <= 0.0:
+			street.remove_child(lost_stack)
+			lost_stack.queue_free()
+			lost_stack = null
+		else:
+			lost_stack.modulate.a = _lost_left / LOST_FADE
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -63,10 +85,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		go_to_sleep()
 
 
-## Re-reads the state: the day label, the tally wall, the dark at each end.
+## Re-reads the state: the day label, the tally wall, the ideas on the
+## table, the dark at each end.
 func refresh() -> void:
 	day_label.text = str(words.get("day_label", "{day}")).format({"day": state.day})
 	tally_wall.text = str(words.get("tally_mark", "|")).repeat(state.tally)
+	for piece in table_ideas.get_children():
+		table_ideas.remove_child(piece)
+		piece.queue_free()
+	for i in state.ideas_kept.size():
+		_add_piece(table_ideas, state.ideas_kept[i], Vector2(TABLE.position.x + 8 + i * (PIECE.x + 6), TABLE.position.y - PIECE.y), i)
 	var lit := lit_extent()
 	mask_left.position = Vector2.ZERO
 	mask_left.size = Vector2(STREET_WIDTH / 2.0 - lit, STREET_HEIGHT)
@@ -90,6 +118,42 @@ func mask_extent() -> float:
 
 func bunk_in_range() -> bool:
 	return absf(walker.position.x - BUNK.get_center().x) <= BUNK_RANGE
+
+
+## The name of an idea, from ideas.json.
+func idea_name(id: String) -> String:
+	for idea in ideas:
+		if str(idea.get("id", "")) == id:
+			return str(idea.get("name", id))
+	return id
+
+
+## The ideas kept, as drawn on the table, in order.
+func table_idea_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for piece in table_ideas.get_children():
+		ids.append(str(piece.get_meta("id")))
+	return ids
+
+
+## The ideas lost at a sudden waking: a stack over the bunk, one rect per
+## idea, fading away over LOST_FADE seconds.
+func fade_lost(ids: Array) -> void:
+	if lost_stack != null:
+		street.remove_child(lost_stack)
+		lost_stack.queue_free()
+	lost_stack = Node2D.new()
+	lost_stack.name = "Lost"
+	var x := BUNK.get_center().x - PIECE.x / 2.0
+	for i in ids.size():
+		_add_piece(lost_stack, str(ids[i]), Vector2(x, BUNK.position.y - 40.0 - (i + 1) * (PIECE.y + 2.0)), i)
+	street.add_child(lost_stack)
+	_lost_left = LOST_FADE
+
+
+## How far the lost stack has faded: 1 just woken, 0 gone.
+func lost_alpha() -> float:
+	return lost_stack.modulate.a if lost_stack != null else 0.0
 
 
 ## Lie down: emits slept once; the controller takes it from there.
@@ -118,6 +182,34 @@ func _build_street() -> void:
 	_add_label(str(markers.get("bunk", "")), Vector2(BUNK.position.x, BUNK.position.y - 22), BUNK.size.x)
 	_add_label(str(words.get("tally_title", "")), Vector2(TABLE.position.x, TABLE.position.y - 150), 200.0, HORIZONTAL_ALIGNMENT_LEFT)
 	tally_wall = _add_label("", Vector2(TABLE.position.x, TABLE.position.y - 126), 300.0, HORIZONTAL_ALIGNMENT_LEFT)
+	table_ideas = Node2D.new()
+	table_ideas.name = "TableIdeas"
+	street.add_child(table_ideas)
+
+
+## One idea as a white rect with a black edge and its name above (the
+## dream's look, small), under `holder`.
+func _add_piece(holder: Node2D, id: String, at: Vector2, index: int) -> void:
+	var piece := Node2D.new()
+	piece.name = "Idea_%s" % id
+	piece.position = at
+	piece.set_meta("id", id)
+	var edge := ColorRect.new()
+	edge.position = Vector2(-2, -2)
+	edge.size = PIECE + Vector2(4, 4)
+	edge.color = Color.BLACK
+	piece.add_child(edge)
+	var face := ColorRect.new()
+	face.size = PIECE
+	face.color = Color.WHITE
+	piece.add_child(face)
+	var label := Label.new()
+	label.text = idea_name(id)
+	label.position = Vector2(PIECE.x / 2.0 - 100, -24 - (index % 2) * 18)
+	label.size = Vector2(200, 22)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	piece.add_child(label)
+	holder.add_child(piece)
 
 
 func _add_box(rect: Rect2, color: Color) -> ColorRect:

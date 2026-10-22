@@ -1,0 +1,86 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://prototypes/pinch/rooms/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://prototypes/pinch/rooms/box.gd" id="2_box"]
+[ext_resource type="Script" path="res://prototypes/pinch/rooms/zone.gd" id="3_zone"]
+
+[node name="Room" type="Node2D"]
+script = ExtResource("1_room")
+id = "d"
+
+[node name="Crisp" type="Node2D" parent="."]
+
+[node name="Floor" type="StaticBody2D" parent="Crisp"]
+position = Vector2(0, 600)
+script = ExtResource("2_box")
+size = Vector2(1152, 48)
+
+[node name="Island" type="StaticBody2D" parent="Crisp"]
+position = Vector2(820, 240)
+script = ExtResource("2_box")
+size = Vector2(316, 40)
+word = "island"
+
+[node name="Soft" type="Node2D" parent="."]
+
+[node name="Wall1" type="StaticBody2D" parent="Soft"]
+position = Vector2(320, 100)
+script = ExtResource("2_box")
+size = Vector2(40, 300)
+soft = true
+
+[node name="Wall2" type="StaticBody2D" parent="Soft"]
+position = Vector2(440, 300)
+script = ExtResource("2_box")
+size = Vector2(40, 300)
+soft = true
+
+[node name="Wall3" type="StaticBody2D" parent="Soft"]
+position = Vector2(620, 100)
+script = ExtResource("2_box")
+size = Vector2(40, 300)
+soft = true
+
+[node name="Wall4" type="StaticBody2D" parent="Soft"]
+position = Vector2(740, 300)
+script = ExtResource("2_box")
+size = Vector2(40, 300)
+soft = true
+
+[node name="Wonders" type="Node2D" parent="."]
+
+[node name="Maze" type="Area2D" parent="Wonders"]
+position = Vector2(520, 150)
+script = ExtResource("3_zone")
+size = Vector2(60, 450)
+role = "wonder"
+id = "d_maze"
+kind = "soft_wall"
+word = "soft"
+
+[node name="Currents" type="Node2D" parent="."]
+
+[node name="Lift" type="Area2D" parent="Currents"]
+position = Vector2(300, 100)
+script = ExtResource("3_zone")
+size = Vector2(620, 500)
+role = "current"
+velocity = Vector2(120, -80)
+word = "current"
+
+[node name="Door" type="Marker2D" parent="."]
+position = Vector2(200, 548)
+
+[node name="Exit" type="Area2D" parent="."]
+position = Vector2(1036, 160)
+script = ExtResource("3_zone")
+size = Vector2(100, 80)
+role = "exit"
+word = "exit"
+
+[node name="IdeaSpots" type="Node2D" parent="."]
+
+[node name="Spot1" type="Marker2D" parent="IdeaSpots"]
+position = Vector2(900, 228)
+
+[node name="Ideas" type="Node2D" parent="."]

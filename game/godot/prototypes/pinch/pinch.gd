@@ -1,10 +1,13 @@
 extends Node
 ## Toy 4, PINCH (rung 3): the controller. Holds the one PinchState and the
 ## harness, shows the village by day and the dream by night, and handles
-## waking: sudden keeps one idea (a picker when two or more were carried)
-## and marks the tally; gentle keeps all. Then the day moves on and the
-## village comes back. Every word the player reads comes from
-## data/village.json and data/ideas.json; rewrite those, not this.
+## waking: sudden keeps one idea (a picker when two or more were carried,
+## shown only once the dream's frame has been shut its SHUT seconds, since
+## woke fires after that) and marks the tally; the rest float over the
+## bunk and fade (the village draws them). Gentle keeps all. Then the day
+## moves on and the village comes back with the kept ideas on the table.
+## Every word the player reads comes from data/village.json and
+## data/ideas.json; rewrite those, not this.
 
 const VILLAGE := preload("res://prototypes/pinch/village.tscn")
 const DREAM := preload("res://prototypes/pinch/dream.tscn")
@@ -103,6 +106,12 @@ func _on_woke(sudden: bool, carried: Array) -> void:
 			line = ""
 		else:
 			line = str(words.get("wake_sudden_one" if carried.size() == 1 else "wake_sudden_none", ""))
+	var lost: Array = []
+	for id in carried:
+		if keep.has(id):
+			continue
+		lost.append(id)
+		harness.action("lost", id)
 	for id in keep:
 		state.ideas_kept.append(id)
 		harness.milestone("kept:%s" % id)
@@ -113,6 +122,8 @@ func _on_woke(sudden: bool, carried: Array) -> void:
 	panel.say(line)
 	line_timer = LINE_STAYS if line != "" else 0.0
 	_show_village()
+	if not lost.is_empty():
+		village.fade_lost(lost)
 
 
 ## The keep-one picker: the ideas carried as numbered choices; returns the id kept.

@@ -1,0 +1,86 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://prototypes/pinch/rooms/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://prototypes/pinch/rooms/box.gd" id="2_box"]
+[ext_resource type="Script" path="res://prototypes/pinch/rooms/zone.gd" id="3_zone"]
+
+[node name="Room" type="Node2D"]
+script = ExtResource("1_room")
+id = "ladder"
+
+[node name="Crisp" type="Node2D" parent="."]
+
+[node name="Floor" type="StaticBody2D" parent="Crisp"]
+position = Vector2(0, 600)
+script = ExtResource("2_box")
+size = Vector2(1152, 48)
+
+[node name="Ladder" type="Node2D" parent="Crisp"]
+
+[node name="PostLeft" type="StaticBody2D" parent="Crisp/Ladder"]
+position = Vector2(548, 16)
+script = ExtResource("2_box")
+size = Vector2(8, 424)
+
+[node name="PostRight" type="StaticBody2D" parent="Crisp/Ladder"]
+position = Vector2(596, 16)
+script = ExtResource("2_box")
+size = Vector2(8, 424)
+
+[node name="Rung1" type="StaticBody2D" parent="Crisp/Ladder"]
+position = Vector2(556, 60)
+script = ExtResource("2_box")
+size = Vector2(40, 6)
+
+[node name="Rung2" type="StaticBody2D" parent="Crisp/Ladder"]
+position = Vector2(556, 136)
+script = ExtResource("2_box")
+size = Vector2(40, 6)
+
+[node name="Rung3" type="StaticBody2D" parent="Crisp/Ladder"]
+position = Vector2(556, 212)
+script = ExtResource("2_box")
+size = Vector2(40, 6)
+
+[node name="Rung4" type="StaticBody2D" parent="Crisp/Ladder"]
+position = Vector2(556, 288)
+script = ExtResource("2_box")
+size = Vector2(40, 6)
+
+[node name="Rung5" type="StaticBody2D" parent="Crisp/Ladder"]
+position = Vector2(556, 364)
+script = ExtResource("2_box")
+size = Vector2(40, 6)
+
+[node name="Soft" type="Node2D" parent="."]
+
+[node name="Currents" type="Node2D" parent="."]
+
+[node name="Sign" type="Node2D" parent="."]
+position = Vector2(576, 468)
+
+[node name="Board" type="ColorRect" parent="Sign"]
+offset_left = -170.0
+offset_right = 170.0
+offset_bottom = 30.0
+color = Color(0.2, 0.2, 0.24, 1)
+
+[node name="Text" type="Label" parent="Sign"]
+offset_left = -170.0
+offset_top = 4.0
+offset_right = 170.0
+offset_bottom = 26.0
+horizontal_alignment = 1
+metadata/word = "ladder_sign"
+
+[node name="Door" type="Marker2D" parent="."]
+position = Vector2(100, 548)
+
+[node name="Exit" type="Area2D" parent="."]
+position = Vector2(1040, 520)
+script = ExtResource("3_zone")
+size = Vector2(100, 80)
+role = "exit"
+word = "exit"
+
+[node name="Ideas" type="Node2D" parent="."]

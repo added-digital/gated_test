@@ -15,7 +15,14 @@ extends CharacterBody2D
 ## for a pinch in mid-air, at the pinch; so a jump on flat ground is free
 ## and a drop off a ledge taller than the body is not. Dropping below the
 ## room is reported as fell_out; the dream blinks and puts the body back
-## at the door. E is read by the dream, not here.
+## at the door. E and Q are read by the dream, not here.
+##
+## The hat (day 3): one white rect per idea carried, HAT_PIECE tall each,
+## piled above the head; the pile's height is the carry readout. Asleep
+## the pieces wobble, pinched they sit still; while the top one is "in
+## hand" (the two seconds after a grab, counted double by the dream) it
+## is offset to the side. `facing` is the last way the body was pushed,
+## for the dream's set-down.
 ##
 ## Collision layers (bits); the whole dream uses these:
 ##   1  BOUNDS  (1)   the room's left, right and top: solid asleep and pinched
@@ -44,7 +51,11 @@ const GRAVITY := 1400.0     # px/s² pinched
 const BODY_HEIGHT := 56.0   # px: a drop taller than this lands hard
 const ROOM_HEIGHT := 648.0  # px: below this the body has fallen out of the room
 const BOB := 4.0            # px: the asleep sway, drawn only; the body itself does not move
-const HAT_PIECE := Vector2(22, 8)
+const HAT_PIECE := Vector2(32, 24)   # px: one carried idea on the hat; the pile is count * 24 tall
+const HAT_GAP := 2.0                 # px between pieces
+const HAND_OFFSET := 20.0            # px the in-hand piece sits to the side
+const WOBBLE := 3.0                  # px the pieces sway asleep
+const BODY_SIZE := Vector2(28, 56)
 const SOFT := Color(0.6, 0.6, 0.66)
 const CRISP := Color(0.88, 0.88, 0.88)
 
@@ -53,6 +64,8 @@ const CRISP := Color(0.88, 0.88, 0.88)
 
 var pinched := false
 var frozen := false          # during the dream's blink: no physics, not drawn
+var facing := 1              # 1 right, -1 left: the last way the body was pushed
+var in_hand := false         # the top hat piece is in the hand (set_hat)
 var carried_by: Array = []   # the currents overlapping this frame (asleep only)
 var _drop_from := 0.0        # y where the current fall began
 var _settling := 0           # frames after a respawn during which no current is read (see respawn)
@@ -78,6 +91,8 @@ func _physics_process(delta: float) -> void:
 			_drop_from = position.y   # a pinch in mid-air: the fall starts here
 		pinch_changed.emit(pinched)
 	var axis := Input.get_axis("move_left", "move_right")
+	if axis != 0.0:
+		facing = 1 if axis > 0.0 else -1
 	var jump_now := pinched and Input.is_action_pressed("jump")
 	var jump_pressed := jump_now and not _jump_held
 	_jump_held = jump_now
@@ -104,6 +119,7 @@ func _physics_process(delta: float) -> void:
 					carried_by.append(area)
 					carry += area.carry(position)
 		velocity = Vector2(axis * DRIFT_SPEED, 0.0) + carry
+	_place_hat()
 	var was_on_floor := is_on_floor()
 	var y_before := position.y
 	move_and_slide()
@@ -143,8 +159,15 @@ func respawn(at: Vector2) -> void:
 	visible = true
 
 
-## The hat stack: one small rect per idea carried, piled above the head.
-func set_hat(count: int) -> void:
+## The body's box, in the room.
+func rect() -> Rect2:
+	return Rect2(position - BODY_SIZE / 2.0, BODY_SIZE)
+
+
+## The hat stack: one rect per idea carried, piled above the head; the top
+## one to the side while it is in the hand.
+func set_hat(count: int, top_in_hand := false) -> void:
+	in_hand = top_in_hand and count > 0
 	for piece in hat.get_children():
 		hat.remove_child(piece)
 		piece.queue_free()
@@ -152,9 +175,36 @@ func set_hat(count: int) -> void:
 		var piece := ColorRect.new()
 		piece.color = Color.WHITE
 		piece.size = HAT_PIECE
-		piece.position = Vector2(-HAT_PIECE.x / 2.0, -(i + 1) * (HAT_PIECE.y + 2.0))
+		piece.position = Vector2(-HAT_PIECE.x / 2.0, -(i + 1) * HAT_PIECE.y - i * HAT_GAP)
 		hat.add_child(piece)
+	_place_hat()
 
 
 func hat_count() -> int:
 	return hat.get_child_count()
+
+
+## px from the head to the top of the pile: 24 per idea carried.
+func hat_height() -> float:
+	return hat_count() * HAT_PIECE.y
+
+
+## The top piece's sideways offset: HAND_OFFSET in hand, the wobble asleep, 0 pinched.
+func hat_top_offset() -> float:
+	var count := hat_count()
+	return 0.0 if count == 0 else hat.get_child(count - 1).position.x + HAT_PIECE.x / 2.0
+
+
+## The pile follows the head (the body bobs asleep); each piece sways asleep
+## and sits still pinched; the in-hand piece sits to the side the body faces.
+func _place_hat() -> void:
+	hat.position = Vector2(0.0, body.position.y)
+	var count := hat.get_child_count()
+	for i in count:
+		var piece: ColorRect = hat.get_child(i)
+		var x := -HAT_PIECE.x / 2.0
+		if not pinched:
+			x += sin(_time * 3.0 + i * 0.9) * WOBBLE
+		if in_hand and i == count - 1:
+			x += HAND_OFFSET * facing
+		piece.position.x = x

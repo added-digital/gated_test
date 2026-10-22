@@ -3,8 +3,11 @@ extends Node2D
 ## dream.tscn alone, with a fresh PinchState), headless. The dreamer is
 ## driven through the input actions (Input.action_press) with frame
 ## budgets; positions, lucidity and the frame are read back. The run, night
-## 1: the dealer (tutorial first, the two rooms in the seeded order, the
-## bed last; night 2 has no tutorial); the tutorial: asleep nothing moves
+## 1: the dealer (tutorial first, four of the six rooms in the seeded
+## order, the bed last; night 2 has no tutorial; since day 3 the seeded
+## night 1 happens to hold a and b, which this test drives, and the frame
+## follows the dreamer and eases, so check_frame reads the shown
+## aperture); the tutorial: asleep nothing moves
 ## for 60 frames, the soft pillar is passed, the current carries the body
 ## across the gap (120 px/s on its own), pinching over the far floor lands
 ## in under 30 frames for nothing, a jump reaches 80 px and lands free,
@@ -16,9 +19,9 @@ extends Node2D
 ## jump up the ledge is free, 3 s still in the spot (-1); room b: a hazard
 ## while pinched fails the screen, the goat carries the body along its
 ## round (the dreamer's motion equals the goat's), its wonder once, pinch
-## over the far floor, the exit; the bed room: two ideas, the block, the
-## bed, E wakes gently. Prints PASS/FAIL per check and quits with 0 only
-## if every check passes.
+## over the far floor, the exit; the bed room: no ideas (day 3), the
+## block, the bed, E wakes gently. Prints PASS/FAIL per check and quits
+## with 0 only if every check passes.
 
 const DREAM := preload("res://prototypes/pinch/dream.tscn")
 const ROOMS_FILE := "res://prototypes/pinch/data/rooms.json"
@@ -55,13 +58,14 @@ func _ready() -> void:
 
 	# (7) The dealer, night 1.
 	var order: Array = dream.rooms_tonight()
-	check(order.size() == 4 and order[0] == "tutorial" and order[3] == "bed", "night 1 deals 4 rooms, the tutorial first and the bed last: %s" % [order])
-	var middle: Array = [order[1], order[2]]
+	check(order.size() == 6 and order[0] == "tutorial" and order[5] == "bed", "night 1 deals 6 rooms (day 3: four of six plus the tutorial and the bed), the tutorial first and the bed last: %s" % [order])
+	var middle: Array = order.slice(1, 5)
 	middle.sort()
-	check(middle == ["a", "b"], "the two rooms lie between them, each once: %s" % [order])
+	var pool: Array = ["a", "b", "c", "d", "e", "ladder"]
+	check(middle.size() == 4 and middle.has("a") and middle.has("b") and middle[0] != middle[1] and middle[1] != middle[2] and middle[2] != middle[3] and pool.has(middle[0]) and pool.has(middle[1]) and pool.has(middle[2]) and pool.has(middle[3]), "four rooms lie between them, each once, a and b among them: %s" % [order])
 	check(order == dream.deal(1) and dream.deal(1) == dream.deal(1), "the order is the deal seeded by day 1, the same each time")
 	var night2: Array = dream.deal(2)
-	check(night2.size() == 3 and night2[0] != "tutorial" and night2[2] == "bed" and not night2.has("tutorial"), "night 2 deals no tutorial: %s" % [night2])
+	check(night2.size() == 5 and night2[0] != "tutorial" and night2[4] == "bed" and not night2.has("tutorial"), "night 2 deals no tutorial: %s" % [night2])
 	check(dream.current_room_id() == "tutorial" and dream.room.id == "tutorial" and entered.is_empty(), "the tutorial is the room in play (dealt in _ready, before anyone could listen)")
 	var tutorial_words: Dictionary = dream.room_words("tutorial")
 	check(dream.room_label.text == str(rooms_json.label).format({"name": tutorial_words.name, "hint": tutorial_words.hint}) and dream.room_label.text.contains("exit"), "the room label reads '%s'" % dream.room_label.text)
@@ -143,12 +147,12 @@ func _ready() -> void:
 	check(frames < DRIFT_FRAMES and not dreamer.is_on_floor(), "asleep again, carried across in %d frames" % frames)
 	Input.action_press("pinch")
 	await settle()
-	var before: Rect2 = dream.frame_open
+	var before: float = dream.shown_aperture()   # day 3: the opening follows the dreamer, so its size persists, not its place
 	var frame_node: Node = dream.frame_top
 	frames = await hold_until("move_right", func() -> bool: return dream.current_room_id() != "tutorial", 300)
 	check(frames < 300 and dream.current_room_id() == order[1] and entered == [order[1]], "standing pinched in the exit dealt the next room, %s, in %d frames" % [dream.current_room_id(), frames])
 	check(dreamer.position.distance_to(dream.room.door.position) < 8.0, "the dreamer is at the new room's door")
-	check(dream.frame_open == before and dream.frame_top == frame_node and dream.lucidity == 2, "the frame persisted across rooms: still %s" % [before])
+	check(is_equal_approx(dream.shown_aperture(), before) and dream.frame_top == frame_node and dream.lucidity == 2, "the frame persisted across rooms: still %.3f" % before)
 	Input.action_release("pinch")
 
 	# (5) Room a: the soft wall's wonder, once; the climb; the spot.
@@ -236,8 +240,8 @@ func _ready() -> void:
 
 	# The bed room: the stub's contents, and a gentle waking.
 	check(dream.jump_to_room("bed") and dream.current_room_id() == "bed", "jumped to the bed room")
-	check(dream.ideas_node.get_child_count() == 2 and dream.block != null and dream.bed != null and dream.room.exit == null, "two ideas, the block and the bed, no exit")
-	check(not dream.set_down(), "set_down is reserved (day 3): nothing yet")
+	check(dream.ideas_node.get_child_count() == 0 and dream.block != null and dream.bed != null and dream.room.exit == null, "no ideas (day 3: the dealer lays none in the bed room), the block and the bed, no exit")
+	check(not dream.set_down(), "set_down with nothing carried does nothing")
 	await settle()
 	frames = await hold_until("move_right", func() -> bool: return dream.bed_in_reach(), DRIFT_FRAMES)
 	check(frames < DRIFT_FRAMES and dream.lie_down(), "walked to the bed in %d frames and lay down" % frames)
@@ -261,14 +265,16 @@ func _ready() -> void:
 	get_tree().quit(0 if failures == 0 else 1)
 
 
-## The four frame rects leave a centred hole of aperture * screen.
+## The four frame rects leave a hole of the shown aperture * screen, centred
+## on the dreamer and clamped inside the screen (day 3; before, the screen's middle).
 func check_frame() -> void:
 	var screen: Vector2 = get_viewport().get_visible_rect().size
-	var expected: Vector2 = screen * dream.aperture()
+	var expected: Vector2 = screen * dream.shown_aperture()
+	var corner: Vector2 = (dream.dreamer_screen_position() - expected / 2.0).clamp(Vector2.ZERO, screen - expected)
 	var hole: Rect2 = dream.frame_open
-	var ok: bool = hole.size.is_equal_approx(expected) and hole.position.is_equal_approx((screen - expected) / 2.0)
+	var ok: bool = hole.size.is_equal_approx(expected) and hole.position.is_equal_approx(corner)
 	ok = ok and dream.frame_top.size.is_equal_approx(Vector2(screen.x, hole.position.y)) and dream.frame_left.size.is_equal_approx(Vector2(hole.position.x, hole.size.y))
-	check(ok, "the frame leaves %.0f x %.0f open (aperture %.3f)" % [hole.size.x, hole.size.y, dream.aperture()])
+	check(ok, "the frame leaves %.0f x %.0f open at %s (shown %.3f, aperture %.3f)" % [hole.size.x, hole.size.y, hole.position, dream.shown_aperture(), dream.aperture()])
 
 
 func settle() -> void:

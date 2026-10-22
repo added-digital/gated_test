@@ -69,9 +69,9 @@ word = "exit"
 [node name="IdeaSpots" type="Node2D" parent="."]
 
 [node name="Spot1" type="Marker2D" parent="IdeaSpots"]
-position = Vector2(400, 580)
+position = Vector2(400, 588)
 
 [node name="Spot2" type="Marker2D" parent="IdeaSpots"]
-position = Vector2(960, 580)
+position = Vector2(590, 268)
 
 [node name="Ideas" type="Node2D" parent="."]

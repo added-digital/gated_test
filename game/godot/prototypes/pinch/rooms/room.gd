@@ -2,8 +2,11 @@ extends Node2D
 ## One screen of the dream (toy 4, PINCH): 1152 x 648 of grey boxes. A room
 ## scene declares its crisp and soft geometry (box.gd), its currents,
 ## wonders, exit and hazards (zone.gd, goat.gd), its Door (a Marker2D: where
-## the dreamer appears) and its idea spawn spots (Marker2Ds under IdeaSpots,
-## unused until day 3). The bed room also holds Bed and Block. The bounds
+## the dreamer appears) and its idea spawn spots (Marker2Ds under IdeaSpots;
+## the dealer lays one idea on one of them, day 3). The bed room also holds
+## Bed, Block and an Exit the dream keeps only when the bed is dealt early.
+## A Label with the metadata `word` shows that word from rooms.json (the
+## ladder's sign). The bounds
 ## (left, right, top, and the net below that only the asleep body touches)
 ## are built here so no room forgets them. Every word drawn comes from
 ## data/rooms.json, handed in as `words` by the dream before add_child.
@@ -37,6 +40,8 @@ func _ready() -> void:
 	for node in find_children("*", "", true, false):
 		if "word" in node and node.word != "":
 			node.set_label(word(node.word))
+		elif node is Label and node.has_meta("word"):
+			node.text = word(str(node.get_meta("word")))
 	var bed_name: Label = get_node_or_null("Bed/Name")
 	if bed_name != null:
 		bed_name.text = word("bed")
@@ -53,6 +58,14 @@ func bed() -> ColorRect:
 
 func block() -> StaticBody2D:
 	return get_node_or_null("Block") as StaticBody2D
+
+
+## No way on from here (the bed room dealt last): the exit zone goes.
+func remove_exit() -> void:
+	if exit != null:
+		remove_child(exit)
+		exit.queue_free()
+		exit = null
 
 
 ## Where ideas may lie in this room, in order.
