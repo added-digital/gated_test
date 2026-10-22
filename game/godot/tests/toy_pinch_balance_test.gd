@@ -17,8 +17,14 @@ extends Node2D
 ## seconds; then one notch either way, measured too (clumsy at 9,
 ## competent at 7). Only the invariants are asserted: a competent night
 ## reaches the bed with 2 ideas on at least 2 of the 3 nights; a clumsy
-## night wakes suddenly at least once; no night was stuck. Prints the
-## table, PASS/FAIL per check, and quits with 0 only if every check passes.
+## night wakes suddenly at least once; no night was stuck. SPEC-2 (day A):
+## the branch dealer replaced the deck, so (A) and (B) deal their rooms by
+## hand (no scraps) with the idea placed where the dealer laid it, and the
+## nights of (C) are the three branches (night 1 Jorun's, 2 Bo's, 3
+## Tove's: the hub, two rooms, the goal room, six scraps); the invariants
+## read "reached" (the idea, with every scrap) where they read "bed". The
+## table has a scraps column. Prints the table, PASS/FAIL per check, and
+## quits with 0 only if every check passes.
 
 const DREAM := preload("res://prototypes/pinch/dream.tscn")
 const DRIVER := preload("res://tests/pinch_driver.gd")
@@ -47,7 +53,7 @@ func _ready() -> void:
 
 	# ---------------------------------------------------------------- (A) room f
 	await fresh(1)
-	dream.redeal(["f", "bed"] as Array[String])
+	dream.redeal(["f", "bed"] as Array[String], false)   # SPEC-2: by hand, no scraps; the idea placed by hand below
 	var f_words: Dictionary = dream.room_words("f")
 	check(dream.current_room_id() == "f" and dream.room.id == "f" and f_words.get("name", "") != "" and f_words.get("hint", "") != "", "room f is dealt: '%s'" % f_words.get("name", ""))
 	check(dream.room_label.text == str(rooms_json.label).format({"name": f_words.name, "hint": f_words.hint}), "its label reads from rooms.json")
@@ -59,8 +65,9 @@ func _ready() -> void:
 	check(is_equal_approx(shelf.position.y - perch.position.y, 112.0) and perch.position.x >= shelf.position.x + shelf.size.x, "the perch is 112 px above the shelf (one step too high for a jump) and past its end")
 	check(shelf.label.text == str(rooms_json.words.shelf) and perch.label.text == str(rooms_json.words.perch) and draft.label.text == str(rooms_json.words.draft), "the shelf, the perch and the draft are labelled from rooms.json: '%s', '%s', '%s'" % [shelf.label.text, perch.label.text, draft.label.text])
 	check(draft.is_in_group("current") and draft.velocity.y < 0.0 and draft.velocity.x > 0.0 and chamber.soft and chamber.is_in_group("soft") and spot.kind == "spot" and spot.id == "f_spot", "a rising draft, a soft chamber, a quiet spot")
-	var f_idea: String = dream.tonight_ideas["f"]
-	check(dream.ideas_in_room() == [f_idea] and dream.ideas_node.get_child(0).position.y < shelf.position.y, "its idea %s lies on the shelf" % f_idea)
+	var f_idea: String = dream.ideas_pool()[0]
+	dream.place_idea(f_idea, dream.room.idea_spots()[0])
+	check(dream.ideas_in_room() == [f_idea] and dream.ideas_node.get_child(0).position.y < shelf.position.y, "its idea %s lies on the shelf (placed by hand on the room's spot)" % f_idea)
 	driver.attach(dream, "competent")
 	var started: int = Engine.get_physics_frames()
 	await driver.play_room("f")
@@ -70,7 +77,7 @@ func _ready() -> void:
 	check(dream.carried == [f_idea] and driver.acts.get("wonder", 0) == 1 and dream.lucidity == 1 and dream.effective() == 2, "took %s (+2), the quiet spot (-1): lucidity 1, effective 2 (%d, %d)" % [f_idea, dream.lucidity, dream.effective()])
 	check(dream.hard_falls == 0 and dream.blinks == 0 and driver.acts.get("fall", 0) == 0 and driver.acts.get("fail", 0) == 0, "no hard fall, no failed screen on the way")
 	# A jump from the shelf alone does not reach the perch; the draft does.
-	dream.redeal(["f", "bed"] as Array[String])
+	dream.redeal(["f", "bed"] as Array[String], false)
 	perch = dream.room.get_node("Crisp/Perch")   # the room was dealt afresh
 	dreamer.respawn(Vector2(760, 272))   # standing on the shelf
 	Input.action_press("pinch")
@@ -90,6 +97,7 @@ func _ready() -> void:
 	# ---------------------------------------------------------------- (B) the feel
 	# The dream thins within two steps of the limit.
 	await fresh(1)
+	dream.redeal(["tutorial", "bed"] as Array[String], false)   # SPEC-2: the tutorial by hand (the night opens on the hub)
 	var pillar: StaticBody2D = dream.room.get_node("Soft/Pillar")
 	check(pillar.modulate == Color.WHITE and not dream.thin() and dream.effective() == 0, "effective 0: the soft pillar is drawn plain")
 	for i in 5:
@@ -100,6 +108,8 @@ func _ready() -> void:
 	check(dream.wonder("thin_test", "spot") and dream.effective() == 5 and pillar.modulate == Color.WHITE, "a wonder: plain again")
 	# The squash, the stretch, the hat.
 	await fresh(1)
+	dream.redeal(["tutorial", "bed"] as Array[String], false)
+	dream.place_idea(dream.ideas_pool()[0], Vector2(60, 588))   # the tutorial's idea, by hand, in reach of the door
 	check(dreamer.body_scale() == Vector2.ONE and not dreamer.is_on_floor(), "at the door, hovering: the body is drawn 1 x 1")
 	Input.action_press("pinch")
 	var frames := await wait_until(func() -> bool: return dreamer.is_on_floor(), 60)
@@ -171,7 +181,7 @@ func _ready() -> void:
 	dream.toggle_gauge()
 	check(kept_state.gauge_visible and dream.gauge.visible, "H again: on, and remembered")
 
-	# ---------------------------------------------------------------- (C) the nights
+	# ---------------------------------------------------------------- (C) the nights: the three branches
 	for night in [1, 2, 3]:
 		for play_mode in ["competent", "clumsy"]:
 			rows.append(await play_night(night, play_mode, 8))
@@ -188,22 +198,26 @@ func _ready() -> void:
 			stuck += 1
 		if row.limit != 8:
 			continue
-		if row.mode == "competent" and row.end == "bed" and row.kept == 2:
+		if row.mode == "competent" and row.end == "reached" and row.kept >= 2:
 			competent_home += 1
 		if row.mode == "clumsy" and row.end == "woke":
 			clumsy_woke += 1
 	check(stuck == 0, "no night was stuck (%d)" % stuck)
-	check(competent_home >= 2, "a competent night reached the bed with 2 ideas on %d of the 3 nights" % competent_home)
+	check(competent_home >= 2, "a competent night reached the idea with at least one scrap on %d of the 3 branches" % competent_home)
 	check(clumsy_woke >= 1, "a clumsy night woke suddenly %d time(s) of 3" % clumsy_woke)
 
 	print("RESULT: %d failure(s)" % failures)
 	get_tree().quit(0 if failures == 0 else 1)
 
 
-## One night of dream.tscn alone on `day`, the given limit and carry 2,
-## played in `play_mode`; the row for the table.
+const TARGETS: Array[String] = ["jorun", "bo", "tove"]   # night 1, 2, 3: one branch each
+
+
+## One night of dream.tscn alone on `day` (the target TARGETS[day - 1],
+## every villager talked to), the given limit and carry 2, played in
+## `play_mode`; the row for the table.
 func play_night(day: int, play_mode: String, limit: int) -> Dictionary:
-	await fresh(day)
+	await fresh(day, TARGETS[(day - 1) % TARGETS.size()])
 	state.lucidity_limit = limit
 	state.carry_limit = 2
 	driver.attach(dream, play_mode)
@@ -212,22 +226,23 @@ func play_night(day: int, play_mode: String, limit: int) -> Dictionary:
 	row["mode"] = play_mode
 	row["limit"] = limit
 	row["did"] = driver.did.duplicate()
-	check(row.end != "stuck", "night %d %s (limit %d): %s in %s, lucidity %d, effective %d, %d idea(s) home, %.1f s; %s" % [day, play_mode, limit, row.end, row.rooms, row.lucidity, row.effective, row.kept, row.seconds, row.did])
+	check(row.end != "stuck", "night %d %s (limit %d): %s in %s, lucidity %d, effective %d, %d thing(s) home, %.1f s; %s" % [day, play_mode, limit, row.end, row.rooms, row.lucidity, row.effective, row.kept, row.seconds, row.did])
 	return row
 
 
 ## The table: one row per night played.
 func print_table() -> void:
-	print("--- balance (dream.tscn alone, a fresh state each night, carry 2) ---")
-	print("%-5s %-9s %-5s %-30s %-5s %-4s %-6s %-5s %-5s %-7s %-9s %-5s %-5s" % ["night", "mode", "limit", "rooms", "grab", "set", "force", "fall", "fail", "wonder", "lucidity", "eff", "end"] + " home  seconds")
+	print("--- balance (dream.tscn alone, a fresh state each night, one branch per night, carry 2, scraps 3) ---")
+	print("%-5s %-9s %-5s %-24s %-5s %-6s %-4s %-6s %-5s %-5s %-7s %-9s %-5s %-8s" % ["night", "mode", "limit", "rooms", "grab", "scraps", "set", "force", "fall", "fail", "wonder", "lucidity", "eff", "end"] + " home  seconds")
 	for row in rows:
 		var a: Dictionary = row.acts
-		print("%-5d %-9s %-5d %-30s %-5d %-4d %-6d %-5d %-5d %-7d %-9d %-5d %-5s %-5d %.1f" % [row.night, row.mode, row.limit, ",".join(row.rooms), a.get("grab", 0), a.get("set_down", 0), a.get("force", 0), a.get("fall", 0), a.get("fail", 0), a.get("wonder", 0), row.lucidity, row.effective, row.end, row.kept, row.seconds])
+		print("%-5d %-9s %-5d %-24s %-5d %-6d %-4d %-6d %-5d %-5d %-7d %-9d %-5d %-8s %-5d %.1f" % [row.night, row.mode, row.limit, ",".join(row.rooms), a.get("grab", 0), a.get("grab_scrap", 0), a.get("set_down", 0) + a.get("set_down_scrap", 0), a.get("force", 0), a.get("fall", 0), a.get("fail", 0), a.get("wonder", 0), row.lucidity, row.effective, row.end, row.kept, row.seconds])
 	print("--- end ---")
 
 
-## A new dream on `day` with a fresh state; the old one gone.
-func fresh(day: int) -> void:
+## A new dream on `day` with a fresh state (SPEC-2: with `target` as
+## tonight's dream and every villager talked to); the old one gone.
+func fresh(day: int, target := "") -> void:
 	if dream != null:
 		remove_child(dream)
 		dream.queue_free()
@@ -236,6 +251,9 @@ func fresh(day: int) -> void:
 		Input.action_release(action)
 	state = PinchState.new()
 	state.day = day
+	state.target = target
+	for who in TARGETS:
+		state.set_flag("talked:%s" % who)
 	dream = DREAM.instantiate()
 	dream.state = state
 	add_child(dream)

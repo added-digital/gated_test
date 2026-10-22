@@ -40,6 +40,23 @@
     "bench": "a bench",
     "sign": "a sign",
     "lantern_post": "a lantern on a post",
-    "default": "{name}, as a bench"
+    "default": "{name}, as a bench",
+    "pill": "a pill, kept",
+    "lantern": "a lantern, lit"
+  },
+  "wall_prompt": "E to choose a dream",
+  "wake_reached": "You woke gently. {name} came up with you, and every thought.",
+  "wake_self": "You pinched yourself awake. Every thought came with you.",
+  "wake_sudden_scrap": "You woke. One thought stayed with you.",
+  "wall": {
+    "title": "The dream, as far as you know it",
+    "hub": "the Long House",
+    "talk_first": "talk to someone first",
+    "unknown": "?",
+    "choose": "Whose dream tonight?",
+    "pick": "1 2 3 to choose",
+    "tonight": "Tonight: {name}'s dream",
+    "choose_first": "Choose a dream first. The map is on the wall.",
+    "chosen": "Tonight, {name}'s dream."
   }
 }

@@ -63,4 +63,14 @@ word = "exit"
 [node name="Spot1" type="Marker2D" parent="IdeaSpots"]
 position = Vector2(1056, 284)
 
+[node name="ScrapSpots" type="Node2D" parent="."]
+
+[node name="Spot1" type="Marker2D" parent="ScrapSpots"]
+position = Vector2(620, 588)
+
+[node name="Spot2" type="Marker2D" parent="ScrapSpots"]
+position = Vector2(820, 396)
+
 [node name="Ideas" type="Node2D" parent="."]
+
+[node name="Scraps" type="Node2D" parent="."]

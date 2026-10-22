@@ -18,8 +18,11 @@ extends Node2D
 ## are read once it has settled; the frame follows the dreamer and eases
 ## (check_frame reads the shown aperture); at the limit the frame is shut
 ## 0.8 s before woke fires, so the test waits for it. The day-1 checks are
-## otherwise unchanged. Prints PASS/FAIL per check and quits with 0 only
-## if every check passes.
+## otherwise unchanged. SPEC-2 (day A): the branch dealer replaced the
+## deck, so the bed room is no longer dealt; each night this test deals it
+## by hand (redeal) where it jumped to it before; ideas.json holds eight
+## ideas now (the pills and the lantern joined). Prints PASS/FAIL per check
+## and quits with 0 only if every check passes.
 
 const TOY := preload("res://prototypes/pinch/pinch.tscn")
 const WALK_FRAMES := 900   # 15 s at 60 Hz: the longest walk here is under 400 px
@@ -54,7 +57,7 @@ func _ready() -> void:
 	for i in 60:
 		await get_tree().physics_frame
 	check(harness.toy_name == "pinch", "the harness was started as 'pinch' (%s)" % harness.toy_name)
-	check(ideas.size() == 6, "ideas.json holds 6 ideas (%d)" % ideas.size())
+	check(ideas.size() == 8, "ideas.json holds 8 ideas (%d; SPEC-2 added the pills and the lantern)" % ideas.size())
 	check(state.day == 1 and state.lucidity_limit == 8 and state.carry_limit == 2 and state.tally == 0, "the state starts on day 1, limit 8, carry 2, tally 0")
 	var village: Node2D = toy.village
 	check(village != null and toy.dream == null and village.get_parent() == toy and village.name == "Village", "the village is the active scene on day 1")
@@ -77,7 +80,8 @@ func _ready() -> void:
 	check(dream != null and dream.get_parent() == toy and dream.name == "Dream", "the dream is the active scene")
 	check(harness.summary().contains("slept_1"), "the harness recorded the milestone slept_1")
 	dream.woke.connect(func(sudden: bool, carried: Array) -> void: wakes.append([sudden, carried, dream.frame_open.size]))
-	check(dream.jump_to_room("bed") and dream.current_room_id() == "bed", "day 2: jumped to the bed room, dealt last, where the block and bed live")
+	dream.redeal(["bed"] as Array[String])   # SPEC-2: the branch dealer deals no bed room; dealt by hand here
+	check(dream.current_room_id() == "bed", "day 2: the bed room dealt by hand, where the block and bed live (SPEC-2: the night itself no longer deals it)")
 	dream.place_idea(first, Vector2(460, 588))   # day 3: the bed room holds no ideas; the stub's two are placed by hand
 	dream.place_idea(second, Vector2(640, 588))
 
@@ -153,7 +157,8 @@ func _ready() -> void:
 	dream = toy.dream
 	check(dream != null and toy.village == null and harness.summary().contains("slept_2"), "asleep again: the dream is up and slept_2 recorded")
 	dream.woke.connect(func(sudden: bool, carried: Array) -> void: wakes.append([sudden, carried, dream.frame_open.size]))
-	check(dream.jump_to_room("bed") and dream.current_room_id() == "bed", "day 2: night 2 jumped to the bed room as well")
+	dream.redeal(["bed"] as Array[String])
+	check(dream.current_room_id() == "bed", "day 2: night 2 in the bed room as well (dealt by hand)")
 	dream.place_idea(first, Vector2(460, 588))   # day 3: placed by hand, as on night 1
 	Input.action_press("pinch")
 	await settle()

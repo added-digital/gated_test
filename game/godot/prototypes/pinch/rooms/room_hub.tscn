@@ -1,0 +1,59 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://prototypes/pinch/rooms/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://prototypes/pinch/rooms/box.gd" id="2_box"]
+[ext_resource type="Script" path="res://prototypes/pinch/rooms/zone.gd" id="3_zone"]
+
+[node name="Room" type="Node2D"]
+script = ExtResource("1_room")
+id = "hub"
+
+[node name="Crisp" type="Node2D" parent="."]
+
+[node name="Floor" type="StaticBody2D" parent="Crisp"]
+position = Vector2(0, 600)
+script = ExtResource("2_box")
+size = Vector2(1152, 48)
+
+[node name="Soft" type="Node2D" parent="."]
+
+[node name="Wonders" type="Node2D" parent="."]
+
+[node name="Currents" type="Node2D" parent="."]
+
+[node name="Door" type="Marker2D" parent="."]
+position = Vector2(576, 548)
+
+[node name="ExitLeft" type="Area2D" parent="."]
+position = Vector2(16, 520)
+script = ExtResource("3_zone")
+size = Vector2(100, 80)
+role = "exit"
+word = "exit"
+
+[node name="ExitRight" type="Area2D" parent="."]
+position = Vector2(1036, 520)
+script = ExtResource("3_zone")
+size = Vector2(100, 80)
+role = "exit"
+word = "exit"
+
+[node name="IdeaSpots" type="Node2D" parent="."]
+
+[node name="Spot1" type="Marker2D" parent="IdeaSpots"]
+position = Vector2(420, 588)
+
+[node name="Spot2" type="Marker2D" parent="IdeaSpots"]
+position = Vector2(732, 588)
+
+[node name="ScrapSpots" type="Node2D" parent="."]
+
+[node name="Spot1" type="Marker2D" parent="ScrapSpots"]
+position = Vector2(260, 588)
+
+[node name="Spot2" type="Marker2D" parent="ScrapSpots"]
+position = Vector2(892, 588)
+
+[node name="Ideas" type="Node2D" parent="."]
+
+[node name="Scraps" type="Node2D" parent="."]

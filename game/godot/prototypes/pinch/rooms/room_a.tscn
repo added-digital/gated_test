@@ -75,4 +75,14 @@ position = Vector2(240, 588)
 [node name="Spot2" type="Marker2D" parent="IdeaSpots"]
 position = Vector2(330, 588)
 
+[node name="ScrapSpots" type="Node2D" parent="."]
+
+[node name="Spot1" type="Marker2D" parent="ScrapSpots"]
+position = Vector2(160, 588)
+
+[node name="Spot2" type="Marker2D" parent="ScrapSpots"]
+position = Vector2(900, 524)
+
 [node name="Ideas" type="Node2D" parent="."]
+
+[node name="Scraps" type="Node2D" parent="."]

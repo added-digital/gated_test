@@ -18,8 +18,13 @@ extends Node2D
 ## holds no idea, on day 3 the bed is dealt at position 2 and walking past
 ## it goes on; (E) pinch.tscn: no picker while the frame is shut, the
 ## picker keeps one, the rest fade over the bunk and are dealt again, the
-## kept one lies on the table by day. Prints PASS/FAIL per check and quits
-## with 0 only if every check passes.
+## kept one lies on the table by day. SPEC-2 (day A): the branch dealer
+## lays no ideas in rooms any more (scraps instead) and deals no bed room,
+## so (A) now checks that nothing is dealt and that an idea placed by hand
+## is what it was, and every room this test drives is dealt by hand
+## (redeal, without scraps) with its idea placed where the dealer used to
+## lay it; the early bed of day 3 was the deck's and is dealt by hand too.
+## Prints PASS/FAIL per check and quits with 0 only if every check passes.
 
 const DREAM := preload("res://prototypes/pinch/dream.tscn")
 const TOY := preload("res://prototypes/pinch/pinch.tscn")
@@ -52,53 +57,36 @@ func _ready() -> void:
 	ideas_json = PinchState.load_json(IDEAS_FILE)
 	var screen: Vector2 = get_viewport().get_visible_rect().size
 
-	# ---------------------------------------------------------------- (A) the dealer
+	# ---------------------------------------------------------------- (A) the dealer (SPEC-2: no idea is dealt any more)
 	await fresh(1)
-	var order: Array = dream.rooms_tonight()
-	check(order.size() == 6 and order[0] == "tutorial" and order[5] == "bed", "night 1 deals the tutorial, four rooms and the bed: %s" % [order])
-	var dealt: Dictionary = dream.tonight_ideas
-	var ok := true
-	for id in order:
-		if id == "bed" or id == "ladder":
-			ok = ok and not dealt.has(id)
-		else:
-			ok = ok and dealt.has(id)
-	check(ok and dealt.size() == order.size() - 1 - (1 if order.has("ladder") else 0), "one idea per dealt room, none for the bed (or the ladder): %s" % [dealt])
-	var seen: Array = dealt.values()
-	var distinct := true
-	for i in seen.size():
-		distinct = distinct and seen.find(seen[i]) == i
-	check(distinct, "every idea dealt at most once")
-	check(dealt == dream.deal_ideas(1, order) and dream.deal_ideas(2, order) != dealt, "the deal is seeded by the day (the same for day 1, another for day 2)")
+	var order: Array[String] = ["tutorial", "a", "bed"]   # the rooms sections (A) and (B) drive, dealt by hand
+	check(dream.tonight_ideas.is_empty() and dream.ideas_in_room().is_empty(), "the branch dealer lays no idea in any room: tonight_ideas is empty (scraps take their place)")
+	dream.redeal(ALL_ROOMS, false)
+	var ok: bool = dream.tonight_ideas.is_empty()
+	for id in ALL_ROOMS:
+		dream.jump_to_room(id)
+		ok = ok and dream.ideas_in_room().is_empty()
+	check(ok, "eight rooms dealt by hand: none holds an idea")
+	var pool: Array = dream.ideas_pool()
+	check(pool.size() == 8 and dream.deal_ideas(1, ALL_ROOMS).size() == 6 and dream.deal_ideas(1, ALL_ROOMS) == dream.deal_ideas(1, ALL_ROOMS) and dream.deal_ideas(2, ALL_ROOMS) != dream.deal_ideas(1, ALL_ROOMS), "the first loop's deal_ideas is kept, pure and seeded by the day, over the pool of 8; the night does not call it")
+	dream.redeal(order, false)
+	var idea: StaticBody2D = dream.place_idea(pool[0], dream.room.idea_spots()[0])
+	await get_tree().physics_frame
 	var in_room: Array = dream.ideas_in_room()
-	check(in_room == [dealt["tutorial"]], "the tutorial holds its dealt idea: %s" % [in_room])
-	var idea: StaticBody2D = dream.ideas_node.get_child(0)
+	check(in_room == [pool[0]] and dream.current_room_id() == "tutorial", "an idea placed by hand on the tutorial's spot: %s" % [in_room])
 	check(idea is StaticBody2D and idea.is_in_group("idea") and idea.is_in_group("crisp") and idea.collision_layer == 2 and idea.get_meta("id") == idea.id, "the idea is a crisp StaticBody2D on layer 2, in the groups idea and crisp")
 	check(idea.label.text == name_of(idea.id) and idea.label.text != "" and idea.label.text != idea.id, "it is labelled '%s' from ideas.json" % idea.label.text)
 	check(idea.rect().size == Vector2(48, 24) and dream.room.idea_spots().has(idea.position), "48 x 24 at an IdeaSpot of the room, %s" % [idea.position])
 	check(idea.visible and not dreamer.pinched, "seen asleep")
-	# Every room, by hand: eight rooms, six ideas.
-	dream.redeal(ALL_ROOMS)
-	dealt = dream.tonight_ideas
-	ok = dealt.size() == 6
-	for id in IDEA_ROOMS:
-		ok = ok and dealt.has(id)
-	check(ok and not dealt.has("bed") and not dealt.has("ladder"), "eight rooms dealt by hand: the six idea rooms get the six ideas, the bed and the ladder none")
-	for id in ALL_ROOMS:
-		dream.jump_to_room(id)
-		var ids: Array = dream.ideas_in_room()
-		var spots: Array = dream.room.idea_spots()
-		if dealt.has(id):
-			ok = ids == [dealt[id]] and spots.has(dream.ideas_node.get_child(0).position)
-		else:
-			ok = ids.is_empty() and spots.is_empty()
-		check(ok, "room %s: %s on its spots %s" % [id, ids, spots])
+	dream.jump_to_room("bed")
 	check(dream.devbar_text() == str(dream.devbar_words.dream.asleep) and dream.devbar_text().contains("pinch") and dream.hint_text() == str(dream.room_words("bed").hint), "the dev bar reads '%s' and the room's hint '%s' (the readability pass: the fixed controls line is gone)" % [dream.devbar_text(), dream.hint_text()])
 
 	# ---------------------------------------------------------------- (B) grab, hand, hat, set down
 	await fresh(1)
-	var first: String = dream.tonight_ideas["tutorial"]
-	var idea_node: StaticBody2D = dream.ideas_node.get_child(0)
+	dream.redeal(order, false)
+	var first: String = pool[0]
+	var idea_node: StaticBody2D = dream.place_idea(first, Vector2(60, 588))   # where the first loop's dealer laid the tutorial's idea
+	await get_tree().physics_frame
 	check(idea_node.position == Vector2(60, 588), "the tutorial's idea lies at (60, 588), behind the door")
 	check(dream.idea_in_reach() == idea_node and not dream.grab() and dream.lucidity == 0 and dream.carried.is_empty(), "asleep at the door the idea is in reach, but grab() does nothing")
 	Input.action_press("pinch")
@@ -140,7 +128,7 @@ func _ready() -> void:
 	# The carry limit: two more ideas on the far floor (flat, nothing in the way).
 	dreamer.respawn(Vector2(800, 572))
 	await settle()
-	var pool: Array = dream.ideas_pool()
+	pool = dream.ideas_pool()
 	pool.erase(first)
 	var second: String = pool[0]
 	var third: String = pool[1]
@@ -239,9 +227,10 @@ func _ready() -> void:
 	# ---------------------------------------------------------------- (D) rooms c, d, e, the ladder, the early bed
 	# Room c: the climb, the step.
 	await fresh(1)
-	dream.redeal(["c", "bed"] as Array[String])
-	var top_idea: String = dream.tonight_ideas["c"]
-	check(dream.current_room_id() == "c" and dream.ideas_in_room() == [top_idea] and dream.ideas_node.get_child(0).position == Vector2(1056, 284), "room c: its idea %s lies on the top shelf at (1056, 284)" % top_idea)
+	dream.redeal(["c", "bed"] as Array[String], false)
+	var top_idea: String = dream.ideas_pool()[0]
+	dream.place_idea(top_idea, Vector2(1056, 284))   # the room's IdeaSpot, by hand
+	check(dream.current_room_id() == "c" and dream.ideas_in_room() == [top_idea] and dream.ideas_node.get_child(0).position == dream.room.idea_spots()[0], "room c: its idea %s lies on the top shelf at (1056, 284)" % top_idea)
 	pool = dream.ideas_pool()
 	pool.erase(top_idea)
 	var helper: String = pool[0]
@@ -325,9 +314,10 @@ func _ready() -> void:
 
 	# Room d: the maze, the lift, the island.
 	await fresh(1)
-	dream.redeal(["d", "bed"] as Array[String])
-	var island_idea: String = dream.tonight_ideas["d"]
-	check(dream.current_room_id() == "d" and dream.ideas_in_room() == [island_idea] and dream.ideas_node.get_child(0).position == Vector2(900, 228), "room d: its idea %s lies on the island" % island_idea)
+	dream.redeal(["d", "bed"] as Array[String], false)
+	var island_idea: String = dream.ideas_pool()[0]
+	dream.place_idea(island_idea, Vector2(900, 228))
+	check(dream.current_room_id() == "d" and dream.ideas_in_room() == [island_idea] and dream.ideas_node.get_child(0).position == dream.room.idea_spots()[0], "room d: its idea %s lies on the island" % island_idea)
 	var frames_d := 0
 	frames = await hold_until("move_right", func() -> bool: return dreamer.position.x >= 310.0, 240)
 	frames_d += frames
@@ -349,11 +339,12 @@ func _ready() -> void:
 
 	# Room e: cold water, the goat, the beam.
 	await fresh(1)
-	dream.redeal(["e", "bed"] as Array[String])
-	var beam_idea: String = dream.tonight_ideas["e"]
+	dream.redeal(["e", "bed"] as Array[String], false)
+	var beam_idea: String = dream.ideas_pool()[0]
+	dream.place_idea(beam_idea, Vector2(800, 348))
 	var goat: Area2D = dream.room.get_node("Currents/Round/Follow/Goat")
 	var water: Area2D = dream.room.get_node("Hazards/Water")
-	check(dream.current_room_id() == "e" and dream.ideas_in_room() == [beam_idea] and dream.ideas_node.get_child(0).position == Vector2(800, 348) and water.is_in_group("hazard") and goat.id == "e_goat", "room e: its idea %s lies on the beam over the water" % beam_idea)
+	check(dream.current_room_id() == "e" and dream.ideas_in_room() == [beam_idea] and dream.ideas_node.get_child(0).position == dream.room.idea_spots()[0] and water.is_in_group("hazard") and goat.id == "e_goat", "room e: its idea %s lies on the beam over the water" % beam_idea)
 	var frames_e := 0
 	frames = await hold_until("move_right", func() -> bool: return dreamer.position.x >= 150.0, 120)
 	frames_e += frames
@@ -379,7 +370,7 @@ func _ready() -> void:
 
 	# The ladder: no idea, a sign, exit only.
 	await fresh(1)
-	dream.redeal(["ladder", "bed"] as Array[String])
+	dream.redeal(["ladder", "bed"] as Array[String], false)
 	var sign: Label = dream.room.get_node("Sign/Text")
 	check(dream.current_room_id() == "ladder" and not dream.tonight_ideas.has("ladder") and dream.ideas_in_room().is_empty() and dream.room.idea_spots().is_empty(), "the ladder room holds no idea and no spot for one")
 	check(sign.text == str(rooms_json.words.ladder_sign) and sign.text != "ladder_sign", "the sign reads '%s'" % sign.text)
@@ -390,11 +381,11 @@ func _ready() -> void:
 	check(frames < 400 and dream.current_room_id() == "bed" and dream.lucidity == 0, "walked under the ladder to the exit: the bed room, lucidity 0")
 	Input.action_release("pinch")
 
-	# Day 3: the bed in the wrong place.
+	# The bed in the wrong place (the deck's day-3 trick; SPEC-2's dealer never deals it, so it is dealt by hand here).
 	await fresh(3)
-	var night3: Array = dream.rooms_tonight()
-	check(night3.size() == 6 and night3[2] == "bed" and night3[5] == "bed" and night3.count("bed") == 2 and night3[0] != "tutorial", "day 3 deals the bed at position 2 and last: %s" % [night3])
-	check(dream.deal(2)[2] != "bed" and dream.deal(4)[2] != "bed" and dream.deal(6)[2] == "bed", "day 2 and 4 do not, day 6 does")
+	var night3: Array[String] = ["a", "b", "bed", "c", "d", "bed"]
+	dream.redeal(night3, false)
+	check(dream.rooms_tonight() == night3 and night3[2] == "bed" and night3[5] == "bed" and night3.count("bed") == 2, "the bed dealt at position 2 and last, by hand: %s" % [night3])
 	check(dream.jump_to_room("bed") and dream.room_index == 2 and dream.room.exit != null and dream.bed != null, "in the early bed room: the bed, and an exit past it")
 	Input.action_press("pinch")
 	await settle()
@@ -426,7 +417,8 @@ func _ready() -> void:
 	dreamer = dream.dreamer
 	wakes.clear()
 	dream.woke.connect(func(sudden: bool, carried: Array) -> void: wakes.append([sudden, carried]))
-	check(dream.jump_to_room("bed") and dream.ideas_in_room().is_empty(), "in the bed room, which holds no idea")
+	dream.redeal(["bed"] as Array[String])   # SPEC-2: the night deals no bed room; by hand
+	check(dream.current_room_id() == "bed" and dream.ideas_in_room().is_empty(), "in the bed room (dealt by hand), which holds no idea")
 	var keep_id: String = ideas_json[0].id
 	var lose_id: String = ideas_json[1].id
 	dream.place_idea(keep_id, Vector2(300, 588))
@@ -466,11 +458,7 @@ func _ready() -> void:
 	await settle()
 	dream = toy.dream
 	check(dream != null and dream.ideas_pool().has(lose_id) and not dream.ideas_pool().has(keep_id), "night 2: %s is back in the pool, %s is not" % [lose_id, keep_id])
-	var idea_rooms := 0
-	for id in dream.rooms_tonight():
-		if id != "bed" and id != "ladder":
-			idea_rooms += 1
-	check(not dream.tonight_ideas.values().has(keep_id) and dream.tonight_ideas.size() == idea_rooms and dream.tonight_ideas.size() >= 3, "the dealer laid %d ideas tonight (one per room but the bed and the ladder), not the kept one: %s" % [dream.tonight_ideas.size(), dream.tonight_ideas])
+	check(dream.tonight_ideas.is_empty() and dream.rooms_tonight() == ["hub"] and dream.scraps_dealt() == 6, "SPEC-2: the dealer laid no idea tonight (nobody talked to: the hub alone, with its six scraps)")
 
 	print("RESULT: %d failure(s)" % failures)
 	get_tree().quit(0 if failures == 0 else 1)

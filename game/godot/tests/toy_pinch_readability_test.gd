@@ -30,8 +30,13 @@ extends Node2D
 ## backing with a leader, kept inside the room by a wall; (K) the bed's
 ## and the block's words above them; (L) the lantern labelled once; (M)
 ## the dev bar on the street: walk, talk, sleep, a pill, make, breakfast;
-## Tab there too, and the choice carried into the dream. Prints PASS/FAIL
-## per check and quits with 0 only if every check passes.
+## Tab there too, and the choice carried into the dream. SPEC-2 (day A):
+## the night opens on the hub now, so (A) deals the tutorial, a and the
+## bed by hand and places the tutorial's idea by hand; a pinched line of
+## the dev bar ends with the self-pinch's hold (devbar.json self_pinch,
+## the seconds left counting) on every floor outside a quiet spot;
+## rooms.json holds 13 rooms (the hub and three goal rooms joined). Prints
+## PASS/FAIL per check and quits with 0 only if every check passes.
 
 const DREAM := preload("res://prototypes/pinch/dream.tscn")
 const VILLAGE := preload("res://prototypes/pinch/village.tscn")
@@ -75,6 +80,9 @@ func _ready() -> void:
 
 	# ---------------------------------------------------------------- (A) the dev bar in the dream
 	await fresh(1)
+	dream.redeal(["tutorial", "a", "bed"] as Array[String], false)   # SPEC-2: the night opens on the hub; the tutorial by hand, as before
+	dream.place_idea(dream.ideas_pool()[0], Vector2(60, 588))        # where the first loop's dealer laid its idea
+	await get_tree().physics_frame
 	var bar: CanvasLayer = dream.devbar
 	check(bar != null and bar.layer > dream.frame_top.get_parent().layer and bar.layer < 10, "the dev bar is its own layer (%d) over the frame's (%d), under the text panel" % [bar.layer, dream.frame_top.get_parent().layer])
 	check(bar.visible and dream.devbar_visible and state.devbar_visible, "on by default, and the state says so")
@@ -90,10 +98,10 @@ func _ready() -> void:
 	Input.action_press("pinch")
 	dreamer.respawn(Vector2(138, 572))   # 40 px from the tutorial's idea, as the ideas test stands
 	await settle()
-	check(dreamer.pinched and dreamer.is_on_floor() and dream.idea_in_reach() != null and dream.devbar_text() == sep.join([str(dw.pinched), str(dw.grab)]), "pinched on the floor by an idea: '%s'" % dream.devbar_text())
+	check(dreamer.pinched and dreamer.is_on_floor() and dream.idea_in_reach() != null and dream.devbar_text() == sep.join([str(dw.pinched), str(dw.grab), hold_line()]), "pinched on the floor by an idea: '%s'" % dream.devbar_text())
 	check(dream.grab() and dream.carried.size() == 1, "(took it)")
 	await settle()
-	check(dream.devbar_text() == sep.join([str(dw.pinched), str(dw.set_down)]), "an idea under the hat, on the floor: '%s'" % dream.devbar_text())
+	check(dream.devbar_text() == sep.join([str(dw.pinched), str(dw.set_down), hold_line()]), "an idea under the hat, on the floor: '%s'" % dream.devbar_text())
 	dreamer.respawn(Vector2(980, 572))   # on the far floor, short of the exit zone (x 1040)
 	await settle()
 	check(dream.current_room_id() == "tutorial" and dream.exit_near() and dream.devbar_text().begins_with(str(dw.pinched)) and dream.devbar_text().ends_with(str(dw.exit)), "near the exit, not in it: '%s'" % dream.devbar_text())
@@ -107,10 +115,10 @@ func _ready() -> void:
 	Input.action_press("pinch")
 	dreamer.respawn(Vector2(940, 572))
 	await settle()
-	check(dreamer.pinched and dreamer.is_on_floor() and dream.block_in_reach() and not dream.bed_in_reach() and dream.devbar_text() == sep.join([str(dw.pinched), str(dw.set_down), str(dw.push)]), "pinched by the block: '%s'" % dream.devbar_text())
+	check(dreamer.pinched and dreamer.is_on_floor() and dream.block_in_reach() and not dream.bed_in_reach() and dream.devbar_text() == sep.join([str(dw.pinched), str(dw.set_down), str(dw.push), hold_line()]), "pinched by the block: '%s'" % dream.devbar_text())
 	check(dream.force(), "(pushed it)")
 	await get_tree().physics_frame
-	check(dream.devbar_text() == sep.join([str(dw.pinched), str(dw.set_down)]), "pushed once, the push is gone: '%s'" % dream.devbar_text())
+	check(dream.devbar_text() == sep.join([str(dw.pinched), str(dw.set_down), hold_line()]), "pushed once, the push is gone: '%s'" % dream.devbar_text())
 	Input.action_release("pinch")
 	dreamer.respawn(Vector2(320, 540))   # inside the bed room's quiet spot
 	await settle()
@@ -120,6 +128,7 @@ func _ready() -> void:
 	check(not bar.visible and not dream.devbar_visible and not state.devbar_visible and acts.has(["devbar", "off"]), "Tab hid the dev bar; the state remembers")
 	var kept: PinchState = state
 	await fresh(1, false, kept)
+	dream.redeal(["tutorial", "a"] as Array[String], false)   # two rooms, so the next room's hint can be read below
 	bar = dream.devbar
 	check(not bar.visible and not dream.devbar_visible, "the next night starts with the bar hidden")
 	await press_key(KEY_TAB)
@@ -172,7 +181,7 @@ func _ready() -> void:
 		var lines: int = dream.devbar.hint_label.get_line_count()
 		if n_words >= MAX_HINT_WORDS or lines > 2:
 			hint_bad.append("%s: %d words, %d lines" % [entry.id, n_words, lines])
-	check(hint_bad.is_empty() and rooms_json.rooms.size() == 9, "every hint in rooms.json is under %d words and wraps to at most two lines of the bar %s" % [MAX_HINT_WORDS, hint_bad])
+	check(hint_bad.is_empty() and rooms_json.rooms.size() == 13, "every hint in rooms.json (13 rooms: SPEC-2 added the hub and three goal rooms) is under %d words and wraps to at most two lines of the bar %s" % [MAX_HINT_WORDS, hint_bad])
 	await free_dream()
 	var full := PinchState.new()
 	full.day = 3
@@ -430,6 +439,11 @@ func _ready() -> void:
 
 
 # --- helpers -------------------------------------------------------------------
+
+## The dev bar's self-pinch line as it reads now (SPEC-2), the seconds left counting.
+func hold_line() -> String:
+	return str(devbar_json.dream.self_pinch).format({"s": "%.1f" % (dream.SELF_PINCH - dream.hold_seconds())})
+
 
 ## A new dream on `day` (with a pill if asked) on a fresh state, or on `with_state`; the old one gone.
 func fresh(day: int, pill := false, with_state: PinchState = null) -> void:

@@ -21,6 +21,18 @@ extends Node
 ## play_night() returns what happened; `did` is the list of the driver's
 ## moves, for reading a night back. Every room routine stops as soon as
 ## the frame is closing or the night is over.
+##
+## The second loop (SPEC-2, day A): a night is the hub, a branch, a goal
+## room. In the hub the driver takes the scraps in reach and walks into
+## the exit whose sign is the target's (the right one); with no exit (no
+## target) it pinches itself awake. Scraps hanging in reach are taken on
+## the way (take_scrap, also inside every pinched walk) as long as the
+## hip has room and effective stays SCRAP_MARGIN under the limit; the
+## clumsy night's one set-down is a scrap's when no idea is carried. In
+## the goal room the driver takes the quiet spot and reaches the idea (E
+## pinched): the night ends "reached". play_night's `end` is then one of
+## "reached", "self" (the self-pinch), "bed", "woke" or "stuck", and
+## `carried` counts ideas and scraps together.
 
 const SETTLE := 20          # frames for a body to land and the input to flush
 const ROOM_FRAMES := 2400   # 40 s: a room still in play after its routine and this is a stuck driver
@@ -28,6 +40,8 @@ const RIDE_FRAMES := 720    # 12 s: longer than any goat's round (8.1 s)
 const DRIFT_FRAMES := 600   # 10 s: longer than any drift here
 const STILL_FRAMES := 190   # 3 s still in a spot, and a few frames over
 const TAP := 10             # frames of pinch per feathering tap: a drop of about 19 px, never a hard fall
+const SCRAP_MARGIN := 2     # a scrap is taken only while effective + its two points stay this far under the limit
+const HOLD_FRAMES := 200    # frames the self-pinch is held: 3 s and a little
 
 var dream: Node2D = null
 var dreamer: CharacterBody2D = null
@@ -42,6 +56,8 @@ var woke: Array = []                 # [sudden, carried] once the night is over
 var final := {}                      # the dream's numbers at the woke signal (the controller frees the dream right after)
 var frames_played := 0
 var room_at_start := -1              # the room index a routine began in: a move that lands in the exit ends the routine
+var reached_who := ""                # the goal reached this night, if any
+var self_pinched := false            # the night ended by the self-pinch
 
 
 ## Take over a dream (alone, or the controller's). The night can be
@@ -58,26 +74,36 @@ func attach(a_dream: Node2D, play_mode: String) -> void:
 	woke = []
 	final = {}
 	frames_played = 0
+	reached_who = ""
+	self_pinched = false
 	dream.acted.connect(_on_acted)
 	dream.woke.connect(_on_woke)
+	dream.reached.connect(_on_reached)
 
 
 func _on_woke(sudden: bool, carried: Array) -> void:
 	woke = [sudden, carried]
-	final = {"lucidity": dream.lucidity, "effective": dream.effective(), "blinks": dream.blinks, "hard_falls": dream.hard_falls, "carried": carried.size()}
+	final = {"lucidity": dream.lucidity, "effective": dream.effective(), "blinks": dream.blinks, "hard_falls": dream.hard_falls, "carried": carried.size() + dream.scraps_carried.size(), "scraps": dream.scraps_carried.size()}
+
+
+func _on_reached(who: String, _idea: String) -> void:
+	reached_who = who
 
 
 func _on_acted(kind: String, detail: String) -> void:
 	var key := kind.get_slice(":", 0)   # wonder:<id> counts as wonder
-	if key in ["grab", "set_down", "force", "fall", "fail", "wonder"]:
+	if key in ["grab", "set_down", "force", "fall", "fail", "wonder", "grab_scrap", "set_down_scrap"]:
 		acts[key] = acts.get(key, 0) + 1
 	if key == "fail":
 		did.append("fail:%s" % detail)
+	if key == "self_pinch":
+		self_pinched = true
 
 
-## Plays the night from the room in play to the end: the bed, or waking.
-## Returns {rooms, acts, lucidity, effective, end ("bed" | "woke" | "stuck"),
-## carried, kept, frames, seconds, blinks, hard_falls}.
+## Plays the night from the room in play to the end: the idea reached,
+## the self-pinch, the bed, or waking. Returns {rooms, acts, lucidity,
+## effective, end ("reached" | "self" | "bed" | "woke" | "stuck"), carried
+## (ideas and scraps), scraps, kept, frames, seconds, blinks, hard_falls}.
 func play_night() -> Dictionary:
 	var rooms: Array[String] = []
 	while alive() and not stuck:
@@ -98,16 +124,23 @@ func play_night() -> Dictionary:
 	frames_played += waited
 	var end := "stuck"
 	if not woke.is_empty():
-		end = "woke" if woke[0] else "bed"
+		if woke[0]:
+			end = "woke"
+		elif reached_who != "":
+			end = "reached"
+		elif self_pinched:
+			end = "self"
+		else:
+			end = "bed"
 	if final.is_empty() and is_instance_valid(dream):   # no waking: the numbers as they stand
-		final = {"lucidity": dream.lucidity, "effective": dream.effective(), "blinks": dream.blinks, "hard_falls": dream.hard_falls, "carried": dream.carried.size()}
+		final = {"lucidity": dream.lucidity, "effective": dream.effective(), "blinks": dream.blinks, "hard_falls": dream.hard_falls, "carried": dream.carried.size() + dream.scraps_carried.size(), "scraps": dream.scraps_carried.size()}
 	var carried: int = final.get("carried", 0)
-	var kept := carried
-	if not woke.is_empty() and woke[0]:
+	var kept := carried + (1 if end == "reached" else 0)   # the idea reached comes home too
+	if end == "woke":
 		kept = mini(1, carried)
 	return {
 		"rooms": rooms, "acts": acts.duplicate(), "lucidity": final.get("lucidity", 0), "effective": final.get("effective", 0),
-		"end": end, "carried": carried, "kept": kept, "frames": frames_played, "seconds": frames_played / 60.0,
+		"end": end, "carried": carried, "scraps": final.get("scraps", 0), "kept": kept, "frames": frames_played, "seconds": frames_played / 60.0,
 		"blinks": final.get("blinks", 0), "hard_falls": final.get("hard_falls", 0),
 	}
 
@@ -143,10 +176,61 @@ func play_room(id: String) -> void:
 			await play_ladder()
 		"bed":
 			await play_bed()
+		"hub":
+			await play_hub()
+		_:
+			if id.begins_with("goal_"):
+				await play_goal()
 	release_all()
 
 
 # --- the rooms ------------------------------------------------------------------
+
+## The hub (SPEC-2): the two scraps either side of the door, then the exit
+## whose sign is the target's (the right one); with no exit, the self-pinch.
+func play_hub() -> void:
+	await land()
+	if dream.room.exits().is_empty():
+		did.append("no way on: pinched myself awake")
+		await self_pinch()
+		return
+	await walk_to_scrap("move_left", func() -> bool: return dreamer.position.x <= 400.0, 180)
+	await walk_to_scrap("move_right", func() -> bool: return dreamer.position.x >= 760.0, 300)
+	var signs: Dictionary = dream.hub_signs()
+	var side := "right" if signs.right == dream.state.target or signs.left == "" else "left"
+	did.append("took the %s sign: %s" % [side, signs[side]])
+	if side == "left":
+		pinch_on()
+		await hold_until("move_left", func() -> bool: return false, 600)
+	else:
+		await walk_out()
+
+
+## The goal room (SPEC-2): the quiet spot by the door, then E at the idea
+## beside the sleeping villager: the night ends there.
+func play_goal() -> void:
+	pinch_off()
+	await hold_until("move_right", func() -> bool: return dreamer.position.x >= 420.0, DRIFT_FRAMES)
+	await be_still()
+	if not alive():
+		return
+	await land()
+	await walk_until("move_right", func() -> bool: return dream.can_reach(), 400)
+	if dream.reach():
+		did.append("reached %s" % dream.goal_idea)
+
+
+## Hold PINCH still on the floor until the dreamer wakes on purpose.
+func self_pinch() -> void:
+	release_all()
+	pinch_on()
+	await wait_until(func() -> bool: return dreamer.is_on_floor(), 90)
+	var n := 0
+	while is_instance_valid(dream) and not dream.woken and n < HOLD_FRAMES:
+		await get_tree().physics_frame
+		n += 1
+	frames_played += n
+
 
 ## The gap: the idea behind the door, the current across, the far floor.
 func play_tutorial() -> void:
@@ -170,10 +254,10 @@ func play_tutorial() -> void:
 	await walk_out()
 
 
-## The soft wall: the idea on the near floor, the wall's wonder, the ledge, the spot.
+## The soft wall: the scrap on the near floor, the wall's wonder, the ledge, the spot.
 func play_a() -> void:
 	await land()
-	await walk_until("move_right", func() -> bool: return dream.idea_in_reach() != null, 180)
+	await walk_to_scrap("move_right", func() -> bool: return dreamer.position.x >= 300.0, 180)   # short of the near floor's edge (380)
 	await take_idea()
 	pinch_off()
 	await frames(2)
@@ -296,6 +380,7 @@ func play_d() -> void:
 	await wait_until(func() -> bool: return dreamer.position.x >= 880.0, 480)
 	await land()
 	await take_idea()
+	await take_scrap()
 	await walk_out()
 
 
@@ -314,8 +399,10 @@ func play_e() -> void:
 			return
 	await wait_until(func() -> bool: return goat.center().x < 820.0 and goat.center().y < 320.0, RIDE_FRAMES)
 	await land()
-	await walk_until("move_right", func() -> bool: return dream.idea_in_reach() != null, 120)
+	await walk_to_scrap("move_right", func() -> bool: return dreamer.position.x >= 840.0, 120)   # along the beam (700..900), short of its end
 	await take_idea()
+	if not in_room():
+		return
 	if clumsy():
 		await walk_until("move_right", func() -> bool: return not dreamer.is_on_floor(), 200)
 		await wait_until(func() -> bool: return dreamer.is_on_floor(), 120)
@@ -324,7 +411,7 @@ func play_e() -> void:
 		pinch_off()
 		await frames(2)
 		await ride(goat)
-		if not alive():
+		if not alive() or not is_instance_valid(goat):
 			return
 		await wait_until(func() -> bool: return goat.center().y > 500.0 and goat.center().x >= 930.0, RIDE_FRAMES)
 		await land()
@@ -345,6 +432,7 @@ func play_f() -> void:
 		await wait_until(func() -> bool: return dreamer.position.x >= 700.0, 480)
 	await land()
 	await take_idea()
+	await take_scrap()
 	await walk_until("move_right", func() -> bool: return dreamer.position.x >= 745.0, 60)
 	await be_still()
 	if not alive():
@@ -361,6 +449,51 @@ func play_f() -> void:
 func play_ladder() -> void:
 	await land()
 	await walk_out()
+
+
+## Whether the driver would take a scrap now: room at the hip, and (the
+## competent player counts; the clumsy one does not) its two points (one
+## lucidity, one carried) leave SCRAP_MARGIN under the limit.
+func can_take_scrap() -> bool:
+	if dream.scraps_carried.size() >= dream.state.carry_scraps:
+		return false
+	return clumsy() or dream.effective() + 2 + SCRAP_MARGIN <= dream.limit()
+
+
+## Pinched, walk one way until a scrap is in reach (then take it, with the
+## clumsy fumble) or `stop` holds; a scrap taken on the way counts too.
+func walk_to_scrap(action: String, stop: Callable, budget: int) -> void:
+	var before: int = dream.scraps_carried.size()
+	await walk_until(action, func() -> bool: return dream.scrap_in_reach() != null or dream.scraps_carried.size() > before or stop.call(), budget)
+	if dream.scraps_carried.size() > before:
+		await fumble()   # taken on the way: the clumsy fumble still follows
+	else:
+		await take_scrap()
+
+
+## The scrap in reach, if the driver wants it; clumsy: the night's one
+## set-down right after the first grab (with no idea carried), the scrap
+## picked up again.
+func take_scrap() -> void:
+	if dream.scrap_in_reach() == null or not in_room() or not can_take_scrap():
+		return
+	if dream.grab_scrap():
+		did.append("took %s" % dream.scraps_carried.back())
+		await fumble()
+
+
+## Clumsy, once per night, right after a scrap is taken with no idea on the
+## hat: the scrap set down (+1) and picked up again (+1).
+func fumble() -> void:
+	if not clumsy() or set_down_done or not dream.carried.is_empty() or not alive() or dream.scraps_carried.is_empty():
+		return
+	await frames(1)
+	if dream.set_down_scrap():
+		set_down_done = true
+		did.append("fumbled a thought: set down")
+		await frames(2)
+		if dream.grab_scrap():
+			did.append("and picked up again")
 
 
 ## Your bed: the quiet spot by the door, then the bed (gentle, with
@@ -461,6 +594,8 @@ func wrong_pinch(where: Callable) -> bool:
 
 ## Asleep: wait for the goat to carry the body (the body must overlap its round).
 func ride(goat: Area2D) -> void:
+	if not is_instance_valid(goat) or not in_room():
+		return
 	var frames_waited := await wait_until(func() -> bool: return dreamer.carried_by.has(goat) or not alive(), RIDE_FRAMES)
 	if frames_waited < RIDE_FRAMES:
 		did.append("rode the goat")
@@ -536,13 +671,16 @@ func wait_until(cond: Callable, budget: int) -> int:
 	return n
 
 
-## Hold one action until the condition holds, the room or the night ends, or the budget runs out.
+## Hold one action until the condition holds, the room or the night ends,
+## or the budget runs out; a scrap hanging in reach on the way is taken.
 func hold_until(action: String, cond: Callable, budget: int) -> int:
 	var n := 0
 	while not cond.call() and n < budget and in_room():
 		Input.action_press(action)
 		await get_tree().physics_frame
 		n += 1
+		if dreamer.pinched and dream.scrap_in_reach() != null and can_take_scrap() and dream.grab_scrap():
+			did.append("took %s on the way" % dream.scraps_carried.back())
 	Input.action_release(action)
 	await get_tree().physics_frame
 	frames_played += n + 1

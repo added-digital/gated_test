@@ -1,0 +1,28 @@
+{
+  "branches": [
+    {
+      "who": "tove",
+      "rooms": ["b", "e"],
+      "goal": "goal_tove",
+      "idea": "lantern",
+      "develops": "lantern",
+      "slots": ["long", "round", "square", "long", "round"]
+    },
+    {
+      "who": "jorun",
+      "rooms": ["a", "c"],
+      "goal": "goal_jorun",
+      "idea": "sixteen_stairs",
+      "develops": "building",
+      "slots": ["round", "square", "long", "round"]
+    },
+    {
+      "who": "bo",
+      "rooms": ["f", "d"],
+      "goal": "goal_bo",
+      "idea": "pills",
+      "develops": "pill",
+      "slots": ["square", "long", "round"]
+    }
+  ]
+}

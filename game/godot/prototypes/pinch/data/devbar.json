@@ -11,7 +11,12 @@
     "set_down": "Q set down",
     "push": "E push",
     "exit": "walk in, pinched",
-    "bed": "E lie down, keep everything"
+    "bed": "E lie down, keep everything",
+    "scrap": "E grab the thought",
+    "set_down_scrap": "Q set a thought down",
+    "reach": "E reach: the idea, and the night ends",
+    "self_pinch": "hold Shift still: wake yourself ({s} s)",
+    "signs": "walk into a sign's exit, pinched: {left} · {right}"
   },
   "street": {
     "walk": "A D walk",
@@ -20,6 +25,9 @@
     "pill": "1 take a pill",
     "make": "hold E 3 s make",
     "breakfast": "E offer {idea} · 1 2 3 change · walk away ends",
-    "breakfast_one": "E offer {idea} · walk away ends"
+    "breakfast_one": "E offer {idea} · walk away ends",
+    "wall": "E choose tonight's dream",
+    "wall_pick": "1 2 3 choose · the dream for tonight",
+    "sleep_refused": "sleep: choose a dream at the wall first"
   }
 }

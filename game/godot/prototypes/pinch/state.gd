@@ -17,13 +17,26 @@ extends Resource
 ## names, or tally:N, tally>=N, day:N, day>=N, has_pills (holds()).
 ## gauge_visible (day 5) is the one setting: H in the dream toggles the
 ## sleep gauge and the choice holds for the rest of the session.
+##
+## The second loop (SPEC-2, day A): `target` is whose dream tonight is (set
+## at the wall, or by the hub's other exit; it stays until changed, and the
+## wall shows it); `reached` remembers whose idea has been reached (who ->
+## true: the wall names it); `scraps` are the half thoughts brought home
+## (shape ids, the Desk's cards on day B) and `scraps_carried` the ones in
+## the dream now, at most CARRY_SCRAPS.
 
 const TILE := 256.0          # px: one tile of street; the dark recedes one tile per building
 const BASE_LIT_TILES := 3    # tiles lit on each side of the Long House before anything stands
 const PILL_BONUS := 2        # the lucidity limit tonight is this much higher with a pill
 const HAT_CARRY := 3         # ideas under the taller hat (Bo's request)
+const CARRY_SCRAPS := 3      # scraps carried in the dream at once (SPEC-2: carry 3)
 
 var day := 1
+var target := ""                        # whose dream tonight (a villager id), "" before the wall is read
+var reached := {}                       # who -> true: their idea has been reached (the wall names it)
+var scraps: Array[String] = []          # scrap shapes brought home, in order
+var scraps_carried: Array[String] = []  # scrap shapes at the hip, in the dream now
+var carry_scraps := CARRY_SCRAPS
 var lucidity_limit := 8      # the limit without a pill; night_limit() is tonight's
 var carry_limit := 2         # 3 with the taller hat (day 4: Bo's request, the morning his loft stands)
 var ideas_carried: Array[String] = []   # under the hat, in the dream now
@@ -54,6 +67,19 @@ func night_limit() -> int:
 func keep(id: String) -> void:
 	ideas_kept.append(id)
 	set_flag("kept:%s" % id)
+
+
+## A scrap brought home at waking (SPEC-2): kept for the Desk, and remembered.
+func keep_scrap(shape: String) -> void:
+	scraps.append(shape)
+	set_flag("kept_scrap:%s" % shape)
+
+
+## An idea reached in its goal room (SPEC-2): the wall names it from now on.
+func reach(who: String, idea: String) -> void:
+	reached[who] = true
+	set_flag("reached:%s" % who)
+	keep(idea)
 
 
 ## The next morning: the day counter, the pill worn off, and every idea

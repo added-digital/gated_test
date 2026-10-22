@@ -40,5 +40,19 @@
     "whose": "",
     "becomes": "lantern_post",
     "line": "A spoon. Just a spoon. You went down there for this."
+  },
+  {
+    "id": "pills",
+    "name": "The Pills",
+    "whose": "bo",
+    "becomes": "pill",
+    "line": "Something bitter in a jar by a bed. Whoever takes one sleeps through anything, and wakes knowing it."
+  },
+  {
+    "id": "lantern",
+    "name": "The Lantern",
+    "whose": "tove",
+    "becomes": "lantern",
+    "line": "A lantern that is lit from the inside of the dream. Hold it up and the rooms you have not seen show their doors."
   }
 ]

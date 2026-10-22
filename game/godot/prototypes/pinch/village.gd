@@ -65,6 +65,21 @@ extends Node2D
 ## json) once their plot stands (want_text). A CLAIM is said as two lines:
 ## the owner's short claims line for CLAIM_GAP seconds, then the idea's own
 ## line (say_for's queue), never one run-on sentence.
+##
+## THE SECOND LOOP (SPEC-2, day A). THE WALL (wall.gd, WALL_AT): the map of
+## the dream in the Long House, the hub and one row per talked-to villager
+## (talk() sets talked:<who>), the goal named once reached; E within
+## WALL_RANGE of WALL_X opens the picker (choose_dream: the shared panel's
+## numbered choices over available_branches(), the talked-to villagers in
+## branches.json order) and sets state.target, which the wall then names
+## ("Tonight: Bo's dream") and the bunk needs: go_to_sleep refuses without
+## a target while any branch exists (village.json wall.choose_first), and
+## with none the hub alone is the night. The tally wall moved to the
+## right, over the bunk, to leave the map its place. Scraps lost at a
+## sudden waking ("scrap:<shape>") fade over the bunk like ideas, named
+## from data/scraps.json (thing_name). Breakfast still runs on an idea
+## reached (it goes on day B). The dev bar says so at the wall (wall,
+## wall_pick) and at the bunk without a target (sleep_refused).
 
 signal slept
 signal acted(kind: String, detail: String)
@@ -73,8 +88,15 @@ const WORDS_FILE := "res://prototypes/pinch/data/village.json"
 const IDEAS_FILE := "res://prototypes/pinch/data/ideas.json"
 const CHARACTERS_FILE := "res://prototypes/pinch/data/characters.json"
 const DEVBAR_FILE := "res://prototypes/pinch/data/devbar.json"
+const BRANCHES_FILE := "res://prototypes/pinch/data/branches.json"
+const SCRAPS_FILE := "res://prototypes/pinch/data/scraps.json"
 const PANEL := preload("res://prototypes/_shared/text_panel.tscn")
 const DEVBAR := preload("res://prototypes/pinch/devbar.gd")
+const WALL_MAP := preload("res://prototypes/pinch/wall.gd")
+const WALL_AT := Vector2(2124, 290)   # the map's top-left corner, on the Long House wall above the table
+const WALL_X := 2180.0                # px: where the walker stands to read the wall: at the table, under the map (clear of the bunk, the stove and Tove)
+const WALL_RANGE := 48.0              # px: this close to WALL_X, E chooses tonight's dream
+const TALLY_AT := Vector2(2400, 316)  # the tally's title, over the bunk; the marks one line under it
 const LOST_FADE := 6.0           # s the lost stack takes to fade over the bunk
 const PIECE := Vector2(32, 24)   # px: one idea as a rect, on the table or over the bunk
 const STREET_WIDTH := 4608.0   # px: four screens of 1152
@@ -154,6 +176,10 @@ var ideas: Array = []         # ideas.json
 var characters: Array = []    # characters.json "characters", in order
 var want_line := "{name}: {want}"
 var tally_wall: Label = null  # the marks on the Long House wall, one per sudden waking
+var wall: Node2D = null       # the map on the wall (wall.gd)
+var branches: Array = []      # branches.json "branches", in order
+var scrap_shapes: Array = []  # scraps.json "shapes"
+var picking_target := false   # the wall's picker is up: the keys are its
 var table_label: Label = null # the table's word, hidden while breakfast is on
 var devbar: CanvasLayer = null     # the dev bar: what can be done now
 var devbar_words: Dictionary = {}  # devbar.json
@@ -200,10 +226,15 @@ func _ready() -> void:
 	want_line = str(people_json.get("want_line", want_line))
 	loaded = PinchState.load_json(DEVBAR_FILE)
 	devbar_words = loaded if loaded is Dictionary else {}
+	loaded = PinchState.load_json(BRANCHES_FILE)
+	branches = (loaded as Dictionary).get("branches", []) if loaded is Dictionary else []
+	loaded = PinchState.load_json(SCRAPS_FILE)
+	scrap_shapes = (loaded as Dictionary).get("shapes", []) if loaded is Dictionary else []
 	if panel == null:
 		panel = PANEL.instantiate()
 		add_child(panel)
 	_build_street()
+	_build_wall()
 	_build_people()
 	_build_devbar()
 	prompt_label.visible = false
@@ -251,6 +282,8 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if picking_target:
+		return   # the wall's picker is up: the number keys are the panel's
 	if event.is_action_pressed("interact"):
 		if breakfast_on:
 			offer()
@@ -258,6 +291,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			go_to_sleep()
 		elif can_make():
 			pass   # the hold is read in _process
+		elif wall_in_range():
+			choose_dream()
 		else:
 			var who := character_in_reach()
 			if who != "":
@@ -291,6 +326,7 @@ func refresh() -> void:
 	_place_people()
 	for who in people:
 		PinchLabel.set_text(_want_label(people[who]), want_text(who))
+	wall.refresh(state)
 	_update_hand()
 	var lit := lit_extent()
 	mask_left.position = Vector2.ZERO
@@ -325,6 +361,10 @@ func bunk_in_range() -> bool:
 	return absf(walker.position.x - BUNK.get_center().x) <= BUNK_RANGE
 
 
+func wall_in_range() -> bool:
+	return absf(walker.position.x - WALL_X) <= WALL_RANGE
+
+
 func stove_in_range() -> bool:
 	return absf(walker.position.x - plot_rect("stove_shed").get_center().x) <= STOVE_RANGE
 
@@ -340,6 +380,21 @@ func idea_entry(id: String) -> Dictionary:
 		if str(idea.get("id", "")) == id:
 			return idea
 	return {}
+
+
+## The name of a scrap's shape, from scraps.json.
+func scrap_name(shape: String) -> String:
+	for entry in scrap_shapes:
+		if str(entry.get("id", "")) == shape:
+			return str(entry.get("name", shape))
+	return shape
+
+
+## The name of a thing carried up from the dream: an idea's, or a scrap's ("scrap:<shape>").
+func thing_name(id: String) -> String:
+	if id.begins_with("scrap:"):
+		return scrap_name(id.substr(6))
+	return idea_name(id)
 
 
 ## The ideas kept, as drawn on the table, in order.
@@ -401,12 +456,82 @@ func lost_alpha() -> float:
 	return lost_stack.modulate.a if lost_stack != null else 0.0
 
 
-## Lie down: emits slept once; the controller takes it from there.
+## Lie down: emits slept once; the controller takes it from there. Without
+## a target while a branch exists (SPEC-2) the bunk refuses: choose first.
 func go_to_sleep() -> void:
 	if _slept:
 		return
+	if not sleep_allowed():
+		say_for(str(words.get("wall", {}).get("choose_first", "")), LINE_STAYS, true)
+		acted.emit("refused", "no_target")
+		return
 	_slept = true
 	slept.emit()
+
+
+## True when tonight has a target, or no branch exists yet (the hub alone is the night).
+func sleep_allowed() -> bool:
+	return state.target != "" or available_branches().is_empty()
+
+
+# --- the wall --------------------------------------------------------------------
+
+## The branches the wall shows and the picker offers: the talked-to
+## villagers' (flag talked:<who>), in branches.json order.
+func available_branches() -> Array[String]:
+	var whos: Array[String] = []
+	for branch in branches:
+		var who := str(branch.get("who", ""))
+		if state.has_flag("talked:%s" % who):
+			whos.append(who)
+	return whos
+
+
+## E at the wall: the picker over the available branches (1 2 3, or a
+## click); the choice is tonight's target. With no branch yet, the note.
+func choose_dream() -> void:
+	if picking_target or _slept or breakfast_on:
+		return
+	var whos := available_branches()
+	if whos.is_empty():
+		say_for(str(words.get("wall", {}).get("talk_first", "")), LINE_STAYS, true)
+		return
+	picking_target = true
+	_lines = []
+	_line_left = 0.0
+	panel.say(str(words.get("wall", {}).get("choose", "")))
+	panel.prompt(str(words.get("wall", {}).get("pick", "")))
+	var options: Array[String] = []
+	for who in whos:
+		options.append(str(character(who).get("name", who)))
+	panel.choices(options)
+	acted.emit("wall", "open")
+	var index: int = await panel.chosen
+	picking_target = false
+	panel.prompt("")
+	set_target(whos[index])
+
+
+## Tonight's dream is `who`'s: the state knows, the wall names it, the line is said.
+func set_target(who: String) -> void:
+	state.target = who
+	wall.refresh(state)
+	say_for(str(words.get("wall", {}).get("chosen", "")).format({"name": str(character(who).get("name", who))}), LINE_STAYS, true)
+	acted.emit("target", who)
+
+
+func _build_wall() -> void:
+	var idea_names := {}
+	for idea in ideas:
+		idea_names[str(idea.get("id", ""))] = str(idea.get("name", idea.get("id", "")))
+	var villager_names := {}
+	for c in characters:
+		villager_names[str(c.get("id", ""))] = str(c.get("name", c.get("id", "")))
+	wall = WALL_MAP.new()
+	wall.name = "Wall"
+	wall.position = WALL_AT
+	wall.setup(words.get("wall", {}), branches, villager_names, idea_names)
+	street.add_child(wall)
 
 
 ## 1 at the bunk with pills in the house: one for tonight. The limit grows
@@ -641,7 +766,8 @@ func want_text(who: String) -> String:
 	return want_line.format({"name": str(c.get("name", who)), "want": want})
 
 
-## E next to a character: the line, the want over the head, the memory.
+## E next to a character: the line, the want over the head, the memory
+## (talked:<who> puts their branch on the wall).
 func talk(who: String) -> String:
 	var c := character(who)
 	if c.is_empty():
@@ -650,6 +776,7 @@ func talk(who: String) -> String:
 	if str(line.get("id", "")) != "greeting":
 		state.set_flag(_said_flag(who, line))
 	state.set_flag("talked:%s" % who)
+	wall.refresh(state)
 	say_for(str(line.get("text", "")), LINE_STAYS, true)
 	_want_label(people[who]).visible = true
 	_want_left[who] = WANT_STAYS
@@ -873,6 +1000,8 @@ func _update_prompt() -> void:
 		text = str(words.get("sleep_prompt_pills" if state.has_pills and not state.pill_tonight else "sleep_prompt", ""))
 	elif can_make():
 		text = str(words.get("making" if making > 0.0 else "make_prompt", ""))
+	elif wall_in_range():
+		text = str(words.get("wall_prompt", ""))
 	elif character_in_reach() != "":
 		text = str(words.get("talk_prompt", ""))
 	prompt_label.text = text
@@ -896,13 +1025,17 @@ func devbar_text() -> String:
 			return ""
 		var key := "breakfast" if state.ideas_kept.size() > 1 else "breakfast_one"
 		return str(w.get(key, "")).format({"idea": idea_name(id)})
+	if picking_target:
+		return str(w.get("wall_pick", ""))
 	var parts: Array[String] = [str(w.get("walk", ""))]
 	if bunk_in_range():
-		parts.append(str(w.get("sleep", "")))
+		parts.append(str(w.get("sleep" if sleep_allowed() else "sleep_refused", "")))
 		if state.has_pills and not state.pill_tonight:
 			parts.append(str(w.get("pill", "")))
 	elif can_make():
 		parts.append(str(w.get("make", "")))
+	elif wall_in_range():
+		parts.append(str(w.get("wall", "")))
 	elif character_in_reach() != "":
 		parts.append(str(w.get("talk", "")))
 	return str(devbar_words.get("separator", " · ")).join(parts)
@@ -942,8 +1075,8 @@ func _build_street() -> void:
 	_add_label(str(markers.get("stove", "")), _inside(STOVE) - Vector2(30, 0), STOVE.size.x + 60)
 	_add_box(BUNK, MARKER)
 	_add_label(str(markers.get("bunk", "")), _inside(BUNK), BUNK.size.x)
-	_add_label(str(words.get("tally_title", "")), Vector2(TABLE.position.x, TABLE.position.y - 150), 200.0, HORIZONTAL_ALIGNMENT_LEFT)
-	tally_wall = _add_label("", Vector2(TABLE.position.x, TABLE.position.y - 126), 300.0, HORIZONTAL_ALIGNMENT_LEFT)
+	_add_label(str(words.get("tally_title", "")), TALLY_AT, 130.0, HORIZONTAL_ALIGNMENT_LEFT)
+	tally_wall = _add_label("", TALLY_AT + Vector2(0, 24), 130.0, HORIZONTAL_ALIGNMENT_LEFT)
 	plots = _holder("Plots")
 	small_things = _holder("SmallThings")
 	table_ideas = _holder("TableIdeas")
@@ -1173,7 +1306,7 @@ func _add_piece(holder: Node2D, id: String, at: Vector2, index: int) -> Node2D:
 	face.size = PIECE
 	face.color = Color.WHITE
 	piece.add_child(face)
-	var label := PinchLabel.make(idea_name(id), Vector2(PIECE.x / 2.0 - PIECE_LABEL_WIDTH / 2.0, -24 - (index % PIECE_LABEL_ROWS) * PIECE_LABEL_STEP), PIECE_LABEL_WIDTH)
+	var label := PinchLabel.make(thing_name(id), Vector2(PIECE.x / 2.0 - PIECE_LABEL_WIDTH / 2.0, -24 - (index % PIECE_LABEL_ROWS) * PIECE_LABEL_STEP), PIECE_LABEL_WIDTH)
 	label.name = "Name"
 	piece.add_child(label)
 	holder.add_child(piece)

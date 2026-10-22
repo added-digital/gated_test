@@ -15,6 +15,14 @@ extends Node2D
 ## never share a line. The bed's name (room_bed.tscn) is backed here too.
 ## Every word drawn comes from data/rooms.json, handed in as `words` by
 ## the dream before add_child.
+##
+## The second loop (SPEC-2, day A): a room may have several exits (the hub
+## has ExitLeft and ExitRight), listed by exits(); each carries the branch
+## it leads down in its metadata `branch` and a sign (set_sign: the zone's
+## word) that the dream sets from the night's target. ScrapSpots (Marker2Ds)
+## are where the dealer hangs scraps besides the IdeaSpots; the scraps
+## themselves live under Scraps (scraps_holder(), made when a scene lacks
+## it). A goal room holds a Sleeper (sleeper.gd), whose words are set here.
 
 const SIZE := Vector2(1152, 648)
 const WALL := 16.0
@@ -31,7 +39,7 @@ var words: Dictionary = {}   # rooms.json "words"; set by the dream
 var door_label: Label = null
 
 @onready var door: Marker2D = $Door
-@onready var exit: Area2D = get_node_or_null("Exit")
+@onready var exit: Area2D = _first_exit()   # the one exit, or the first of several; null once removed
 @onready var ideas: Node2D = $Ideas
 
 
@@ -53,6 +61,9 @@ func _ready() -> void:
 		bed_name.set_meta("max_width", bed_name.size.x)
 		PinchLabel.back(bed_name)
 		PinchLabel.set_text(bed_name, word("bed"))
+	var sleeper: Node2D = get_node_or_null("Sleeper")
+	if sleeper != null:
+		sleeper.set_words(word("asleep").format({"name": sleeper.who}), word("snore"))
 
 
 ## A word from rooms.json; the key itself when the file lacks it.
@@ -68,18 +79,76 @@ func block() -> StaticBody2D:
 	return get_node_or_null("Block") as StaticBody2D
 
 
-## No way on from here (the bed room dealt last): the exit zone goes.
+## No way on from here (the bed room dealt last): every exit zone goes.
 func remove_exit() -> void:
-	if exit != null:
-		remove_child(exit)
-		exit.queue_free()
-		exit = null
+	for zone in exits():
+		remove_child(zone)
+		zone.queue_free()
+	exit = null
+
+
+## One exit goes (the hub's unused side); `exit` is the first that is left.
+func remove_exit_named(exit_name: String) -> void:
+	var zone: Area2D = get_node_or_null(exit_name)
+	if zone != null and zone.role == "exit":
+		remove_child(zone)
+		zone.queue_free()
+	exit = _first_exit()
+
+
+## The exit zones of this room, in scene order (none once removed).
+func exits() -> Array[Area2D]:
+	var zones: Array[Area2D] = []
+	for child in get_children():
+		if child is Area2D and "role" in child and child.role == "exit":
+			zones.append(child)
+	return zones
+
+
+func _first_exit() -> Area2D:
+	var zones := exits()
+	return zones[0] if not zones.is_empty() else null
+
+
+## The exit's sign (SPEC-2: whose dream lies that way) and the branch it leads down.
+func set_sign(exit_name: String, text: String, branch: String) -> void:
+	var zone: Area2D = get_node_or_null(exit_name)
+	if zone == null:
+		return
+	zone.set_label(text)
+	zone.set_meta("branch", branch)
+
+
+## The sleeping villager of a goal room, or null.
+func sleeper() -> Node2D:
+	return get_node_or_null("Sleeper") as Node2D
+
+
+## Where the scraps lie: the Scraps node, made here when the scene has none.
+func scraps_holder() -> Node2D:
+	var holder: Node2D = get_node_or_null("Scraps")
+	if holder == null:
+		holder = Node2D.new()
+		holder.name = "Scraps"
+		add_child(holder)
+	return holder
 
 
 ## Where ideas may lie in this room, in order.
 func idea_spots() -> Array[Vector2]:
 	var spots: Array[Vector2] = []
 	var holder: Node2D = get_node_or_null("IdeaSpots")
+	if holder != null:
+		for marker in holder.get_children():
+			if marker is Marker2D:
+				spots.append(marker.position)
+	return spots
+
+
+## Where the dealer may hang scraps besides the idea spots, in order.
+func scrap_spots() -> Array[Vector2]:
+	var spots: Array[Vector2] = []
+	var holder: Node2D = get_node_or_null("ScrapSpots")
 	if holder != null:
 		for marker in holder.get_children():
 			if marker is Marker2D:

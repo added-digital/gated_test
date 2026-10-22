@@ -15,9 +15,16 @@ extends Node2D
 ## window is at alpha 0 when the village appears and 1.0 after 90 frames.
 ## At the end: slept_4 recorded, at least two buildings standing,
 ## lit_tiles >= 5, the harness summary lists slept_1..4, a told:<idea>:<who>,
-## a built:<plot>, the pills made, one pill taken, the log on disk. Prints
-## the four nights' table and the harness summary, PASS/FAIL per check, and
-## quits with 0 only if every check passes.
+## a built:<plot>, the pills made, one pill taken, the log on disk. SPEC-2
+## (day A): every night is a chosen branch now: day 1 talks to Jorun, Bo
+## and Tove (their branches on the wall) and chooses Bo's dream at the
+## wall; night 2 is Jorun's, night 3 Tove's, night 4 Bo's again; the
+## driver takes the scraps on the way and reaches the idea or is thrown
+## out (keeping one scrap); the idea reached still goes to breakfast (day
+## A; the pills and the lantern become small things, Sixteen Stairs rises)
+## so at the end one building stands and at least two ideas were reached.
+## Prints the four nights' table and the harness summary, PASS/FAIL per
+## check, and quits with 0 only if every check passes.
 
 const TOY := preload("res://prototypes/pinch/pinch.tscn")
 const DRIVER := preload("res://tests/pinch_driver.gd")
@@ -62,8 +69,13 @@ func _ready() -> void:
 		await get_tree().physics_frame
 	var village: Node2D = toy.village
 	check(village != null and state.day == 1, "day 1, the street")
+	village.acted.connect(func(kind: String, detail: String) -> void: village_acts.append([kind, detail]))
+	for who in ["jorun", "bo", "tove"]:
+		await talk_to(village, who)
+	check(village.wall.shown_branches() == ["tove", "jorun", "bo"] and village.available_branches() == ["tove", "jorun", "bo"], "the three branches are on the wall: %s" % [village.wall.shown_branches()])
+	await choose(village, "bo")
 
-	# Night 1: clumsy.
+	# Night 1: clumsy, down Bo's branch.
 	var dream: Node2D = await go_to_bed(village, false)
 	check(dream != null and harness.summary().contains("slept_1"), "night 1: asleep (slept_1)")
 	check(dream.gauge_visible and state.gauge_visible, "the gauge is on")
@@ -74,7 +86,8 @@ func _ready() -> void:
 	await do_breakfast(village)
 	check(state.ideas_kept.is_empty(), "day 2: the table is bare after breakfast")
 
-	# Night 2: competent, H once.
+	# Night 2: competent, H once, down Jorun's branch.
+	await choose(village, "jorun")
 	dream = await go_to_bed(village, false)
 	check(dream != null and harness.summary().contains("slept_2"), "night 2: asleep (slept_2)")
 	await press_key(KEY_H)
@@ -93,7 +106,8 @@ func _ready() -> void:
 	await get_tree().process_frame
 	check(frames < 240 and state.has_pills and harness.summary().contains("made  pills"), "E held %d frames: the pills are made" % frames)
 
-	# Night 3: a pill; the gauge still off.
+	# Night 3: a pill; the gauge still off; Tove's branch.
+	await choose(village, "tove")
 	dream = await go_to_bed(village, true)
 	check(dream != null and harness.summary().contains("slept_3") and state.pill_tonight and dream.limit() == 10, "night 3: a pill taken, the limit 10 (slept_3)")
 	check(not dream.gauge_visible and not dream.gauge.visible, "the gauge stays off the next night without a key pressed")
@@ -102,7 +116,8 @@ func _ready() -> void:
 	check(state.night_limit() == 8, "day 4: the pill has worn off")
 	await do_breakfast(village)
 
-	# Night 4: competent.
+	# Night 4: competent, Bo's branch again.
+	await choose(village, "bo")
 	dream = await go_to_bed(village, false)
 	check(dream != null and harness.summary().contains("slept_4") and dream.limit() == 8, "night 4: asleep (slept_4), the limit 8")
 	rows.append(await play(dream, "competent", 4))
@@ -112,8 +127,9 @@ func _ready() -> void:
 	# The end of the four nights.
 	var summary: String = harness.summary()
 	check(summary.contains("  slept_4"), "slept_4 is recorded")
-	check(state.ideas_built.size() >= 2, "at least two buildings stand: %s" % [state.ideas_built])
-	check(village.lit_tiles() >= 5 and state.lit_tiles() == 3 + state.ideas_built.size(), "lit_tiles %d (3 + one per building)" % village.lit_tiles())
+	check(state.ideas_built.size() >= 1 and state.ideas_built.has("sixteen_stairs"), "Sixteen Stairs stands (SPEC-2, day A: the pills and the lantern become small things until the Desk): %s" % [state.ideas_built])
+	check(state.reached.size() >= 2 and summary.count("  reached:") >= 2, "at least two ideas were reached: %s" % [state.reached.keys()])
+	check(village.lit_tiles() >= 4 and state.lit_tiles() == 3 + state.ideas_built.size(), "lit_tiles %d (3 + one per building)" % village.lit_tiles())
 	var listed := true
 	for m in ["slept_1", "slept_2", "slept_3", "slept_4"]:
 		listed = listed and summary.contains("  %s" % m)
@@ -166,8 +182,27 @@ func play(dream: Node2D, play_mode: String, night: int) -> Dictionary:
 	row["night"] = night
 	row["mode"] = play_mode
 	row["limit"] = limit
-	check(row.end != "stuck", "night %d %s: %s in %s, lucidity %d, effective %d of %d, %d carried, %.1f s; %s" % [night, play_mode, row.end, row.rooms, row.lucidity, row.effective, row.limit, row.carried, row.seconds, driver.did])
+	check(row.end != "stuck", "night %d %s: %s in %s, lucidity %d, effective %d of %d, %d carried (%d scraps), %.1f s; %s" % [night, play_mode, row.end, row.rooms, row.lucidity, row.effective, row.limit, row.carried, row.scraps, row.seconds, driver.did])
 	return row
+
+
+## E by a villager: their branch goes on the wall (SPEC-2).
+func talk_to(village: Node2D, who: String) -> void:
+	var frames := await walk_walker_to(village, village.people[who].position.x)
+	await press_key(KEY_E)
+	check(frames < WALK_FRAMES and state.has_flag("talked:%s" % who) and village.wall.shown_branches().has(who), "talked to %s: their branch is on the wall" % who)
+
+
+## E at the wall, then the number of `who` among the branches offered: tonight's dream (SPEC-2).
+func choose(village: Node2D, who: String) -> void:
+	var frames := await walk_walker_to(village, village.WALL_X)
+	await press_key(KEY_E)
+	await get_tree().process_frame
+	var index: int = village.available_branches().find(who)
+	check(frames < WALK_FRAMES and village.picking_target and index >= 0, "E at the wall: the picker is up, %s is choice %d" % [who, index + 1])
+	await press_key(KEY_1 + index)
+	await get_tree().process_frame
+	check(state.target == who and not village.picking_target and village.wall.tonight_text() != "", "%d: tonight is %s's dream ('%s')" % [index + 1, who, village.wall.tonight_text()])
 
 
 ## After the night: the picker if two or more were carried (keep a wanted
@@ -281,11 +316,11 @@ func check_crossbars(village: Node2D, plot: String) -> void:
 
 ## The table: one row per night.
 func print_table() -> void:
-	print("--- four nights (pinch.tscn, the state carried on) ---")
-	print("%-5s %-9s %-5s %-30s %-5s %-4s %-5s %-5s %-7s %-9s %-5s %-5s" % ["night", "mode", "limit", "rooms", "grab", "set", "fall", "fail", "wonder", "lucidity", "eff", "end"] + " carried  seconds")
+	print("--- four nights (pinch.tscn, the state carried on, one chosen branch each) ---")
+	print("%-5s %-9s %-5s %-24s %-6s %-4s %-5s %-5s %-7s %-9s %-5s %-8s" % ["night", "mode", "limit", "rooms", "scraps", "set", "fall", "fail", "wonder", "lucidity", "eff", "end"] + " carried  seconds")
 	for row in rows:
 		var a: Dictionary = row.acts
-		print("%-5d %-9s %-5d %-30s %-5d %-4d %-5d %-5d %-7d %-9d %-5d %-5s %-8d %.1f" % [row.night, row.mode, row.limit, ",".join(row.rooms), a.get("grab", 0), a.get("set_down", 0), a.get("fall", 0), a.get("fail", 0), a.get("wonder", 0), row.lucidity, row.effective, row.end, row.carried, row.seconds])
+		print("%-5d %-9s %-5d %-24s %-6d %-4d %-5d %-5d %-7d %-9d %-5d %-8s %-8d %.1f" % [row.night, row.mode, row.limit, ",".join(row.rooms), a.get("grab_scrap", 0), a.get("set_down", 0) + a.get("set_down_scrap", 0), a.get("fall", 0), a.get("fail", 0), a.get("wonder", 0), row.lucidity, row.effective, row.end, row.carried, row.seconds])
 	print("--- end ---")
 
 

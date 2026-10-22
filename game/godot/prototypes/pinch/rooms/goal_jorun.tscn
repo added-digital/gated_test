@@ -1,0 +1,49 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://prototypes/pinch/rooms/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://prototypes/pinch/rooms/box.gd" id="2_box"]
+[ext_resource type="Script" path="res://prototypes/pinch/rooms/zone.gd" id="3_zone"]
+[ext_resource type="Script" path="res://prototypes/pinch/rooms/sleeper.gd" id="4_sleeper"]
+
+[node name="Room" type="Node2D"]
+script = ExtResource("1_room")
+id = "goal_jorun"
+
+[node name="Crisp" type="Node2D" parent="."]
+
+[node name="Floor" type="StaticBody2D" parent="Crisp"]
+position = Vector2(0, 600)
+script = ExtResource("2_box")
+size = Vector2(1152, 48)
+
+[node name="Soft" type="Node2D" parent="."]
+
+[node name="Wonders" type="Node2D" parent="."]
+
+[node name="Quiet" type="Area2D" parent="Wonders"]
+position = Vector2(380, 480)
+script = ExtResource("3_zone")
+size = Vector2(80, 120)
+role = "wonder"
+id = "goal_jorun_spot"
+kind = "spot"
+word = "spot"
+
+[node name="Currents" type="Node2D" parent="."]
+
+[node name="Sleeper" type="Node2D" parent="."]
+position = Vector2(700, 600)
+script = ExtResource("4_sleeper")
+who = "jorun"
+
+[node name="Door" type="Marker2D" parent="."]
+position = Vector2(100, 548)
+
+[node name="IdeaSpots" type="Node2D" parent="."]
+
+[node name="Spot1" type="Marker2D" parent="IdeaSpots"]
+position = Vector2(840, 588)
+
+[node name="Ideas" type="Node2D" parent="."]
+
+[node name="Scraps" type="Node2D" parent="."]

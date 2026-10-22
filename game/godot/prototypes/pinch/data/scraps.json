@@ -1,0 +1,8 @@
+{
+  "per_night": 6,
+  "shapes": [
+    {"id": "round", "name": "a round thought"},
+    {"id": "square", "name": "a square thought"},
+    {"id": "long", "name": "a long thought"}
+  ]
+}

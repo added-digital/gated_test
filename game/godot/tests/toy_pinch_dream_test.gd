@@ -20,8 +20,11 @@ extends Node2D
 ## while pinched fails the screen, the goat carries the body along its
 ## round (the dreamer's motion equals the goat's), its wonder once, pinch
 ## over the far floor, the exit; the bed room: no ideas (day 3), the
-## block, the bed, E wakes gently. Prints PASS/FAIL per check and quits
-## with 0 only if every check passes.
+## block, the bed, E wakes gently. SPEC-2 (day A): the branch dealer
+## replaced the deck, so (7) now reads the branch dealer (the hub alone
+## with no target; the hub, the branch's two rooms and the goal room with
+## one) and the rooms this test drives are dealt by hand (redeal). Prints
+## PASS/FAIL per check and quits with 0 only if every check passes.
 
 const DREAM := preload("res://prototypes/pinch/dream.tscn")
 const ROOMS_FILE := "res://prototypes/pinch/data/rooms.json"
@@ -51,22 +54,18 @@ func _ready() -> void:
 	add_child(dream)
 	dreamer = dream.dreamer
 	dream.woke.connect(func(sudden: bool, carried: Array) -> void: wakes.append([sudden, carried]))
-	dream.room_entered.connect(func(id: String) -> void: entered.append(id))
 	dreamer.hard_landing.connect(func() -> void: hard_landings += 1)
 	var rooms_json: Dictionary = PinchState.load_json(ROOMS_FILE)
 	await get_tree().physics_frame
 
-	# (7) The dealer, night 1.
-	var order: Array = dream.rooms_tonight()
-	check(order.size() == 6 and order[0] == "tutorial" and order[5] == "bed", "night 1 deals 6 rooms (four of the seven rooms plus the tutorial and the bed), the tutorial first and the bed last: %s" % [order])
-	var middle: Array = order.slice(1, 5)
-	middle.sort()
-	var pool: Array = ["a", "b", "c", "d", "e", "f", "ladder"]   # day 5: room f joined the pool
-	check(middle.size() == 4 and middle.has("a") and middle.has("b") and middle[0] != middle[1] and middle[1] != middle[2] and middle[2] != middle[3] and pool.has(middle[0]) and pool.has(middle[1]) and pool.has(middle[2]) and pool.has(middle[3]), "four rooms lie between them, each once, a and b among them: %s" % [order])
-	check(order == dream.deal(1) and dream.deal(1) == dream.deal(1), "the order is the deal seeded by day 1, the same each time")
-	var night2: Array = dream.deal(2)
-	check(night2.size() == 5 and night2[0] != "tutorial" and night2[4] == "bed" and not night2.has("tutorial"), "night 2 deals no tutorial: %s" % [night2])
-	check(dream.current_room_id() == "tutorial" and dream.room.id == "tutorial" and entered.is_empty(), "the tutorial is the room in play (dealt in _ready, before anyone could listen)")
+	# (7) The dealer, night 1 (SPEC-2: the branch dealer; the deck is gone).
+	check(dream.rooms_tonight() == ["hub"] and dream.current_room_id() == "hub" and dream.room.exits().is_empty(), "a fresh state, nobody talked to, no target: the hub alone is the night, with no way on: %s" % [dream.rooms_tonight()])
+	check(dream.deal_branch("jorun") == ["hub", "a", "c", "goal_jorun"] and dream.deal_branch("bo") == ["hub", "f", "d", "goal_bo"] and dream.deal_branch("tove") == ["hub", "b", "e", "goal_tove"], "deal_branch: the hub, the branch's two rooms in their fixed order, the goal room")
+	check(dream.deal_branch("nobody") == ["hub"] and dream.deal_branch("jorun") == dream.deal_branch("jorun"), "no branch for an unknown target; the deal is the same each time")
+	var order: Array[String] = ["tutorial", "a", "b", "bed"]   # the rooms this test drives, dealt by hand
+	dream.redeal(order)
+	dream.room_entered.connect(func(id: String) -> void: entered.append(id))
+	check(dream.rooms_tonight() == order and dream.current_room_id() == "tutorial" and dream.room.id == "tutorial" and entered.is_empty(), "the tutorial, a, b and the bed dealt by hand: the tutorial is the room in play")
 	var tutorial_words: Dictionary = dream.room_words("tutorial")
 	check(dream.room_label.text == str(rooms_json.label).format({"name": tutorial_words.name}) and dream.room_label.text == str(tutorial_words.name) and dream.hint_text() == str(tutorial_words.hint) and dream.hint_text().contains("Pinch"), "the room label reads '%s'; its hint is in the dev bar: '%s'" % [dream.room_label.text, dream.hint_text()])
 	check(dreamer.collision_layer == 16 and dreamer.collision_mask == 9, "asleep the dreamer is on layer 16 and masks bounds and net (1 | 8 = %d)" % dreamer.collision_mask)
@@ -249,17 +248,19 @@ func _ready() -> void:
 	Input.action_release("pinch")
 	Input.action_release("move_right")
 
-	# (7) Night 2: no tutorial.
+	# (7) Night 2 (SPEC-2): a target chosen at the wall deals its branch.
 	remove_child(dream)
 	dream.queue_free()
 	await get_tree().physics_frame
 	state = PinchState.new()
 	state.day = 2
+	state.set_flag("talked:jorun")
+	state.target = "jorun"
 	dream = DREAM.instantiate()
 	dream.state = state
 	add_child(dream)
 	await get_tree().physics_frame
-	check(dream.rooms_tonight() == night2 and dream.current_room_id() == night2[0] and dream.current_room_id() != "tutorial", "night 2 opens on %s, the seeded order %s" % [dream.current_room_id(), dream.rooms_tonight()])
+	check(dream.rooms_tonight() == ["hub", "a", "c", "goal_jorun"] and dream.current_room_id() == "hub" and dream.hub_signs() == {"left": "", "right": "jorun"}, "night 2 with the target Jorun opens on the hub, his branch dealt: %s; the one sign is his" % [dream.rooms_tonight()])
 
 	print("RESULT: %d failure(s)" % failures)
 	get_tree().quit(0 if failures == 0 else 1)

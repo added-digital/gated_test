@@ -22,7 +22,10 @@ extends CharacterBody2D
 ## the pieces wobble, pinched they sit still; while the top one is "in
 ## hand" (the two seconds after a grab, counted double by the dream) it
 ## is offset to the side. `facing` is the last way the body was pushed,
-## for the dream's set-down.
+## for the dream's set-down. The hip stack (SPEC-2, day A): one small
+## white rect per scrap carried, HIP_PIECE each, piled beside the hip (not
+## on the hat; scraps are small); set_hip(count) draws it, hip_count()
+## reads it. Drawn only: nothing of the physics changes.
 ##
 ## The feel (day 5), drawn only, every number a constant below: the body
 ## rect squashes (SQUASH) for SQUASH_FRAMES after a pinched landing and
@@ -63,6 +66,9 @@ const HAT_GAP := 2.0                 # px between pieces
 const HAND_OFFSET := 20.0            # px the in-hand piece sits to the side
 const WOBBLE := 3.0                  # px the pieces sway asleep
 const BODY_SIZE := Vector2(28, 56)
+const HIP_PIECE := Vector2(12, 8)    # px: one scrap at the hip
+const HIP_GAP := 2.0
+const HIP_SIDE := 6.0                # px between the body's side and the hip stack
 const SQUASH := Vector2(1.2, 0.8)    # the body's scale for SQUASH_FRAMES after a pinched landing
 const STRETCH := Vector2(0.8, 1.2)   # ... and for as long at the start of a jump
 const SQUASH_FRAMES := 6
@@ -75,6 +81,8 @@ const CRISP := Color(0.88, 0.88, 0.88)
 
 @onready var body: ColorRect = $Body
 @onready var hat: Node2D = $Hat
+
+var hip: Node2D = null       # the scraps carried, one small rect each, beside the hip
 
 var pinched := false
 var frozen := false          # during the dream's blink: no physics, not drawn
@@ -96,6 +104,9 @@ func _ready() -> void:
 	collision_mask = MASK_ASLEEP
 	body.pivot_offset = Vector2(BODY_SIZE.x / 2.0, BODY_SIZE.y)   # scaled about the feet
 	_drop_from = position.y
+	hip = Node2D.new()
+	hip.name = "Hip"
+	add_child(hip)
 
 
 func _physics_process(delta: float) -> void:
@@ -141,6 +152,7 @@ func _physics_process(delta: float) -> void:
 					carry += area.carry(position)
 		velocity = Vector2(axis * DRIFT_SPEED, 0.0) + carry
 	_place_hat()
+	_place_hip()
 	var was_on_floor := is_on_floor()
 	var y_before := position.y
 	move_and_slide()
@@ -240,6 +252,25 @@ func hat_count() -> int:
 	return hat.get_child_count()
 
 
+## The hip stack: one small rect per scrap carried, piled up the body's
+## side opposite to where it faces (the hand is on the facing side).
+func set_hip(count: int) -> void:
+	for piece in hip.get_children():
+		hip.remove_child(piece)
+		piece.queue_free()
+	for i in count:
+		var piece := ColorRect.new()
+		piece.color = Color.WHITE
+		piece.size = HIP_PIECE
+		piece.position = Vector2(0.0, 8.0 - (i + 1) * (HIP_PIECE.y + HIP_GAP))   # the first just above the hip, the rest up the side
+		hip.add_child(piece)
+	_place_hip()
+
+
+func hip_count() -> int:
+	return hip.get_child_count()
+
+
 ## px from the head to the top of the pile: 24 per idea carried.
 func hat_height() -> float:
 	return hat_count() * HAT_PIECE.y
@@ -249,6 +280,12 @@ func hat_height() -> float:
 func hat_top_offset() -> float:
 	var count := hat_count()
 	return 0.0 if count == 0 else hat.get_child(count - 1).position.x + HAT_PIECE.x / 2.0
+
+
+## The hip stack sits on the side the body does not face, following the bob.
+func _place_hip() -> void:
+	var side := -facing
+	hip.position = Vector2(side * (BODY_SIZE.x / 2.0 + HIP_SIDE) - (HIP_PIECE.x if side < 0 else 0.0), body.position.y + BODY_SIZE.y / 2.0)
 
 
 ## The pile follows the head (the body bobs asleep); each piece sways asleep

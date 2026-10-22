@@ -28,8 +28,12 @@ extends Node2D
 ## places Bo's Big Needle with Bo; night 4 (slept_4) has the limit back at
 ## 8; day 5: the loft stands, Bo's "Hold still." line, carry_limit 3;
 ## night 5: a third grab allowed, three on the hat; (7) the summary lists
-## the milestones. Prints PASS/FAIL per check and quits with 0 only if
-## every check passes.
+## the milestones. SPEC-2 (day A): the branch dealer deals no bed room, so
+## the bed room is dealt by hand (bed_room) wherever this test jumped to
+## it, with no exit (the deck's early bed is gone); once Jorun has been
+## talked to the bunk needs a target, so day 2 chooses his dream at the
+## wall before bed (the target then stays); ideas.json holds eight ideas.
+## Prints PASS/FAIL per check and quits with 0 only if every check passes.
 
 const DREAM := preload("res://prototypes/pinch/dream.tscn")
 const TOY := preload("res://prototypes/pinch/pinch.tscn")
@@ -139,7 +143,7 @@ func _ready() -> void:
 	dream = toy.dream
 	check(frames < WALK_FRAMES and dream != null and harness.summary().contains("slept_1"), "night 1: asleep")
 	hook(dream)
-	check(dream.jump_to_room("bed"), "(jumped to the bed room)")
+	check(bed_room(dream), "(the bed room, dealt by hand)")
 	dream.place_idea("sixteen_stairs", Vector2(300, 588))
 	Input.action_press("pinch")
 	await settle()
@@ -227,6 +231,14 @@ func _ready() -> void:
 	check(panel.say_label.text == str(jorun.greeting), "then the greeting: '%s'" % panel.say_label.text)
 
 	# (2) Night 2, gentle and empty; day 3: the building stands.
+	# SPEC-2: Jorun has been talked to, so the bunk wants a target: his dream, chosen at the wall.
+	frames = await walk_walker_to(village, village.WALL_X)
+	await press_key(KEY_E)
+	await get_tree().process_frame
+	check(frames < WALK_FRAMES and village.picking_target and panel.choice_box.get_child_count() == 1, "SPEC-2: E at the wall: the picker with Jorun's branch alone")
+	await press_key(KEY_1)
+	await get_tree().process_frame
+	check(state.target == "jorun" and not village.picking_target, "1: tonight is Jorun's dream")
 	frames = await walk_walker_to(village, village.BUNK.get_center().x)
 	await get_tree().process_frame
 	check(frames < WALK_FRAMES and village.prompt_label.text == str(words.sleep_prompt), "at the bunk: '%s' (no pills yet)" % village.prompt_label.text)
@@ -291,7 +303,7 @@ func _ready() -> void:
 	for i in 5:
 		dream.fall()
 	check(dream.effective() == 5 and is_equal_approx(dream.aperture(), 0.5) and dream.gauge_band() == "light" and not dream.closing, "five falls: effective 5 of 10, aperture 0.5, light")
-	check(dream.jump_to_room("bed") and dream.room.exit != null, "(day 3: the bed is dealt early, with an exit; jumped there)")
+	check(bed_room(dream) and dream.room.exit == null, "(the bed room by hand, no exit: SPEC-2 deals no early bed)")
 	dream.place_idea("bos_big_needle", Vector2(300, 588))
 	Input.action_press("pinch")
 	await settle()
@@ -323,8 +335,8 @@ func _ready() -> void:
 	dream = toy.dream
 	check(dream != null and harness.summary().contains("slept_4") and dream.limit() == 8 and is_equal_approx(dream.gauge_height(), 128.0), "night 4 (slept_4): no pill, the limit back to 8, the gauge 128 px")
 	hook(dream)
-	check(dream.ideas_pool().size() == 3 and not dream.ideas_pool().has("spoon") and not dream.ideas_pool().has("sixteen_stairs") and not dream.ideas_pool().has("bos_big_needle"), "the pool is the three ideas not kept, claimed, built or small: %s" % [dream.ideas_pool()])
-	check(dream.jump_to_room("bed"), "(the bed room)")
+	check(dream.ideas_pool().size() == 5 and not dream.ideas_pool().has("spoon") and not dream.ideas_pool().has("sixteen_stairs") and not dream.ideas_pool().has("bos_big_needle"), "the pool is the five ideas not kept, claimed, built or small (SPEC-2 added two): %s" % [dream.ideas_pool()])
+	check(bed_room(dream), "(the bed room)")
 	await sleep_in_bed(dream)
 	village = await new_village()
 	check(state.day == 5 and state.ideas_built.get("bos_loft", "") == "bos_big_needle" and village.plot_state("bos_loft") == "built" and village.lit_tiles() == 5, "day 5: Bo's loft stands; 5 tiles lit")
@@ -342,7 +354,7 @@ func _ready() -> void:
 	check(frames < WALK_FRAMES and dream != null and harness.summary().contains("slept_5"), "night 5")
 	hook(dream)
 	check(dream.ideas_label.text == str(gauge_words.ideas).format({"n": 0, "limit": 3}), "the gauge reads '%s'" % dream.ideas_label.text)
-	check(dream.jump_to_room("bed"), "(the bed room)")
+	check(bed_room(dream), "(the bed room)")
 	var three: Array = dream.ideas_pool()
 	for i in 3:
 		dream.place_idea(three[i], Vector2(300 + i * 100, 588))
@@ -400,10 +412,16 @@ func new_village() -> Node2D:
 	return village
 
 
+## The bed room, dealt by hand (SPEC-2: the night no longer deals it); true once in it.
+func bed_room(dream: Node2D) -> bool:
+	if dream.current_room_id() != "bed":
+		dream.redeal(["bed"] as Array[String])
+	return dream.current_room_id() == "bed"
+
+
 ## Pinched, walk to the bed room's bed and lie down: a gentle waking.
 func sleep_in_bed(dream: Node2D) -> void:
-	if dream.current_room_id() != "bed":
-		dream.jump_to_room("bed")
+	bed_room(dream)
 	Input.action_press("pinch")
 	await settle()
 	var frames := await hold_until("move_right", func() -> bool: return dream.bed_in_reach(), 400)

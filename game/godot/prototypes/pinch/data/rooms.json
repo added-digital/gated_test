@@ -22,7 +22,12 @@
     "ladder_sign": "you don't know this story yet",
     "draft": "a draft",
     "shelf": "a shelf",
-    "perch": "a perch"
+    "perch": "a perch",
+    "sign_left": "← {name}",
+    "sign_right": "{name} →",
+    "snore": "z z z",
+    "asleep": "{name}, asleep",
+    "scrap": "a thought"
   },
   "rooms": [
     {
@@ -69,6 +74,27 @@
       "id": "bed",
       "name": "Your bed",
       "hint": "E at the bed: wake gently with everything. Dealt early, the exit past it is the bet."
+    },
+    {
+      "id": "hub",
+      "name": "The Long House, below",
+      "hint": "Two ways down; the signs say whose dream lies each way. Pinch, and walk into one."
+    },
+    {
+      "id": "goal_tove",
+      "name": "Tove's room",
+      "hint": "Tove sleeps here. E at the idea, pinched: the night ends with it and every thought."
+    },
+    {
+      "id": "goal_jorun",
+      "name": "Jorun's room",
+      "hint": "Jorun sleeps here. E at the idea, pinched: the night ends with it and every thought."
+    },
+    {
+      "id": "goal_bo",
+      "name": "Bo's room",
+      "hint": "Bo sleeps here. E at the idea, pinched: the night ends with it and every thought."
     }
-  ]
+  ],
+  "label_whose": "{name} · {whose}'s dream"
 }
