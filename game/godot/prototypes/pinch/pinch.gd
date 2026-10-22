@@ -1,31 +1,28 @@
 extends Node
-## Toy 4, PINCH (rung 3): the controller. Holds the one PinchState and the
-## harness, shows the village by day and the dream by night, and handles
-## waking: sudden keeps one idea (a picker when two or more were carried,
-## shown only once the dream's frame has been shut its SHUT seconds, since
-## woke fires after that) and marks the tally; the rest float over the
-## bunk and fade (the village draws them). Gentle keeps all. Then the day
-## moves on (state.new_day: the ideas claimed at yesterday's breakfast are
-## standing, milestone built:<plot>; the pill has worn off) and the village
-## comes back with the kept ideas on the table, the wake line first and
-## then whatever the morning brings (a request, breakfast: village.gd);
-## the plots raised this morning are handed over so their windows fade in.
-## The village's doings (talk:<who>, told, told_wrong, made, pill, the
-## breakfast) go to the harness here. Every word the player reads comes
-## from data/village.json, data/characters.json and data/ideas.json;
-## rewrite those, not this.
-##
-## The second loop (SPEC-2, day A): the dream's reached(who, idea) marks
-## the villager's branch reached (state.reach: the idea is kept, the wall
-## names it; milestones reached:<who>, kept:<idea>) and its woke(false)
-## follows at once. Scraps come up with the ideas: the dream's
-## scraps_carried is read at the woke signal; gentle wakings (the bed, the
-## idea reached, the self-pinch: milestone self_pinch, not on the tally)
-## keep every one (state.keep_scrap); a sudden waking keeps ONE thing of
-## everything carried, ideas and scraps together, through the picker
-## (names from data/ideas.json and data/scraps.json), and the rest fade
-## over the bunk. The wake line names what happened (village.json
-## wake_reached, wake_self, wake_sudden_scrap).
+## Toy 4b, PINCH (rung 3, the second loop): the controller. Holds the one
+## PinchState and the harness, shows the village by day and the dream by
+## night, and handles waking. The dream's reached(who, idea) marks the
+## villager's branch reached (state.reach: the idea is kept for the Desk,
+## the wall names it; milestones reached:<who>, kept:<idea>) and its
+## woke(false, scraps) follows at once. Gentle wakings (the idea reached,
+## the self-pinch: milestone self_pinch, not on the tally; the first
+## loop's bed, dealt by hand) keep every scrap (state.keep_scrap, up to
+## the state's cap: the rest are lost); a sudden waking marks the tally
+## and keeps ONE scrap through the picker when two or more were carried
+## (names from data/scraps.json; shown only once the dream's frame has
+## been shut its SHUT seconds, since woke fires after that), and the rest
+## fade over the bunk (the village draws them). Then the day moves on
+## (state.new_day: the ideas developed at yesterday's Desk are standing,
+## milestone built:<plot>) and the village comes back with the wake line
+## first (village.json wake_reached, wake_self, wake_gentle,
+## wake_sudden_scrap, wake_sudden_none) and then whatever the morning
+## brings (a request, the Desk: village.gd); the plots raised this
+## morning are handed over so their windows fade in. The village's doings
+## (talk:<who>, target, desk, fit, fumble, desk_full / desk_weak /
+## desk_reveal: milestones desk_full:<idea>, desk_weak:<idea>,
+## desk_reveal:<who>) go to the harness here. Every word the player reads
+## comes from data/village.json, data/characters.json, data/ideas.json
+## and data/scraps.json; rewrite those, not this.
 
 const VILLAGE := preload("res://prototypes/pinch/village.tscn")
 const DREAM := preload("res://prototypes/pinch/dream.tscn")
@@ -80,7 +77,7 @@ func scrap_name(shape: String) -> String:
 	return shape
 
 
-## The name of a thing carried: an idea's, or a scrap's ("scrap:<shape>").
+## The name of a thing carried up: a scrap's ("scrap:<shape>"), or an idea's.
 func thing_name(id: String) -> String:
 	if id.begins_with("scrap:"):
 		return scrap_name(id.substr(6))
@@ -112,7 +109,7 @@ func _show_dream() -> void:
 
 
 func _on_slept() -> void:
-	harness.action("sleep", "pill" if state.pill_tonight else "")
+	harness.action("sleep", "")
 	harness.milestone("slept_%d" % state.day)
 	remove_child(village)   # out of the tree now, so its ground leaves the physics space before the dreamer's first step
 	village.queue_free()
@@ -123,9 +120,7 @@ func _on_slept() -> void:
 
 func _on_acted(kind: String, detail: String) -> void:
 	harness.action(kind, detail)
-	if kind == "grab":
-		harness.milestone("grabbed")
-	elif kind == "grab_scrap":
+	if kind == "grab_scrap":
 		harness.milestone("grabbed_scrap")
 	elif kind == "self_pinch":
 		_self_pinched = true
@@ -143,23 +138,24 @@ func _on_reached(who: String, idea: String) -> void:
 	harness.milestone("kept:%s" % idea)
 
 
-## What the village reports by day: a telling is a milestone, the rest are actions.
+## What the village reports by day: the Desk's developments and reveals
+## are milestones, the rest are actions.
 func _on_village_acted(kind: String, detail: String) -> void:
 	match kind:
-		"told":
-			harness.action("told", detail)
-			harness.milestone("told:%s" % detail)
 		"talk":
 			harness.action("talk:%s" % detail)
+		"desk_full", "desk_weak", "desk_reveal":
+			harness.action(kind, detail)
+			harness.milestone("%s:%s" % [kind, detail])
 		_:
 			harness.action(kind, detail)
 
 
-## Waking: sudden keeps one (the player picks when two or more were carried)
-## and marks the wall; gentle keeps all. Then the next day.
-func _on_woke(sudden: bool, carried: Array) -> void:
-	var things: Array = carried.duplicate()   # the ideas, then the scraps as scrap:<shape>
-	for shape in dream.scraps_carried:
+## Waking: sudden keeps one scrap (the player picks when two or more were
+## carried) and marks the wall; gentle keeps all. Then the next day.
+func _on_woke(sudden: bool, scraps: Array) -> void:
+	var things: Array = []   # the scraps as scrap:<shape>
+	for shape in scraps:
 		things.append("scrap:%s" % shape)
 	remove_child(dream)   # out of the tree now, so its room leaves the physics space before the walker's first step
 	dream.queue_free()
@@ -178,23 +174,21 @@ func _on_woke(sudden: bool, carried: Array) -> void:
 			keep = [await _pick_one(things)]
 			line = ""
 		elif things.size() == 1:
-			line = str(words.get("wake_sudden_scrap" if str(things[0]).begins_with("scrap:") else "wake_sudden_one", ""))
+			line = str(words.get("wake_sudden_scrap", ""))
 		else:
 			line = str(words.get("wake_sudden_none", ""))
 	var lost: Array = []
 	for id in things:
-		if keep.has(id):
-			continue
-		lost.append(id)
-		harness.action("lost", id)
+		if not keep.has(id):
+			lost.append(id)
 	for id in keep:
-		if str(id).begins_with("scrap:"):
-			state.keep_scrap(str(id).substr(6))
-			harness.action("keep_scrap", str(id).substr(6))
+		var shape := str(id).substr(6)
+		if state.keep_scrap(shape):
+			harness.action("keep_scrap", shape)
 		else:
-			state.keep(id)
-			harness.milestone("kept:%s" % id)
-	state.ideas_carried.clear()
+			lost.append(id)   # past the state's cap: it falls back into the dream
+	for id in lost:
+		harness.action("lost", id)
 	state.scraps_carried.clear()
 	var raised: Array[String] = state.new_day()
 	for plot in raised:
@@ -206,8 +200,7 @@ func _on_woke(sudden: bool, carried: Array) -> void:
 		village.fade_lost(lost)
 
 
-## The keep-one picker: the things carried (ideas, scraps) as numbered
-## choices; returns the id kept.
+## The keep-one picker: the scraps carried as numbered choices; returns the id kept.
 func _pick_one(carried: Array) -> String:
 	picking = true
 	panel.say(str(words.get("wake_sudden", "")))

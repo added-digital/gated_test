@@ -1,42 +1,40 @@
 extends Node2D
-## The readability pass of toy 4, PINCH, headless: what the designer's GPU
+## The readability pass of toy 4b, PINCH, headless: what the designer's GPU
 ## screenshots asked for. The dream (dream.tscn alone) and the village
 ## (village.tscn alone) are driven through the input actions and their own
 ## API; labels, rects and texts are read back. Sections: (A) the dev bar in
 ## the dream: a layer over the frame along the bottom, on by default,
-## devbar_text() for asleep, asleep in a current, pinched by an idea, with
-## an idea to set down, near the exit, at the bed, by the block, over a
-## quiet spot; the room's hint in its right half (full for 4 s, faded by
-## 5), the room's name alone at the top left, the controls line gone; Tab
+## devbar_text() for asleep, asleep in a current, pinched by a thought,
+## with a thought to set down, near the exit, at the bed, by the block,
+## over a quiet spot asleep (the wonder) and pinched (the hold, no wonder:
+## day B); the room's hint in its right half (full for 4 s, faded by 5),
+## the room's name alone at the top left, the controls line gone; Tab
 ## hides it, the state remembers, the next night starts hidden, Tab shows
 ## it; the gauge above the strip; (B) the door's word left of the door,
-## never on a line with a gauge label at the limit 8 or 10; (C) every
-## Label in every room scene, the dream and the village has autowrap or
-## fits its box and sits inside its screen; every hint in rooms.json is
-## under 18 words and wraps to at most two lines of the bar; (D) the
-## breakfast want lines at three distinct heights (the left face lowest,
-## the right highest, 22 px apart), no two rects overlapping, a leader from
-## each down to its head, a backing behind each, the "table" word hidden
-## while breakfast is on, the faces' names on their bodies; (E) Bo's want
-## is his "moved" line once his loft stands, on the street and at the
-## table, Jorun's still his want; (F) the frame rects have whole-pixel
-## positions and sizes and the side rects overlap the top and bottom by
-## 1 px; (G) a claim is two say lines, the owner's first, the idea's own
-## 1.5 s later; (H) the goat's word sits above its body, clear of a rider
-## with a full hat; (I) the looks: soft things pale with a dashed edge,
-## spots a pulsing ring (0.95..1.05 over 2 s), currents 3 to 5 arrows
-## drifting 40 px/s along the flow and wrapping inside the box, hazards
-## hatched, crisp boxes plain; (J) an idea's name above its box on a
-## backing with a leader, kept inside the room by a wall; (K) the bed's
+## never on a line with a gauge label at the limit 8 or 10 (the pill);
+## (C) every Label in every room scene, the dream and the village (a full
+## street: a building, the jar, the lantern, three named branches on the
+## wall, the Desk on) has autowrap or fits its box and sits inside its
+## screen; every hint in rooms.json is under 18 words and wraps to at most
+## two lines of the bar; (D) the Desk's labels (the outline's name, the
+## cards' numbers, the light's word) and the wall's never overlap one
+## another, and the Desk sits inside the Long House; (F) the frame rects
+## have whole-pixel positions and sizes and the side rects overlap the top
+## and bottom by 1 px; (G) a development is two say lines, the desk's
+## first, the idea's own 1.5 s later; (H) the goat's word sits above its
+## body, clear of a rider; (I) the looks: soft things pale with a dashed
+## edge, spots a pulsing ring (0.95..1.05 over 2 s), currents 3 to 5
+## arrows drifting 40 px/s along the flow and wrapping inside the box,
+## hazards hatched, crisp boxes plain; (J) an idea's name above its box on
+## a backing with a leader, kept inside the room by a wall; (K) the bed's
 ## and the block's words above them; (L) the lantern labelled once; (M)
-## the dev bar on the street: walk, talk, sleep, a pill, make, breakfast;
-## Tab there too, and the choice carried into the dream. SPEC-2 (day A):
-## the night opens on the hub now, so (A) deals the tutorial, a and the
-## bed by hand and places the tutorial's idea by hand; a pinched line of
-## the dev bar ends with the self-pinch's hold (devbar.json self_pinch,
-## the seconds left counting) on every floor outside a quiet spot;
-## rooms.json holds 13 rooms (the hub and three goal rooms joined). Prints
-## PASS/FAIL per check and quits with 0 only if every check passes.
+## the dev bar on the street: the Desk's lines, walk, talk, sleep (no
+## pill); Tab there too, and the choice carried into the dream. Day B:
+## the breakfast want lines and the claim's two lines went with
+## breakfast, so (D), (E) and (G) read the Desk instead; the first loop's
+## rooms are dealt by hand with a thought placed by hand where the dealer
+## laid its idea. Prints PASS/FAIL per check and quits with 0 only if every
+## check passes.
 
 const DREAM := preload("res://prototypes/pinch/dream.tscn")
 const VILLAGE := preload("res://prototypes/pinch/village.tscn")
@@ -81,7 +79,7 @@ func _ready() -> void:
 	# ---------------------------------------------------------------- (A) the dev bar in the dream
 	await fresh(1)
 	dream.redeal(["tutorial", "a", "bed"] as Array[String], false)   # SPEC-2: the night opens on the hub; the tutorial by hand, as before
-	dream.place_idea(dream.ideas_pool()[0], Vector2(60, 588))        # where the first loop's dealer laid its idea
+	dream.place_scrap("round", Vector2(60, 556))                     # a thought by hand, over where the first loop's dealer laid its idea
 	await get_tree().physics_frame
 	var bar: CanvasLayer = dream.devbar
 	check(bar != null and bar.layer > dream.frame_top.get_parent().layer and bar.layer < 10, "the dev bar is its own layer (%d) over the frame's (%d), under the text panel" % [bar.layer, dream.frame_top.get_parent().layer])
@@ -96,12 +94,12 @@ func _ready() -> void:
 	var frames := await hold_until("move_right", func() -> bool: return not dreamer.carried_by.is_empty(), 600)
 	check(frames < 600 and not dreamer.pinched and dream.devbar_text() == sep.join([str(dw.asleep), str(dw.current)]), "asleep in the current: '%s'" % dream.devbar_text())
 	Input.action_press("pinch")
-	dreamer.respawn(Vector2(138, 572))   # 40 px from the tutorial's idea, as the ideas test stands
+	dreamer.respawn(Vector2(126, 572))   # 40 px from the thought's box
 	await settle()
-	check(dreamer.pinched and dreamer.is_on_floor() and dream.idea_in_reach() != null and dream.devbar_text() == sep.join([str(dw.pinched), str(dw.grab), hold_line()]), "pinched on the floor by an idea: '%s'" % dream.devbar_text())
-	check(dream.grab() and dream.carried.size() == 1, "(took it)")
+	check(dreamer.pinched and dreamer.is_on_floor() and dream.scrap_in_reach() != null and dream.devbar_text() == sep.join([str(dw.pinched), str(dw.scrap), hold_line()]), "pinched on the floor by a thought: '%s'" % dream.devbar_text())
+	check(dream.grab_scrap() and dream.scraps_carried.size() == 1, "(took it)")
 	await settle()
-	check(dream.devbar_text() == sep.join([str(dw.pinched), str(dw.set_down), hold_line()]), "an idea under the hat, on the floor: '%s'" % dream.devbar_text())
+	check(dream.devbar_text() == sep.join([str(dw.pinched), str(dw.set_down_scrap), hold_line()]), "a thought at the hip, on the floor: '%s'" % dream.devbar_text())
 	dreamer.respawn(Vector2(980, 572))   # on the far floor, short of the exit zone (x 1040)
 	await settle()
 	check(dream.current_room_id() == "tutorial" and dream.exit_near() and dream.devbar_text().begins_with(str(dw.pinched)) and dream.devbar_text().ends_with(str(dw.exit)), "near the exit, not in it: '%s'" % dream.devbar_text())
@@ -115,12 +113,15 @@ func _ready() -> void:
 	Input.action_press("pinch")
 	dreamer.respawn(Vector2(940, 572))
 	await settle()
-	check(dreamer.pinched and dreamer.is_on_floor() and dream.block_in_reach() and not dream.bed_in_reach() and dream.devbar_text() == sep.join([str(dw.pinched), str(dw.set_down), str(dw.push), hold_line()]), "pinched by the block: '%s'" % dream.devbar_text())
+	check(dreamer.pinched and dreamer.is_on_floor() and dream.block_in_reach() and not dream.bed_in_reach() and dream.devbar_text() == sep.join([str(dw.pinched), str(dw.set_down_scrap), str(dw.push), hold_line()]), "pinched by the block: '%s'" % dream.devbar_text())
 	check(dream.force(), "(pushed it)")
 	await get_tree().physics_frame
-	check(dream.devbar_text() == sep.join([str(dw.pinched), str(dw.set_down), hold_line()]), "pushed once, the push is gone: '%s'" % dream.devbar_text())
+	check(dream.devbar_text() == sep.join([str(dw.pinched), str(dw.set_down_scrap), hold_line()]), "pushed once, the push is gone: '%s'" % dream.devbar_text())
+	dreamer.respawn(Vector2(320, 572))   # inside the bed room's quiet spot, on the floor
+	await settle()
+	check(dreamer.pinched and dream.spot_in_reach() != null and dream.devbar_text() == sep.join([str(dw.pinched), str(dw.set_down_scrap), hold_line()]) and dream.hold_seconds() > 0.1, "pinched and still in a quiet spot: the hold counts (%.1f s), no wonder is offered: '%s'" % [dream.hold_seconds(), dream.devbar_text()])
 	Input.action_release("pinch")
-	dreamer.respawn(Vector2(320, 540))   # inside the bed room's quiet spot
+	dreamer.respawn(Vector2(320, 540))   # inside the spot, hanging
 	await settle()
 	check(not dreamer.pinched and dream.spot_in_reach() != null and dream.devbar_text() == sep.join([str(dw.asleep), str(dw.wonder)]), "over a quiet spot, asleep: '%s'" % dream.devbar_text())
 	check(not acts.has(["devbar", "off"]), "(no toggle yet)")
@@ -149,7 +150,7 @@ func _ready() -> void:
 		var door_label: Label = dream.room.door_label
 		check(dream.limit() == limit and door_label.text == str(words.door) and door_rect.end.x <= door_at.x - 14.0 and door_rect.position.y >= door_at.y + 28.0 and door_rect.position.x >= 0.0, "limit %d: the door's word '%s' sits left of the door, under the body's feet: %s (the door at %s)" % [limit, door_label.text, door_rect, door_at])
 		var shared := []
-		for label in [dream.gauge_labels.deep, dream.gauge_labels.light, dream.gauge_labels.waking, dream.ideas_label]:
+		for label in [dream.gauge_labels.deep, dream.gauge_labels.light, dream.gauge_labels.waking, dream.scraps_label]:
 			var rect := Rect2(dream.GAUGE_AT + label.position, label.size)
 			if rect.intersects(door_rect):
 				shared.append(label.text)
@@ -171,7 +172,7 @@ func _ready() -> void:
 	for i in 3:
 		await get_tree().physics_frame
 	var dream_bad := labels_that_do_not_fit(dream, SCREEN)
-	check(dream_bad.is_empty(), "the dream's own labels (the room's name, the gauge, the dev bar, the idea) fit %s" % [dream_bad])
+	check(dream_bad.is_empty(), "the dream's own labels (the room's name, the gauge, the dev bar, the thoughts) fit %s" % [dream_bad])
 	var hint_bad := []
 	for entry in rooms_json.rooms:
 		var hint := str(entry.hint)
@@ -184,73 +185,52 @@ func _ready() -> void:
 	check(hint_bad.is_empty() and rooms_json.rooms.size() == 13, "every hint in rooms.json (13 rooms: SPEC-2 added the hub and three goal rooms) is under %d words and wraps to at most two lines of the bar %s" % [MAX_HINT_WORDS, hint_bad])
 	await free_dream()
 	var full := PinchState.new()
-	full.day = 3
+	full.day = 4
 	full.tally = 3
+	for who in ["tove", "jorun", "bo"]:
+		full.set_flag("talked:%s" % who)
+	full.target = "tove"
 	full.ideas_built["sixteen_stairs"] = "sixteen_stairs"
-	full.ideas_claimed["bos_loft"] = "bos_big_needle"
-	full.small_things.assign(["spoon", "door_boat", "window_yesterday"])
-	full.ideas_kept.assign(["smell_of_bread"])
+	full.pill_bonus = 2
+	full.lantern = true
+	full.reach("tove", "lantern")
+	full.scraps.assign(["long", "round", "square", "long", "round"])
 	var village: Node2D = await new_village(full)
-	check(village.breakfast_on and village.seats.size() == 3 and village.table_idea_ids() == ["smell_of_bread"], "(a full street: a building, a scaffold, three small things, breakfast on)")
+	check(village.desk_on and village.desk.slots.size() == 5 and village.desk.cards.size() == 5 and village.thing_node("pills") != null and village.thing_node("lantern") != null and village.wall.shown_branches().size() == 3, "(a full street: a building, the jar, the lantern, three branches named on the wall, the Desk on with five slots and five cards)")
 	var village_bad := labels_that_do_not_fit(village, STREET)
 	var village_n: int = village.find_children("*", "Label", true, false).size()
 	check(village_bad.is_empty() and village_n >= 20, "the village: all %d labels have autowrap or fit their box inside the street %s" % [village_n, village_bad])
 
-	# ---------------------------------------------------------------- (D) the breakfast want lines
-	var seat_ids: Array = ["tove", "jorun", "bo"]
-	var want_rects: Array[Rect2] = []
-	var backing_rects: Array[Rect2] = []
-	var ys: Array[float] = []
-	for who in seat_ids:
-		var seat: Node2D = village.seats[who]
-		var want: Label = seat.get_node("Want")
-		want_rects.append(want.get_global_rect())
-		backing_rects.append(Rect2(want.get_global_position() + want.get_node("Backing").position, want.get_node("Backing").size))
-		ys.append(want.get_global_position().y)
-	check(want_rects[0].position.x < want_rects[1].position.x and want_rects[1].position.x < want_rects[2].position.x, "the three faces sit left to right: Tove, Jorun, Bo")
-	check(ys[0] > ys[1] and ys[1] > ys[2] and is_equal_approx(ys[0] - ys[1], 22.0) and is_equal_approx(ys[1] - ys[2], 22.0), "their want lines sit at three heights, the left lowest, the right highest, 22 px apart: y %.0f, %.0f, %.0f" % [ys[0], ys[1], ys[2]])
-	var overlap := false
-	for i in 3:
-		for j in 3:
-			if i != j and (want_rects[i].intersects(want_rects[j]) or backing_rects[i].intersects(backing_rects[j])):
-				overlap = true
-	check(not overlap, "no two want lines (nor their backings) overlap: %s" % [want_rects])
-	var leaders_ok := true
-	var fits_ok := true
-	for who in seat_ids:
-		var seat: Node2D = village.seats[who]
-		var want: Label = seat.get_node("Want")
-		var leader: ColorRect = seat.get_node_or_null("Leader")
-		leaders_ok = leaders_ok and leader != null and is_equal_approx(leader.position.y, want.position.y + want.size.y) and is_equal_approx(leader.position.y + leader.size.y, -village.CAPSULE.y) and absf(leader.position.x) < 1.0
-		fits_ok = fits_ok and want.visible and want.has_node("Backing") and PinchLabel.text_width(want) <= village.WANT_WIDTH and want.get_line_count() == 1
-	check(leaders_ok, "each want line has a leader from its bottom straight down to its face's head")
-	check(fits_ok, "each want line is one line on a backing")
-	var names_ok := true
-	for who in seat_ids:
-		var name_label: Label = village.seats[who].get_node("Name")
-		names_ok = names_ok and name_label.position.y >= -village.CAPSULE.y and name_label.position.y + name_label.size.y <= 0.0
-	check(names_ok, "at the table a face's name sits on its body, under the pieces on the table")
-	check(not village.table_label.visible and village.table_label.text == str(village_json.markers.table), "the 'table' word is hidden while breakfast is on")
-	for piece in village.table_ideas.get_children():
-		check(not piece.get_node("Name").visible and village.hand.get_child(0).get_node("Name").visible, "the table's piece names are hidden at breakfast; the hand's shows")
-	var walk_away := await walk_walker_to(village, village.BUNK.get_center().x)
-	check(walk_away < WALK_FRAMES and not village.breakfast_on and village.table_label.visible, "walked away: breakfast over, the 'table' word back")
-
-	# ---------------------------------------------------------------- (E) Bo's want after his loft stands
-	var bo: Dictionary = person("bo")
-	var jorun: Dictionary = person("jorun")
-	var want_format: String = str(people_json.want_line)
-	check(village.people.bo.get_node("Want").text == want_format.format({"name": bo.name, "want": bo.want}), "Bo's want while his plot waits: '%s'" % village.people.bo.get_node("Want").text)
-	full.ideas_built["bos_loft"] = "bos_big_needle"
-	full.ideas_claimed.clear()
-	village.refresh()
-	var bo_want: String = village.people.bo.get_node("Want").text
-	check(bo_want == want_format.format({"name": bo.name, "want": bo.moved}) and not bo_want.contains(str(bo.want)) and str(bo.moved) != "", "his loft stands: his want is absent and his moved line shows: '%s'" % bo_want)
-	check(village.people.jorun.get_node("Want").text == want_format.format({"name": jorun.name, "want": jorun.moved}), "Jorun's too (Sixteen Stairs stands): '%s'" % village.people.jorun.get_node("Want").text)
-	full.ideas_kept.assign(["window_yesterday"])
-	village.start_breakfast()
-	check(village.breakfast_on and village.seats.bo.get_node("Want").text == bo_want and village.seats.tove.get_node("Want").text == want_format.format({"name": person("tove").name, "want": person("tove").want}), "at the table the same: Bo's moved line, Tove's want")
-	village.end_breakfast("skipped")
+	# ---------------------------------------------------------------- (D) the Desk's labels, and the wall's
+	var desk: Node2D = village.desk
+	var long_house: Rect2 = village.plot_rect("long_house")
+	check(long_house.encloses(desk.rect()), "the Desk (the window, the outline, the cards: %s) sits inside the Long House %s" % [desk.rect(), long_house])
+	var boxes: Array[Rect2] = []
+	var names: Array[String] = []
+	for label in desk.find_children("*", "Label", true, false) + village.wall.find_children("*", "Label", true, false):
+		if not label.visible or label.text == "":
+			continue
+		var backing: ColorRect = label.get_node_or_null("Backing")
+		var rect: Rect2 = Rect2(label.get_global_position() + backing.position, backing.size) if backing != null and backing.visible else label.get_global_rect()
+		boxes.append(rect)
+		names.append("%s '%s'" % [label.name, label.text])
+	var overlaps := []
+	for i in boxes.size():
+		for j in boxes.size():
+			if i < j and boxes[i].intersects(boxes[j]):
+				overlaps.append("%s x %s" % [names[i], names[j]])
+	check(boxes.size() >= 12 and overlaps.is_empty(), "none of the Desk's and the wall's %d labels overlap another: %s" % [boxes.size(), overlaps])
+	var numbers_ok := true
+	for card in desk.card_nodes():
+		var number: Label = card.get_node("Number")
+		numbers_ok = numbers_ok and PinchLabel.text_width(number) <= desk.CARD.x and number.position.y >= 0.0
+	check(numbers_ok and desk.name_label.position.y > desk.ROW_Y + desk.SLOT.y and desk.light_label.position.y > desk.WINDOW_AT.y + desk.WINDOW.y, "each card's number sits inside its card; the outline's name under the row; the light's word under the window")
+	var rows_ok := true
+	for who in ["tove", "jorun", "bo"]:
+		for label_name in ["RoomLabel1", "RoomLabel2"]:
+			var room_label: Label = village.wall.rows[who].get_node(label_name)
+			rows_ok = rows_ok and PinchLabel.text_width(room_label) <= village.wall.NAMED_BOX.x
+	check(rows_ok, "every room's name fits its named box on the wall (%.0f px)" % village.wall.NAMED_BOX.x)
 	await free_village(village)
 
 	# ---------------------------------------------------------------- (F) the frame's rects
@@ -275,20 +255,26 @@ func _ready() -> void:
 	check(is_equal_approx(top.size.y + open.size.y + bottom.size.y, 648.0) and is_equal_approx(left.size.x + open.size.x + right.size.x, 1152.0) and open.size == Vector2(720, 405), "the four rects and the opening tile the screen (5/8: %s)" % [open.size])
 	await free_dream()
 
-	# ---------------------------------------------------------------- (G) a claim is two lines
-	var claim_state := PinchState.new()
-	claim_state.day = 2
-	claim_state.keep("sixteen_stairs")
-	village = await new_village(claim_state)
+	# ---------------------------------------------------------------- (G) a development is two lines
+	var desk_state := PinchState.new()
+	desk_state.day = 2
+	desk_state.set_flag("talked:bo")
+	desk_state.reach("bo", "pills")
+	desk_state.scraps.assign(["square", "long", "round"])
+	village = await new_village(desk_state)
 	var panel: CanvasLayer = village.panel
-	check(village.breakfast_on and village.hand_idea() == "sixteen_stairs", "(breakfast with Sixteen Stairs in the hand)")
-	frames = await walk_walker_to(village, village.seats.jorun.position.x)
-	check(frames < WALK_FRAMES and village.seat_in_reach() == "jorun", "at Jorun's seat")
-	var stairs_line: String = str(village.idea_entry("sixteen_stairs").get("line", ""))
-	check(village.offer() and panel.say_label.text == str(jorun.claims) and not panel.say_label.text.contains(stairs_line), "E: Jorun's own short line first: '%s'" % panel.say_label.text)
-	check(village.lines_waiting().size() >= 1 and village.lines_waiting()[0] == stairs_line, "the idea's own line waits behind it: '%s'" % stairs_line)
-	waited = await wait_until_seconds(func() -> bool: return panel.say_label.text == stairs_line, 3.0)
-	check(waited > 1.3 and waited < 1.7 and panel.say_label.text == stairs_line, "it followed as a second line %.2f s later (1.5)" % waited)
+	check(village.desk_on and village.desk.idea == "pills", "(the Desk with the pills and three matching cards)")
+	var pills_line: String = str(village.idea_entry("pills").get("line", ""))
+	var full_line: String = str(village_json.desk.full).format({"name": village.idea_name("pills")})
+	for i in 3:
+		village.desk.pick_card(0)
+		village.fit()
+		if village.desk_on:
+			village.desk.move(1)
+	check(not village.desk_on and panel.say_label.text == full_line and not panel.say_label.text.contains(pills_line), "every slot filled: the desk's own short line first: '%s'" % panel.say_label.text)
+	check(village.lines_waiting().size() >= 1 and village.lines_waiting()[0] == pills_line, "the idea's own line waits behind it: '%s'" % pills_line)
+	waited = await wait_until_seconds(func() -> bool: return panel.say_label.text == pills_line, 3.0)
+	check(waited > 1.3 and waited < 1.7 and panel.say_label.text == pills_line, "it followed as a second line %.2f s later (1.5)" % waited)
 	await free_village(village)
 
 	# ---------------------------------------------------------------- (H) the goat's word
@@ -296,9 +282,9 @@ func _ready() -> void:
 	dream.redeal(["b", "bed"] as Array[String])
 	var goat: Area2D = dream.room.get_node("Currents/Round/Follow/Goat")
 	var goat_label: Rect2 = goat.label_rect()
-	var rider: Rect2 = goat.rider_rect(dreamer.BODY_SIZE, 3, dreamer.HAT_PIECE)
+	var rider: Rect2 = goat.rider_rect(dreamer.BODY_SIZE)
 	check(goat.label.text == str(words.goat) and goat_label.end.y <= 0.0 and goat_label.end.y <= -goat.HORN.y, "the goat's word '%s' sits above its body (and its horns): %s" % [goat.label.text, goat_label])
-	check(not goat_label.intersects(rider) and goat_label.end.x < rider.position.x, "a rider with a full hat (%s) never covers it" % [rider])
+	check(not goat_label.intersects(rider) and goat_label.end.x < rider.position.x and rider.size.x >= dreamer.BODY_SIZE.x, "a rider (%s) never covers it" % [rider])
 	check(goat.has_node("Fill") and goat.horns != null and goat.horns.get_child_count() == 2 and goat.horns.get_child(0) is Polygon2D, "a filled rect with two horn triangles")
 
 	# ---------------------------------------------------------------- (I) the looks
@@ -368,15 +354,18 @@ func _ready() -> void:
 
 	# ---------------------------------------------------------------- (J) an idea's name above its box
 	dream.redeal(["a", "bed"] as Array[String])
-	var idea: StaticBody2D = dream.place_idea("spoon", Vector2(240, 588))
+	var idea: StaticBody2D = dream.place_idea("pills", Vector2(240, 588))
 	await get_tree().physics_frame
 	var name_rect: Rect2 = idea.label_rect()
 	check(name_rect.end.y <= idea.rect().position.y - 28.0 and idea.label.has_node("Backing") and idea.label.get_node("Backing").visible, "the name sits %.0f px above the box's top (clear of a body beside it) on a backing" % (idea.rect().position.y - name_rect.end.y))
 	check(idea.leader != null and is_equal_approx(idea.leader.position.y, idea.label.position.y + PinchLabel.LINE) and idea.leader.size.y > 20.0, "with a leader down to the box")
-	var by_wall: StaticBody2D = dream.place_idea("door_boat", Vector2(40, 588))
-	var by_right: StaticBody2D = dream.place_idea("window_yesterday", Vector2(1120, 588))
+	var by_wall: StaticBody2D = dream.place_idea("sixteen_stairs", Vector2(40, 588))
+	var by_right: StaticBody2D = dream.place_idea("lantern", Vector2(1120, 588))
 	await get_tree().physics_frame
 	check(SCREEN.encloses(by_wall.label_rect()) and SCREEN.encloses(by_right.label_rect()) and by_wall.label_rect().position.x >= 0.0, "an idea by a wall keeps its name inside the room: %s, %s" % [by_wall.label_rect(), by_right.label_rect()])
+	var scrap_by_wall: StaticBody2D = dream.place_scrap("long", Vector2(30, 524))
+	await get_tree().physics_frame
+	check(SCREEN.encloses(scrap_by_wall.label_rect()) and scrap_by_wall.label_rect().position.x >= 0.0, "and so does a thought by a wall: %s" % [scrap_by_wall.label_rect()])
 
 	# ---------------------------------------------------------------- (K) the bed's and the block's words
 	check(dream.jump_to_room("bed") and dream.bed != null and dream.block != null, "(the bed room)")
@@ -389,44 +378,31 @@ func _ready() -> void:
 	# ---------------------------------------------------------------- (L) the lantern, once; (M) the dev bar on the street
 	var street_state := PinchState.new()
 	street_state.day = 2
-	street_state.small_things.assign(["spoon"])
+	street_state.lantern = true
+	street_state.set_flag("talked:bo")
+	street_state.target = "bo"
+	street_state.reach("bo", "pills")
+	street_state.scraps.assign(["square", "long"])
 	village = await new_village(street_state)
-	var lantern_word: String = str(village_json.small_things.lantern_post)
+	var lantern_word: String = str(village_json.things.lantern)
 	var lantern_labels := 0
 	for label in village.find_children("*", "Label", true, false):
 		if label.text == lantern_word:
 			lantern_labels += 1
-	check(lantern_labels == 1 and village.plot_node("lantern_post").get_meta("state") == "small_thing", "the lantern on its post is labelled once: '%s'" % lantern_word)
+	check(lantern_labels == 1 and village.thing_node("lantern") != null and not village_json.has("small_things"), "the lantern by the door is labelled once: '%s' (the first loop's small things are gone)" % lantern_word)
 	bar = village.devbar
-	check(bar != null and bar.visible and village.devbar_text() == str(sw.walk) and bar.actions_text() == village.devbar_text(), "on the street: '%s'" % village.devbar_text())
+	check(bar != null and bar.visible and village.desk_on and village.devbar_text() == str(sw.desk_pick) and bar.actions_text() == village.devbar_text(), "at the Desk with no card picked: '%s'" % village.devbar_text())
+	await press_key(KEY_2)
+	await get_tree().process_frame
+	check(village.desk.picked_shape() == "long" and village.devbar_text() == str(sw.desk).format({"card": village.scrap_name("long")}) and village.devbar_text().contains("E fit"), "2: '%s'" % village.devbar_text())
+	frames = await walk_walker_to(village, village.BUNK.get_center().x)
+	await get_tree().process_frame
+	check(frames < WALK_FRAMES and not village.desk_on and village.bunk_in_range() and village.devbar_text() == sep.join([str(sw.walk), str(sw.sleep)]) and not sw.has("pill") and not sw.has("make") and not sw.has("breakfast"), "walked away to the bunk (the Desk over): '%s' (no pill, no making, no breakfast in devbar.json)" % village.devbar_text())
 	frames = await walk_walker_to(village, village.DOOR_X)
 	await get_tree().process_frame
 	check(frames < WALK_FRAMES and village.character_in_reach() == "jorun" and village.devbar_text() == sep.join([str(sw.walk), str(sw.talk)]), "by Jorun: '%s'" % village.devbar_text())
-	frames = await walk_walker_to(village, village.BUNK.get_center().x)
-	await get_tree().process_frame
-	check(frames < WALK_FRAMES and village.bunk_in_range() and village.devbar_text() == sep.join([str(sw.walk), str(sw.sleep)]), "at the bunk: '%s'" % village.devbar_text())
-	street_state.has_pills = true
-	await get_tree().process_frame
-	check(village.devbar_text() == sep.join([str(sw.walk), str(sw.sleep), str(sw.pill)]), "with pills in the house: '%s'" % village.devbar_text())
-	street_state.has_pills = false
-	street_state.set_flag("asked:pills")
-	frames = await walk_walker_to(village, village.plot_rect("stove_shed").get_center().x)
-	await get_tree().process_frame
-	check(frames < WALK_FRAMES and village.can_make() and village.devbar_text() == sep.join([str(sw.walk), str(sw.make)]), "at the stove shed with the request: '%s'" % village.devbar_text())
-	street_state.ideas_kept.assign(["sixteen_stairs", "spoon"])
-	village.start_breakfast()
-	await get_tree().process_frame
-	check(village.breakfast_on and village.devbar_text() == str(sw.breakfast).format({"idea": village.idea_name("sixteen_stairs")}) and village.devbar_text().contains("1 2 3"), "at breakfast with two on the table: '%s'" % village.devbar_text())
-	village.set_hand(1)
-	await get_tree().process_frame
-	check(village.devbar_text() == str(sw.breakfast).format({"idea": village.idea_name("spoon")}), "2: '%s'" % village.devbar_text())
-	street_state.ideas_kept.assign(["spoon"])
-	village.hand_index = 0
-	await get_tree().process_frame
-	check(village.devbar_text() == str(sw.breakfast_one).format({"idea": village.idea_name("spoon")}) and not village.devbar_text().contains("1 2 3"), "with one: '%s'" % village.devbar_text())
 	await press_key(KEY_TAB)
 	check(not bar.visible and not street_state.devbar_visible, "Tab on the street hides the bar; the state remembers")
-	village.end_breakfast("skipped")
 	await free_village(village)
 	await fresh(1, false, street_state)
 	check(not dream.devbar.visible, "and the dream that night starts with it hidden")
@@ -445,12 +421,12 @@ func hold_line() -> String:
 	return str(devbar_json.dream.self_pinch).format({"s": "%.1f" % (dream.SELF_PINCH - dream.hold_seconds())})
 
 
-## A new dream on `day` (with a pill if asked) on a fresh state, or on `with_state`; the old one gone.
+## A new dream on `day` (with the pill developed if asked) on a fresh state, or on `with_state`; the old one gone.
 func fresh(day: int, pill := false, with_state: PinchState = null) -> void:
 	await free_dream()
 	state = with_state if with_state != null else PinchState.new()
 	state.day = day
-	state.pill_tonight = pill
+	state.pill_bonus = PinchState.FULL_PILL if pill else 0
 	dream = DREAM.instantiate()
 	dream.state = state
 	add_child(dream)
@@ -479,6 +455,8 @@ func new_village(with_state: PinchState) -> Node2D:
 
 
 func free_village(village: Node2D) -> void:
+	for action in ["move_left", "move_right", "interact"]:
+		Input.action_release(action)
 	remove_child(village)
 	village.queue_free()
 	await get_tree().physics_frame

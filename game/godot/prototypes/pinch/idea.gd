@@ -1,10 +1,11 @@
 extends StaticBody2D
-## An idea lying in the dream (toy 4, PINCH), day 3: the only crisp thing
-## worth having. A white 48 x 24 rect with a black outline and a drop
-## shadow, its name (from data/ideas.json) above it, seen asleep and
-## pinched, solid only while pinched (layer CRISP, like a ledge): so a
-## set-down idea is a step. `position` is its middle. Groups "idea" and
-## "crisp". The dream spawns these (place_idea) and takes them (grab).
+## An idea lying in the dream (toy 4b, PINCH): the thing a night is for.
+## A white 48 x 24 rect with a black outline and a drop shadow, its name
+## (from data/ideas.json) above it, seen asleep and pinched, solid only
+## while pinched (layer CRISP, like a ledge). `position` is its middle.
+## Groups "idea" and "crisp". The dream lays one in a goal room beside the
+## sleeping villager (place_idea, marked `goal`) and the dreamer reaches
+## it there (E, pinched: the night ends); it is never carried (SPEC-2).
 ## The readability pass: the name sits LABEL_ABOVE px over the box's top,
 ## higher than a body standing beside it, on a dark backing, with a thin
 ## leader down to the box; its box is kept inside the room's width

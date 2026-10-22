@@ -2,9 +2,10 @@ extends Node2D
 ## One screen of the dream (toy 4, PINCH): 1152 x 648 of grey boxes. A room
 ## scene declares its crisp and soft geometry (box.gd), its currents,
 ## wonders, exit and hazards (zone.gd, goat.gd), its Door (a Marker2D: where
-## the dreamer appears) and its idea spawn spots (Marker2Ds under IdeaSpots;
-## the dealer lays one idea on one of them, day 3). The bed room also holds
-## Bed, Block and an Exit the dream keeps only when the bed is dealt early.
+## the dreamer appears) and its spots (Marker2Ds under IdeaSpots and
+## ScrapSpots; the dealer hangs scraps over them, and lays a goal room's
+## idea on its IdeaSpot). The first loop's bed room also holds Bed, Block
+## and an Exit the dream keeps only when the bed is dealt early, by hand.
 ## A Label with the metadata `word` shows that word from rooms.json (the
 ## ladder's sign). The bounds (left, right, top, and the net below that
 ## only the asleep body touches) are built here so no room forgets them.

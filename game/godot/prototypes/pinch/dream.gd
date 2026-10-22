@@ -1,119 +1,90 @@
 extends Node2D
-## The dream of toy 4, PINCH, day 3: the room dealer, the ideas, the frame,
-## lucidity.
+## The dream of toy 4b, PINCH (SPEC-2): the branch dealer, the scraps, the
+## goal rooms, the frame, lucidity, the self-pinch.
 ##
-## Each night deals rooms one at a time under Rooms (the first loop dealt
-## them from a shuffled deck with the bed room last; SPEC-2's branch dealer,
-## below, replaces that: the hub, a branch, a goal room; the tutorial, the
-## ladder and the bed room stay in ROOM_SCENES for redeal() by hand). The
-## dreamer (one body, kept across rooms) is put at each room's Door;
-## standing pinched in a room's Exit deals the next.
+## THE BRANCH DEALER: tonight's rooms are the hub (rooms/room_hub.tscn,
+## the Long House's reflection), then the two rooms of the target's branch
+## in their fixed order (data/branches.json), then the villager's goal
+## room; with no target (nobody talked to yet) the hub alone is the night.
+## The rooms are dealt one at a time under Rooms; the dreamer (one body,
+## kept across rooms) is put at each room's Door; standing pinched in a
+## room's Exit deals the next. The hub has two exits with signs
+## (rooms.json sign_left / sign_right): the right one leads down the
+## target's branch, the left down another talked-to villager's (none when
+## there is no other); walking into the other sign's exit retargets the
+## night (state.target changes; the wall shows it tomorrow): the sign is
+## the choice. Every exit carries its branch in its metadata, and a branch
+## room's name reads "whose dream" (rooms.json label_whose). redeal() sets
+## a night by hand (tests, the designer): the first loop's tutorial, ladder
+## and bed rooms stay in ROOM_SCENES for that (the bed, dealt last by hand,
+## loses its exit, and E in it still wakes gently); no deal of the night
+## itself holds them.
 ##
-## Ideas (data/ideas.json) were the first loop's pickups: deal_ideas laid
-## one per room on an IdeaSpot (it is kept, pure, but the night no longer
-## calls it: the dealer hangs scraps there instead, and the goal room's
-## idea is placed from the branch). place_idea lays one by hand. An idea is a
-## crisp body (idea.gd): grab it with E while pinched and within GRAB_REACH
-## of it, carry room permitting (state.carry_limit); it goes under the hat
-## (the dreamer's stack) and the newest one is "in hand" for HAND seconds,
-## counting double in effective (the SPEC: an idea in the hand counts
-## double while held). Q while pinched on the floor sets the top idea down
-## as a 48 x 24 solid step in front of the dreamer; it is an ordinary idea
-## again there, and if the room is left it stays behind, lost for the
-## night (rooms are dealt once per night; the pool has it back tomorrow).
+## SCRAPS (data/scraps.json): three shapes, scraps_per_night of them hung
+## over the hub's and the branch rooms' spots (never the goal room;
+## deal_scraps is pure), SCRAP_HOVER px up at hand height so they never
+## block a walk; a scrap (scrap.gd) is grabbed with E pinched within
+## GRAB_REACH (+1), carried at the hip up to state.carry_scraps, set down
+## with Q as a small step (+1) and grabbed again. effective = lucidity +
+## scraps carried. Ideas are never carried (day B: the first loop's hat
+## stack is gone): the only idea in a night lies in THE GOAL ROOM, beside
+## the villager asleep (placed by the dealer from the branch, marked
+## `goal`: it cannot be grabbed): E at it while pinched REACHES it:
+## reached(who, idea), then woke(false, scraps) at once; the night ends
+## gently with the idea and every scrap. A branch already reached (day B)
+## gives its idea no second time: where it lay, two scraps hang and a line
+## says so (rooms.json "already"; already_text()).
 ##
-## The frame, four black rects on a CanvasLayer, persists across rooms:
+## THE SELF-PINCH: holding PINCH for SELF_PINCH seconds standing still on
+## a floor (no movement input, the body still) wakes the dreamer on
+## purpose (self_pinch, then woke(false, scraps): every scrap, not the
+## idea; not on the tally); from FLICKER_FROM seconds into the hold the
+## shown aperture flickers +-FLICKER at FLICKER_HZ; moving or letting go
+## resets the hold (hold_seconds()). Day B: the hold counts anywhere on a
+## floor, a quiet spot included; a spot's wonder needs standing still
+## ASLEEP (the dev bar says so).
+##
+## THE FRAME, four black rects on a CanvasLayer, persists across rooms:
 ## its opening is aperture * the viewport, centred on the dreamer's screen
 ## position and clamped inside the viewport, placed every frame; aperture()
 ## = 1 - effective / limit moves on acts, shown_aperture() eases to it over
 ## EASE seconds; a blink is a snap shut. At the limit the frame eases shut
-## and stays shut SHUT seconds before woke(true, carried) fires, so the
-## player sees it close; E on the bed emits woke(false, carried) at once.
+## and stays shut SHUT seconds before woke(true, scraps) fires, so the
+## player sees it close. The limit is tonight's (state.night_limit(): 8,
+## plus the pill developed at the Desk).
 ##
-## Lucidity is an integer moved only by acts (the SPEC table): grab +2,
-## set down +1, force +1, a hard fall while pinched +1, a failed screen
-## +1, wonder -1 once per wonder per visit (drift through a soft wall
-## asleep, ride the goat, stay still 3 s in a spot); never below 0;
-## holding the button is free. effective = lucidity + ideas carried (+1
-## while one is in hand). A failed screen (fell below the room, or touched
-## a hazard pinched) blinks (day 5, three phases, blink_phase()): the
-## frame shuts over BLINK_SHUT_FRAMES, holds shut until BLINK seconds have
-## passed since the fail, then the dreamer is back at the Door (dropping
-## in, dreamer.gd) and the frame reopens over BLINK_OPEN_FRAMES; blinking
-## is true for the first two phases only, when nothing counts. Within
-## THIN_STEPS of the limit every soft shape is drawn through the THIN
-## modulate, so the dream visibly thins as the frame nears shut.
+## LUCIDITY is an integer moved only by acts (SPEC-2 "Lucidity, exactly"):
+## grab a scrap +1, set one down +1, force +1, a hard fall while pinched
+## +1, a failed screen +1, wonder -1 once per wonder per visit (drift
+## through a soft wall asleep, ride the goat, stay still 3 s asleep in a
+## spot); never below 0; holding the button is free. A failed screen (fell
+## below the room, or touched a hazard pinched) blinks (three phases,
+## blink_phase()): the frame shuts over BLINK_SHUT_FRAMES, holds shut
+## until BLINK seconds have passed since the fail, then the dreamer is
+## back at the Door (dropping in, dreamer.gd) and the frame reopens over
+## BLINK_OPEN_FRAMES; blinking is true for the first two phases only, when
+## nothing counts. Within THIN_STEPS of the limit every soft shape is
+## drawn through the THIN modulate, so the dream visibly thins as the
+## frame nears shut.
 ##
-## Day 4. The limit is tonight's (state.night_limit(): 8, or 10 with a
-## pill taken at the bunk). The dealer leaves out ideas that are kept,
-## claimed, built or small things. THE SLEEP GAUGE (IDEAS, the designer's
-## words: a sleep meter with the depths of sleep in it, and how long you
-## can stay): a vertical bar at the bottom left on its own CanvasLayer over
-## the frame (so it can still be read when the frame is nearly shut, which
-## is when the designer wants to know which one the player looks at),
-## GAUGE_PX tall per point of the limit (so the bar grows on a pill night), in three bands
-## drawn and labelled from rooms.json "gauge": deep (effective up to
-## DEEP_TO of the limit), light (to LIGHT_TO), waking (the rest); a needle
-## at effective, easing like the frame; beside it "ideas n / carry_limit".
-## H toggles it (gauge_visible, on by default; day 5: kept in
-## state.gauge_visible, so the choice holds for the session); the frame
-## stays whatever the gauge does. gauge_band() and gauge_fraction() read
-## it. Idea names come from data/ideas.json, every other word from
-## data/rooms.json; rewrite those, not this.
-##
-## The readability pass. THE DEV BAR (devbar.gd, data/devbar.json): a thin
-## strip at the bottom of the screen on its own layer above the frame,
-## listing ONLY the actions available right now, computed every drawn
-## frame from the state (devbar_text(): asleep, in a current, over a
-## spot, pinched on the floor or in the air, an idea in reach with room
-## under the hat, an idea to set down, the block to push, the exit near,
-## the bed in reach); its right half shows the room's one-line hint
-## (rooms.json "hint") for the first seconds after entering a room, then
-## fades it (the fixed controls line is gone; the dev bar replaces it);
-## the room's NAME stays as a small label at the top left (rooms.json
-## "label"). Tab toggles the bar (toggle_devbar; state.devbar_visible, kept
-## for the session). THE FRAME's four rects are rounded to whole pixels
-## and the side rects overlap the top and bottom ones by FRAME_OVERLAP px
-## (frame_rects()), so no half-pixel seam shows as a grey line. The gauge
-## sits GAUGE_AT, 24 px higher than before, above the dev bar and clear of
-## the door's word (room.gd), which now sits left of the door at the
-## floor line.
-##
-## THE SECOND LOOP (SPEC-2, day A). THE BRANCH DEALER replaces the deck:
-## tonight's rooms are the hub (rooms/room_hub.tscn, the Long House's
-## reflection), then the two rooms of the target's branch in their fixed
-## order (data/branches.json), then the villager's goal room; with no
-## target (nobody talked to yet) the hub alone is the night. The hub has
-## two exits with signs (rooms.json sign_left / sign_right): the right one
-## leads down the target's branch, the left down another talked-to
-## villager's (none when there is no other); walking into the other sign's
-## exit retargets the night (state.target changes; the wall shows it
-## tomorrow): the sign is the choice. Every exit carries its branch in its
-## metadata, and a branch room's name reads "whose dream" (rooms.json
-## label_whose). IDEAS no longer spawn in rooms: the dealer lays SCRAPS
-## instead (data/scraps.json: three shapes, scraps_per_night of them over
-## the hub and the branch rooms, never the goal room; deal_scraps is pure),
-## hung SCRAP_HOVER px over the rooms' IdeaSpots and ScrapSpots at hand
-## height so they never block a walk; a scrap (scrap.gd) is grabbed with E
-## pinched within GRAB_REACH (+1, not +2), carried at the hip up to
-## state.carry_scraps, set down with Q as a small step (+1, with no idea on
-## the hat; an idea goes first) and grabbed again. effective = lucidity +
-## ideas carried (+1 in hand) + scraps carried. THE GOAL ROOM holds the
-## villager asleep and their idea beside them (placed by the dealer from
-## the branch, marked `goal`: it cannot be grabbed): E at it while pinched
-## REACHES it: reached(who, idea), then woke(false, carried) at once; the
-## night ends gently with the idea and every scrap. THE SELF-PINCH: holding
-## PINCH for SELF_PINCH seconds standing still on a floor (no movement
-## input, the body still) wakes the dreamer on purpose (self_pinch, then
-## woke(false, carried): every scrap, not the idea; not on the tally); from
-## FLICKER_FROM seconds into the hold the shown aperture flickers +-FLICKER
-## at FLICKER_HZ; moving or letting go resets the hold (hold_seconds()),
-## and so does standing in a quiet spot whose wonder is still to be had
-## (the spot takes the stillness: 3 s there is the wonder, not a waking).
-## The controller reads scraps_carried at the woke signal (the dream is
-## still whole then). Villager names come from data/characters.json.
+## THE SLEEP GAUGE: a vertical bar at the bottom left on its own
+## CanvasLayer over the frame, GAUGE_PX tall per point of the limit (so
+## the bar grows with the pill), in three bands drawn and labelled from
+## rooms.json "gauge": deep (effective up to DEEP_TO of the limit), light
+## (to LIGHT_TO), waking (the rest); a needle at effective, easing like
+## the frame; beside it "thoughts n / carry_scraps". H toggles it
+## (state.gauge_visible, kept for the session). THE DEV BAR (devbar.gd,
+## data/devbar.json): a strip at the bottom on its own layer above the
+## frame, listing ONLY the actions available right now (devbar_text());
+## its right half shows the room's hint (rooms.json "hint") for the first
+## seconds after entering a room; the room's NAME stays as a small label
+## at the top left. Tab toggles the bar (state.devbar_visible). The
+## frame's four rects are rounded to whole pixels and the side rects
+## overlap the top and bottom ones by FRAME_OVERLAP px (frame_rects()).
+## Idea names come from data/ideas.json, villager names from
+## data/characters.json, every other word from data/rooms.json.
 
-signal woke(sudden: bool, carried: Array)
+signal woke(sudden: bool, scraps: Array)
 signal acted(kind: String, detail: String)
 signal room_entered(id: String)
 signal reached(who: String, idea: String)
@@ -142,12 +113,10 @@ const ROOM_SCENES := {
 	"ladder": preload("res://prototypes/pinch/rooms/room_ladder.tscn"),
 	"bed": preload("res://prototypes/pinch/rooms/room_bed.tscn"),
 }
-const TUTORIAL := "tutorial"
-const BED := "bed"
-const LADDER := "ladder"
+const BED := "bed"            # the first loop's bed room: dealt by hand only; last, it has no exit
 const HUB := "hub"
-const IDEALESS: Array[String] = ["bed", "ladder"]   # rooms the first loop's idea dealer (deal_ideas, unused by the night now) never lays an idea in
 const SCRAP_ROOMS: Array[String] = ["hub", "a", "b", "c", "d", "e", "f"]   # rooms with spots the scrap dealer may use
+const ALREADY_SCRAPS := 2     # scraps hung where the idea was, on a branch already reached
 const SCRAP_HOVER := 64.0     # px a dealt scrap hangs above its spot: at hand height, clear of a body standing under it
 const SCRAP_SPREAD := 40.0    # px sideways between scraps sharing a spot (the hub alone holds all six)
 const SELF_PINCH := 3.0       # s PINCH is held still on a floor to wake on purpose
@@ -156,10 +125,11 @@ const FLICKER := 0.05         # the shown aperture swings this far either way wh
 const FLICKER_HZ := 4.0       # swings per second
 const HOLD_EPSILON := 0.0001  # s: 180 frames of 1/60 add up a hair short of 3.0
 const REACH := 72.0           # px: this close to the block's or the bed's middle, E acts on it
-const GRAB_REACH := 40.0      # px between the dreamer's box and an idea's: E takes it
+const GRAB_REACH := 40.0      # px between the dreamer's box and a scrap's or the idea's: E takes or reaches it
 const PUSH := 48.0            # px a forced block slides
-const HAND := 2.0             # s a grabbed idea is in the hand, counting double
-const SET_DOWN_AHEAD := 42.0  # px from the dreamer's middle to a set-down idea's: a 4 px gap
+const SET_DOWN_AHEAD := 42.0  # px from the dreamer's middle to a set-down scrap's: a 4 px gap
+const ALREADY_LABEL_WIDTH := 360.0
+const ALREADY_ABOVE := 110.0  # px over the idea's spot where the "already dreamed" line hangs
 const BLINK := 1.0            # s from a failed screen to the dreamer back at the door (SPEC: one second)
 const BLINK_SHUT_FRAMES := 4  # frames the frame takes to shut at a failed screen
 const BLINK_OPEN_FRAMES := 12 # frames the frame takes to reopen once the dreamer is back
@@ -167,7 +137,7 @@ const THIN_STEPS := 2         # effective this close to the limit, or closer: th
 const THIN := Color(0.55, 0.55, 0.6, 1.0)   # the modulate on every soft shape while the dream is thin
 const EASE := 0.35            # s the shown aperture takes to reach the aperture after an act
 const SHUT := 0.8             # s the frame is shown fully shut at the limit before woke fires
-const STILL := 3.0            # s still inside a spot for its wonder
+const STILL := 3.0            # s still inside a spot, asleep, for its wonder
 const GAUGE_PX := 16.0        # px of bar per point of the limit: 128 px at 8, 160 at 10
 const GAUGE_WIDTH := 18.0     # px: the bar's width
 const GAUGE_AT := Vector2(28, 600)   # the bar's bottom-left corner on the screen: above the dev bar, its labels clear of the door's word
@@ -192,8 +162,7 @@ const GAUGE_LAYER := 6        # above the frame (5), below the text panel (10)
 @onready var frame_right: ColorRect = $Frame/Right
 
 var state: PinchState               # set by the controller before add_child; a fresh one when run alone
-var lucidity := 0                   # moves only in grab(), set_down(), force(), fall(), fail(), wonder()
-var carried: Array[String] = []     # idea ids under the hat, the newest last
+var lucidity := 0                   # moves only in grab_scrap(), set_down_scrap(), force(), fall(), fail(), wonder()
 var ideas: Array = []               # ideas.json, in order
 var branches: Array = []            # branches.json "branches", in order
 var scrap_shapes: Array = []        # scraps.json "shapes", in order
@@ -203,7 +172,8 @@ var scraps_carried: Array[String] = []   # scrap shapes at the hip, the newest l
 var tonight_scraps := {}            # room id -> the shapes the dealer hangs there, in spot order
 var scraps_node: Node2D = null      # the room's Scraps
 var goal_who := ""                  # the goal room in play: whose, and
-var goal_idea := ""                 # which idea lies by them ("" elsewhere)
+var goal_idea := ""                 # which idea lies by them ("" elsewhere, and on a branch already reached)
+var already_label: Label = null     # the "already dreamed" line in a reached branch's goal room
 var _hold := 0.0                    # s PINCH has been held still on a floor (the self-pinch)
 var _self_pinched := false          # the night ended by the self-pinch
 var rooms_data: Array = []          # rooms.json "rooms", in order
@@ -217,15 +187,13 @@ var gauge: Node2D = null            # the sleep gauge, on its own layer over the
 var gauge_bands := {}               # band -> ColorRect
 var gauge_labels := {}              # band -> Label
 var gauge_needle: ColorRect = null
-var ideas_label: Label = null       # "ideas n / carry_limit" beside the bar
+var scraps_label: Label = null      # "thoughts n / carry_scraps" beside the bar
 var label_format := "{name}. {hint}"
 var label_whose := "{name} · {whose}"   # rooms.json "label_whose": a branch room's name with whose dream it is
 var tonight: Array[String] = []     # the room ids dealt, in order
-var tonight_ideas := {}             # room id -> idea id the dealer laid there
-var left_behind: Array[String] = [] # ideas set down and left in rooms this night: lost, back in the pool tomorrow
 var room_index := -1
 var room: Node2D = null             # the room in play
-var ideas_node: Node2D = null       # the room's Ideas
+var ideas_node: Node2D = null       # the room's Ideas (the goal room's idea, or one placed by hand)
 var block: StaticBody2D = null      # the room's Block, if any
 var bed: ColorRect = null           # the room's Bed, if any
 var frame_open := Rect2()           # the visible rectangle inside the frame, in screen px
@@ -240,7 +208,6 @@ var _shut_frames := 0               # frames into the blink's shutting phase
 var _open_frames := 0               # frames left of the blink's reopening phase
 var _blink_from := 1.0              # the shown aperture when the blink began
 var hard_falls := 0
-var _hand_left := 0.0               # s the newest idea stays in the hand
 var _shown := 1.0                   # the aperture drawn now
 var _ease_from := 1.0
 var _ease_to := 1.0
@@ -305,11 +272,6 @@ func _physics_process(delta: float) -> void:
 				return
 		_update_frame()
 		return
-	if _hand_left > 0.0:
-		_hand_left -= delta
-		if _hand_left <= 0.0:
-			_hand_left = 0.0
-			_changed()   # the idea settles under the hat: effective drops by one
 	if blinking:
 		_shut_frames = mini(_shut_frames + 1, BLINK_SHUT_FRAMES)
 		blink_left -= delta
@@ -416,58 +378,25 @@ func deal_scraps(order: Array[String], count: int) -> Dictionary:
 	return dealt
 
 
-## Which of a room's spots holds tonight's idea: by the day and the room's place in the night.
-func spot_index(day: int, index: int, count: int) -> int:
-	return (day * 131 + index * 17) % count
-
-
-## The ideas of one night (the first loop's dealer, kept for the record
-## and the tests; the night no longer calls it): room id -> idea id, one
-## per room that may hold one, from the pool shuffled by the day. Pure.
-func deal_ideas(day: int, order: Array[String]) -> Dictionary:
-	var pool := ideas_pool()
-	var rng := RandomNumberGenerator.new()
-	rng.seed = day * 7919 + 17
-	for i in range(pool.size() - 1, 0, -1):
-		var j := rng.randi_range(0, i)
-		var swap := pool[i]
-		pool[i] = pool[j]
-		pool[j] = swap
-	var dealt := {}
-	var next := 0
-	for id in order:
-		if dealt.has(id) or IDEALESS.has(id) or next >= pool.size():
-			continue
-		dealt[id] = pool[next]
-		next += 1
-	return dealt
-
-
-## The ideas the dealer may lay out: not kept, not claimed, not built, not
-## a small thing on the street (day 4: an idea is never nothing).
-func ideas_pool() -> Array[String]:
-	var pool: Array[String] = []
-	for idea in ideas:
-		var id := str(idea.get("id", ""))
-		if state.ideas_kept.has(id) or state.ideas_claimed.values().has(id) or state.ideas_built.values().has(id) or state.small_things.has(id):
-			continue
-		pool.append(id)
-	return pool
+## The shapes hung where the idea was, on a branch already reached: the first ALREADY_SCRAPS of the cycle.
+func already_shapes() -> Array[String]:
+	var shapes: Array[String] = []
+	for i in mini(ALREADY_SCRAPS, scrap_shapes.size()):
+		shapes.append(str(scrap_shapes[i].get("id", "")))
+	return shapes
 
 
 ## Tonight's rooms set by hand (for tests and the designer): deals the
 ## scraps for them (none with `with_scraps` false) and enters the first.
-## No idea is dealt any more (SPEC-2); place_idea lays one by hand.
+## place_idea lays an idea by hand.
 func redeal(order: Array[String], with_scraps := true) -> void:
 	tonight = order.duplicate()
-	tonight_ideas = {}
 	tonight_scraps = deal_scraps(tonight, scraps_per_night) if with_scraps else {}
 	room_index = -1
 	if room != null:   # the old deal's room goes without a trace: this is a new night
 		rooms_holder.remove_child(room)
 		room.queue_free()
 		room = null
-	left_behind = []
 	_enter_room(0)
 
 
@@ -539,11 +468,8 @@ func villager_name(who: String) -> String:
 
 func _enter_room(index: int) -> void:
 	if room != null:
-		for id in ideas_in_room():
-			left_behind.append(id)
-			acted.emit("left", id)   # walked past or set down and abandoned; "lost" is reserved for waking
 		for shape in scraps_in_room():
-			acted.emit("left", "scrap:%s" % shape)
+			acted.emit("left", "scrap:%s" % shape)   # walked past or set down and abandoned; "lost" is reserved for waking
 		rooms_holder.remove_child(room)   # out of the tree now, so its geometry leaves the physics space at once
 		room.queue_free()
 	room_index = index
@@ -557,7 +483,7 @@ func _enter_room(index: int) -> void:
 	block = room.block()
 	bed = room.bed()
 	if id == BED and index == tonight.size() - 1:
-		room.remove_exit()   # the last bed: the bed is the only way out
+		room.remove_exit()   # the bed dealt last, by hand: the bed is the only way out
 	forced = false
 	wonders_seen = {}
 	_still = {}
@@ -565,6 +491,7 @@ func _enter_room(index: int) -> void:
 	blinking = false
 	goal_who = goal_owner(id)
 	goal_idea = ""
+	already_label = null
 	var entry := room_words(id)
 	var whose := branch_owner(id)
 	var room_name := str(entry.get("name", id))
@@ -573,10 +500,6 @@ func _enter_room(index: int) -> void:
 	else:
 		room_label.text = label_format.format({"name": room_name, "hint": str(entry.get("hint", ""))})
 	devbar.show_hint(str(entry.get("hint", "")))
-	if tonight_ideas.has(id):
-		var spots: Array[Vector2] = room.idea_spots()
-		if not spots.is_empty():
-			place_idea(tonight_ideas[id], spots[spot_index(state.day, index, spots.size())])
 	if tonight_scraps.has(id):
 		var spots: Array[Vector2] = room.idea_spots() + room.scrap_spots()
 		var shapes: Array = tonight_scraps[id]
@@ -591,21 +514,44 @@ func _enter_room(index: int) -> void:
 		for zone in room.exits():   # a branch room's exit leads on down its branch
 			zone.set_meta("branch", whose)
 	if goal_who != "":
-		var branch := branch_of(goal_who)
-		goal_idea = str(branch.get("idea", ""))
-		var spots: Array[Vector2] = room.idea_spots()
-		if goal_idea != "" and not spots.is_empty():
-			var idea := place_idea(goal_idea, spots[0])
-			idea.set_meta("goal", true)
-		var sleeper: Node2D = room.sleeper()
-		if sleeper != null:
-			sleeper.set_words(str(words.get("asleep", "{name}")).format({"name": villager_name(goal_who)}), str(words.get("snore", "")))
+		_lay_goal()
 	_settle()
 	_apply_soft(dreamer.pinched)
 	_apply_thin()
 	_update_frame()
 	acted.emit("enter", id)
 	room_entered.emit(id)
+
+
+## The goal room's contents: the villager asleep and, beside them, their
+## idea; or, on a branch already reached, two scraps where the idea was
+## and the line that says so.
+func _lay_goal() -> void:
+	var branch := branch_of(goal_who)
+	var spots: Array[Vector2] = room.idea_spots()
+	var sleeper: Node2D = room.sleeper()
+	if sleeper != null:
+		sleeper.set_words(str(words.get("asleep", "{name}")).format({"name": villager_name(goal_who)}), str(words.get("snore", "")))
+	if spots.is_empty():
+		return
+	if state.reached.get(goal_who, false):
+		var shapes := already_shapes()
+		for i in shapes.size():
+			place_scrap(shapes[i], spots[0] + Vector2(SCRAP_SPREAD * (i - (shapes.size() - 1) / 2.0), -SCRAP_HOVER))
+		var x := clampf(spots[0].x - ALREADY_LABEL_WIDTH / 2.0, 4.0, room.SIZE.x - 4.0 - ALREADY_LABEL_WIDTH)
+		already_label = PinchLabel.make(str(words.get("already", "")).format({"name": villager_name(goal_who)}), Vector2(x, spots[0].y - ALREADY_ABOVE - PinchLabel.LINE), ALREADY_LABEL_WIDTH)
+		already_label.name = "Already"
+		room.add_child(already_label)
+		return
+	goal_idea = str(branch.get("idea", ""))
+	if goal_idea != "":
+		var idea := place_idea(goal_idea, spots[0])
+		idea.set_meta("goal", true)
+
+
+## The "already dreamed" line shown in a reached branch's goal room; "" elsewhere.
+func already_text() -> String:
+	return already_label.text if already_label != null else ""
 
 
 ## The hub's signs: the right exit leads down the target's branch, the
@@ -652,20 +598,14 @@ func sign_texts() -> Dictionary:
 
 # --- lucidity -----------------------------------------------------------------
 
-## Tonight's limit: 8, or 10 with a pill (state.night_limit()).
+## Tonight's limit: 8, plus the pill (state.night_limit()).
 func limit() -> int:
 	return state.night_limit()
 
 
-## Lucidity plus the ideas carried (the one in hand counted twice) plus
-## the scraps carried (SPEC-2: no doubling; scraps are small).
+## Lucidity plus the scraps carried (SPEC-2: no doubling; scraps are small).
 func effective() -> int:
-	return lucidity + carried.size() + (1 if in_hand() else 0) + scraps_carried.size()
-
-
-## True for HAND seconds after a grab: the newest idea is in the hand.
-func in_hand() -> bool:
-	return _hand_left > 0.0 and not carried.is_empty()
+	return lucidity + scraps_carried.size()
 
 
 func aperture() -> float:
@@ -702,25 +642,6 @@ func blink_phase() -> String:
 ## True within THIN_STEPS of the limit: the soft shapes are drawn dimmer.
 func thin() -> bool:
 	return effective() >= limit() - THIN_STEPS
-
-
-## Take the idea in reach while pinched, room under the hat permitting:
-## +2, in the hand, gone from the room.
-func grab() -> bool:
-	if not _can_act() or not dreamer.pinched or carried.size() >= state.carry_limit:
-		return false
-	var idea := idea_in_reach()
-	if idea == null or idea.has_meta("goal"):   # the goal room's idea is reached (E), never carried
-		return false
-	var id: String = idea.id
-	carried.append(id)
-	ideas_node.remove_child(idea)
-	idea.queue_free()
-	_hand_left = HAND
-	lucidity += 2
-	acted.emit("grab", id)
-	_changed()
-	return true
 
 
 ## Take the scrap in reach while pinched, the hip permitting
@@ -763,23 +684,9 @@ func can_reach() -> bool:
 	return idea != null and idea.has_meta("goal")
 
 
-## Set the top idea down as a step in front of the feet, pinched and on
-## the floor: +1; it is an ordinary idea again, there. With no idea on the
-## hat, the top scrap goes down instead (set_down_scrap).
+## Q: the top scrap down as a step (set_down_scrap).
 func set_down() -> bool:
-	if not _can_act() or not dreamer.pinched or not dreamer.is_on_floor():
-		return false
-	if carried.is_empty():
-		return set_down_scrap()
-	var id: String = carried.pop_back()
-	_hand_left = 0.0
-	var at := Vector2(dreamer.position.x + dreamer.facing * SET_DOWN_AHEAD, dreamer.position.y + dreamer.BODY_SIZE.y / 2.0 - IDEA.SIZE.y / 2.0)
-	at.x = clampf(at.x, room.WALL + IDEA.SIZE.x / 2.0, room.SIZE.x - room.WALL - IDEA.SIZE.x / 2.0)
-	place_idea(id, at)
-	lucidity += 1
-	acted.emit("set_down", id)
-	_changed()
-	return true
+	return set_down_scrap()
 
 
 ## Set the top scrap down as a small step in front of the feet, pinched and
@@ -848,7 +755,7 @@ func wonder(id: String, kind: String) -> bool:
 	return true
 
 
-## Lie in the bed in reach: wake gently with everything.
+## Lie in the bed in reach (the first loop's bed room, dealt by hand): wake gently with everything.
 func lie_down() -> bool:
 	if not _can_act() or not bed_in_reach():
 		return false
@@ -857,8 +764,9 @@ func lie_down() -> bool:
 	return true
 
 
-## An idea lying in the room, placed by the dealer or by hand (tests, the
-## designer): a crisp body at `at` (its middle), named from ideas.json.
+## An idea lying in the room, placed by the dealer in the goal room or by
+## hand (tests, the designer): a crisp body at `at` (its middle), named
+## from ideas.json. An idea is never carried: it is reached (the goal's) or stood on.
 func place_idea(id: String, at: Vector2) -> StaticBody2D:
 	var idea: StaticBody2D = IDEA.new()
 	idea.setup(id, idea_name(id))
@@ -966,12 +874,14 @@ func exit_near() -> bool:
 # --- the dev bar -----------------------------------------------------------------
 
 ## ONLY what can be done right now, from the state, in devbar.json's words:
-## asleep (drift, pinch) with the current and the spot when inside one;
-## pinched on the floor (walk, jump, let go) or in the air (let go), with
-## the grab when an idea is in reach and the hat has room, the set-down
-## when something is carried on a floor, the push when the block is in
-## reach and unpushed; the exit when near it; the bed when in reach.
-## Nothing while the frame blinks, closes or the night is over.
+## asleep (drift, pinch) with the current, and the spot's wonder when
+## inside one (asleep only: a wonder needs stillness asleep); pinched on
+## the floor (walk, jump, let go) or in the air (let go), with the reach
+## when the goal's idea is in reach, the grab when a scrap is and the hip
+## has room, the set-down when a scrap is carried on a floor, the push
+## when the block is in reach and unpushed, and the self-pinch's hold on
+## any floor; the hub's signs; the exit when near it; the bed when in
+## reach. Nothing while the frame blinks, closes or the night is over.
 func devbar_text() -> String:
 	if not _can_act():
 		return ""
@@ -981,24 +891,20 @@ func devbar_text() -> String:
 		parts.append(str(w.get("asleep", "")))
 		if not dreamer.carried_by.is_empty():
 			parts.append(str(w.get("current", "")))
+		if spot_in_reach() != null:
+			parts.append(str(w.get("wonder", "")))
 	else:
 		parts.append(str(w.get("pinched" if dreamer.is_on_floor() else "falling", "")))
 		if can_reach():
 			parts.append(str(w.get("reach", "")))
-		elif idea_in_reach() != null and carried.size() < state.carry_limit:
-			parts.append(str(w.get("grab", "")))
 		if scrap_in_reach() != null and scraps_carried.size() < state.carry_scraps:
 			parts.append(str(w.get("scrap", "")))
-		if dreamer.is_on_floor() and not carried.is_empty():
-			parts.append(str(w.get("set_down", "")))
-		elif dreamer.is_on_floor() and not scraps_carried.is_empty():
+		if dreamer.is_on_floor() and not scraps_carried.is_empty():
 			parts.append(str(w.get("set_down_scrap", "")))
 		if block != null and not forced and block_in_reach():
 			parts.append(str(w.get("push", "")))
-		if dreamer.is_on_floor() and spot_in_reach() == null:
+		if dreamer.is_on_floor():
 			parts.append(str(w.get("self_pinch", "")).format({"s": "%.1f" % maxf(SELF_PINCH - _hold, 0.0)}))
-	if spot_in_reach() != null:
-		parts.append(str(w.get("wonder", "")))
 	if current_room_id() == HUB and room != null and not room.exits().is_empty():
 		var texts := sign_texts()
 		parts.append(str(w.get("signs", "")).format({"left": texts.left, "right": texts.right}))
@@ -1038,7 +944,7 @@ func _can_act() -> bool:
 func _interact() -> void:
 	if not _can_act():
 		return
-	if dreamer.pinched and (reach() or grab() or grab_scrap() or force()):
+	if dreamer.pinched and (reach() or grab_scrap() or force()):
 		return
 	lie_down()
 
@@ -1054,17 +960,18 @@ func _check_hazards() -> void:
 			return
 
 
+## The wonders: a soft wall or the goat asleep; a spot by STILL seconds
+## still inside it, asleep (day B: pinched stillness is the self-pinch's).
 func _check_wonders(delta: float) -> void:
 	for node in get_tree().get_nodes_in_group("wonder"):
 		if wonders_seen.has(node.id):
 			continue
-		if not node.overlaps_body(dreamer):
+		if not node.overlaps_body(dreamer) or dreamer.pinched:
 			_still.erase(node.id)
 			continue
 		match node.kind:
 			"soft_wall", "goat":
-				if not dreamer.pinched:
-					wonder(node.id, node.kind)
+				wonder(node.id, node.kind)
 			"spot":
 				if dreamer.is_still():
 					_still[node.id] = _still.get(node.id, 0.0) + delta
@@ -1092,12 +999,12 @@ func _check_exit() -> void:
 
 # --- the self-pinch --------------------------------------------------------------
 
-## The hold grows while PINCH is held standing still on a floor with no
-## movement input; anything else resets it; at SELF_PINCH seconds the
-## dreamer wakes on purpose (self_pinch).
+## The hold grows while PINCH is held standing still on any floor with no
+## movement input (a quiet spot included, day B); anything else resets
+## it; at SELF_PINCH seconds the dreamer wakes on purpose (self_pinch).
 func _update_hold(delta: float) -> void:
 	var still: bool = dreamer.pinched and dreamer.is_on_floor() and Input.get_axis("move_left", "move_right") == 0.0 and not Input.is_action_pressed("jump") and dreamer.is_still()
-	if not still or spot_in_reach() != null:
+	if not still:
 		_hold = 0.0
 		return
 	_hold += delta
@@ -1137,8 +1044,6 @@ func _apply_soft(pinched: bool) -> void:
 			shape.disabled = pinched
 
 
-## The dreamer back at the door; the frame reopens over BLINK_OPEN_FRAMES
-## (shown_aperture scales the eased value, which is the aperture itself).
 ## Within THIN_STEPS of the limit the soft shapes dim (THIN); else plain.
 func _apply_thin() -> void:
 	var modulate := THIN if thin() else Color.WHITE
@@ -1147,6 +1052,8 @@ func _apply_thin() -> void:
 			node.modulate = modulate
 
 
+## The dreamer back at the door; the frame reopens over BLINK_OPEN_FRAMES
+## (shown_aperture scales the eased value, which is the aperture itself).
 func _reopen() -> void:
 	blinking = false
 	_settle()
@@ -1167,11 +1074,9 @@ func _settle() -> void:
 	_grace = 2
 
 
-## After every act: the hat, the frame's target, and the limit.
+## After every act: the hip, the frame's target, and the limit.
 func _changed() -> void:
-	state.ideas_carried.assign(carried)
 	state.scraps_carried.assign(scraps_carried)
-	dreamer.set_hat(carried.size(), in_hand())
 	dreamer.set_hip(scraps_carried.size())
 	if not is_equal_approx(_ease_to, aperture()):
 		_ease_from = _shown
@@ -1259,16 +1164,16 @@ func _build_gauge() -> void:
 	gauge_needle.color = NEEDLE_COLOR
 	gauge_needle.size = Vector2(GAUGE_WIDTH + 10.0, 3)
 	gauge.add_child(gauge_needle)
-	ideas_label = Label.new()
-	ideas_label.name = "Ideas"
-	ideas_label.size = Vector2(160, 22)
-	gauge.add_child(ideas_label)
+	scraps_label = Label.new()
+	scraps_label.name = "Scraps"
+	scraps_label.size = Vector2(160, 22)
+	gauge.add_child(scraps_label)
 	gauge.visible = gauge_visible
 	_update_gauge()
 
 
 ## The bands stacked from the bar's bottom (deep) to its top (waking), the
-## needle at the eased share of the limit, the ideas count beside it.
+## needle at the eased share of the limit, the scraps count beside it.
 func _update_gauge() -> void:
 	if gauge == null:
 		return
@@ -1283,8 +1188,8 @@ func _update_gauge() -> void:
 		var label: Label = gauge_labels[band]
 		label.position = Vector2(GAUGE_WIDTH + 8.0, -(from + to) / 2.0 - 11.0)
 	gauge_needle.position = Vector2(-5.0, -_needle * height - 1.5)
-	ideas_label.position = Vector2(GAUGE_WIDTH + 8.0, -height - 26.0)
-	ideas_label.text = str(gauge_words.get("ideas", "{n} / {limit}")).format({"n": carried.size(), "limit": state.carry_limit})
+	scraps_label.position = Vector2(GAUGE_WIDTH + 8.0, -height - 26.0)
+	scraps_label.text = str(gauge_words.get("scraps", "{n} / {limit}")).format({"n": scraps_carried.size(), "limit": state.carry_scraps})
 
 
 # --- the frame -----------------------------------------------------------------
@@ -1333,4 +1238,4 @@ func _wake(sudden: bool) -> void:
 		return
 	woken = true
 	closing = false
-	woke.emit(sudden, carried.duplicate())
+	woke.emit(sudden, scraps_carried.duplicate())

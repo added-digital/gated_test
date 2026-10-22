@@ -4,7 +4,7 @@
     "deep": "deep",
     "light": "light",
     "waking": "waking",
-    "ideas": "ideas {n} / {limit}"
+    "scraps": "thoughts {n} / {limit}"
   },
   "words": {
     "door": "door",
@@ -27,7 +27,8 @@
     "sign_right": "{name} →",
     "snore": "z z z",
     "asleep": "{name}, asleep",
-    "scrap": "a thought"
+    "scrap": "a thought",
+    "already": "{name} dreamed this one already. Two thoughts lie where it was."
   },
   "rooms": [
     {
@@ -63,7 +64,7 @@
     {
       "id": "f",
       "name": "The draft",
-      "hint": "Drift right; the draft lifts you. Pinch over the shelf: the idea. Ride up to the perch."
+      "hint": "Drift right; the draft lifts you. Pinch over the shelf: a thought. Ride up to the perch."
     },
     {
       "id": "ladder",

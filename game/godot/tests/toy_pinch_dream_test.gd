@@ -16,7 +16,9 @@ extends Node2D
 ## jump, off it a hard fall (+1), pinched inside the current nothing
 ## moves, the exit chains to the second room with the frame unchanged;
 ## room a: the soft wall's wonder once (-1, not twice, never below 0), the
-## jump up the ledge is free, 3 s still in the spot (-1); room b: a hazard
+## jump up the ledge is free, 3 s still in the spot, asleep (-1; day B:
+## still and pinched is the self-pinch, so the pinch is let go in the
+## spot and taken up again after); room b: a hazard
 ## while pinched fails the screen, the goat carries the body along its
 ## round (the dreamer's motion equals the goat's), its wonder once, pinch
 ## over the far floor, the exit; the bed room: no ideas (day 3), the
@@ -177,12 +179,18 @@ func _ready() -> void:
 	var spot: Area2D = dream.room.get_node("Wonders/Quiet")
 	frames = await hold_until("move_right", func() -> bool: return dreamer.position.x > spot.position.x + 40.0, 120)
 	check(frames < 120 and spot.overlaps_body(dreamer), "standing in the spot at x = %.1f" % dreamer.position.x)
+	Input.action_release("pinch")   # day B: stillness pinched is the self-pinch; a spot's wonder needs it asleep
+	await get_tree().physics_frame
+	check(not dreamer.pinched and dreamer.is_still() and spot.overlaps_body(dreamer), "let go in the spot: hanging there asleep, still")
 	for i in 150:
 		await get_tree().physics_frame
-	check(dream.lucidity == 1, "2.5 s still: not yet")
+	check(dream.lucidity == 1 and is_zero_approx(dream.hold_seconds()), "2.5 s still: not yet (and no hold counts asleep)")
 	for i in 40:
 		await get_tree().physics_frame
-	check(dream.lucidity == 0 and dream.wonders_seen.has("a_spot"), "3 s still in the spot: wonder, lucidity 0")
+	check(dream.lucidity == 0 and dream.wonders_seen.has("a_spot"), "3 s still asleep in the spot: wonder, lucidity 0")
+	Input.action_press("pinch")
+	await settle()
+	check(dreamer.pinched and dreamer.is_on_floor() and not dream.woken, "pinched again on the ledge, the night going on")
 	dream.fall()
 	check(dream.lucidity == 1, "(a hard fall by hand: lucidity 1, to see the floor at 0)")
 	check(not dream.wonder("a_spot", "spot") and dream.lucidity == 1, "the same wonder again gives nothing")
@@ -239,7 +247,7 @@ func _ready() -> void:
 
 	# The bed room: the stub's contents, and a gentle waking.
 	check(dream.jump_to_room("bed") and dream.current_room_id() == "bed", "jumped to the bed room")
-	check(dream.ideas_node.get_child_count() == 0 and dream.block != null and dream.bed != null and dream.room.exit == null, "no ideas (day 3: the dealer lays none in the bed room), the block and the bed, no exit")
+	check(dream.ideas_node.get_child_count() == 0 and dream.block != null and dream.bed != null and dream.room.exit == null, "no ideas (the dealer lays none; day B: none anywhere but a goal room), the block and the bed, no exit")
 	check(not dream.set_down(), "set_down with nothing carried does nothing")
 	await settle()
 	frames = await hold_until("move_right", func() -> bool: return dream.bed_in_reach(), DRIFT_FRAMES)

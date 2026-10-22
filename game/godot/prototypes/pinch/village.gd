@@ -1,85 +1,80 @@
 extends Node2D
-## The street of Yawn by day (toy 4, PINCH): a side view four screens wide on
-## one ground line. Three buildings stand (the Long House with the bunk, the
-## table, the stove and the tally wall; Jorun's hut; the stove shed) and
-## three plots wait (Sixteen Stairs, Bo's loft, a lantern post). Two black
-## rects mask the street beyond the lit tiles at each end; they recede one
-## tile per building standing, read from the state. E at the bunk emits
-## slept.
+## The street of Yawn by day (toy 4b, PINCH, the second loop): a side view
+## four screens wide on one ground line. Three buildings stand (the Long
+## House with the bunk, the table, the stove, the map on the wall and the
+## tally wall; Jorun's hut; the stove shed) and three plots wait (Sixteen
+## Stairs, Bo's loft, a lantern post). Two black rects mask the street
+## beyond the lit tiles at each end; they recede one tile per building
+## standing, read from the state. E at the bunk emits slept.
 ##
-## Day 4. THE PEOPLE (data/characters.json): Tove by the stove, Jorun by the
-## Long House door, Bo by his plot; grey capsules with a name over the head.
-## E within TALK_RANGE talks: the first unspoken memory line whose "if"
+## THE PEOPLE (data/characters.json): Tove by the stove, Jorun by the Long
+## House door, Bo by his plot; grey capsules with a name over the head. E
+## within TALK_RANGE talks: the first unspoken memory line whose "if"
 ## flags hold (and no "unless" flag does; "repeat": true lines may be said
-## again), else the greeting; the want line shows above the head for
-## WANT_STAYS seconds. A character whose plot stands moves out and stands in
-## front of it. THE REQUESTS: on a morning where a character's request
+## again), else the greeting; talk() sets talked:<who>, which puts their
+## branch on the wall. A character whose plot stands moves out and stands
+## in front of it. THE REQUESTS: on a morning where a character's request
 ## "when" holds and it has not been asked, its line is said after the wake
-## line and the flag asked:<id> is set; "pills" opens the stove shed (hold
-## E there MAKING seconds, the walker standing still: has_pills; then the
-## bunk's prompt offers 1 for a pill, which raises the night's limit), "hat"
-## raises the carry limit to three. BREAKFAST (SPEC "Breakfast, exactly"):
-## every morning with ideas on the table the walker is put at the table and
-## the three faces sit behind it with their want lines; the top kept idea
-## is in the hand (1, 2, 3 change it); E at a face offers it: the owner
-## (idea.whose) says its claims line and the idea is claimed (a scaffold on
-## its plot today, a building tomorrow) or, if it becomes a small thing, is
-## one; a wrong face says its not_mine line, closes its eyes for the rest
-## of breakfast and sets told_wrong. A head drops every HEAD_DROP seconds
-## (the capsule tilts, its want line fades; a dropped or shut face cannot
-## claim); when the last head drops, every kept idea is placed, no face is
-## left awake or the walker leaves the table (TABLE_RANGE), breakfast ends
-## and what is left becomes a small thing. BUILDINGS: a claimed plot shows
-## a scaffold (an outline with crossbars), a built one a filled rect with a
-## lit window and the idea's name; small things are a bench, a sign or the
-## lantern on its post, labelled. The lost ideas of a sudden waking float
-## over the bunk and fade (fade_lost). Lines are said through the shared
-## text panel (the controller's, or one of its own when run alone): say_for
-## shows one for some seconds, queued behind the one showing unless `now`.
-## THE FEEL (day 5, drawn only, every number a constant below): the lit
-## window of a building that stands this morning (lit_today, set by the
-## controller) fades in over WINDOW_FADE seconds; a scaffold's crossbars
-## appear one every CROSSBAR_EVERY seconds after the claim; at a claim the
-## face nods (its Face dips NOD_PX over NOD_FRAMES) and the idea's rect
-## slides from the hand to the face over SLIDE seconds before it goes.
-## Every word on screen comes from data/village.json and
-## data/characters.json, idea names from data/ideas.json; rewrite those.
+## line and the flag asked:<id> is set (Tove's sends you to Bo's dream for
+## the pills).
 ##
-## The readability pass. THE DEV BAR (devbar.gd, data/devbar.json): a
-## strip along the bottom on its own layer listing ONLY what can be done
-## now (devbar_text(): walk; talk by a character; sleep at the bunk, and a
-## pill when there are pills; make at the stove shed once Tove has asked;
-## at breakfast, offer the idea in the hand, change it, walk away); Tab
-## toggles it (toggle_devbar; state.devbar_visible, kept for the session).
-## LABELS (PinchLabel): every label sits on a dark backing sized to its
-## text; the markers' words sit inside their boxes (so the ideas on the
-## table never cover "table"); the "table" word hides during breakfast;
-## an idea's name on the table is PIECE_LABEL_WIDTH wide at one of
-## PIECE_LABEL_ROWS heights and hidden while breakfast is on (the hand's
-## shows); the lantern post's word is drawn once, by the plot. THE WANT
-## LINES at the table are stacked: the left face's lowest, the right
-## face's highest, WANT_STEP apart, each right-aligned to its own face
-## with a leader down to its head, so none share a line and no leader
-## crosses another's words; a face sitting at the table wears its name on
-## its body. A character's want line is their "moved" line (characters.
-## json) once their plot stands (want_text). A CLAIM is said as two lines:
-## the owner's short claims line for CLAIM_GAP seconds, then the idea's own
-## line (say_for's queue), never one run-on sentence.
-##
-## THE SECOND LOOP (SPEC-2, day A). THE WALL (wall.gd, WALL_AT): the map of
-## the dream in the Long House, the hub and one row per talked-to villager
-## (talk() sets talked:<who>), the goal named once reached; E within
+## THE WALL (wall.gd, WALL_AT): the map of the dream in the Long House,
+## the hub and one row per talked-to villager, the goal named once
+## reached, the rooms named as far as the map knows them; E within
 ## WALL_RANGE of WALL_X opens the picker (choose_dream: the shared panel's
 ## numbered choices over available_branches(), the talked-to villagers in
 ## branches.json order) and sets state.target, which the wall then names
 ## ("Tonight: Bo's dream") and the bunk needs: go_to_sleep refuses without
-## a target while any branch exists (village.json wall.choose_first), and
-## with none the hub alone is the night. The tally wall moved to the
-## right, over the bunk, to leave the map its place. Scraps lost at a
-## sudden waking ("scrap:<shape>") fade over the bunk like ideas, named
-## from data/scraps.json (thing_name). Breakfast still runs on an idea
-## reached (it goes on day B). The dev bar says so at the wall (wall,
-## wall_pick) and at the bunk without a target (sleep_refused).
+## a target while any branch exists (village.json wall.choose_first).
+##
+## THE DESK (desk.gd, SPEC-2 "The Desk, exactly"; day B): every morning
+## with an idea reached last night (state.ideas_kept) or at least
+## desk.MIN_CARDS scraps (state.scraps), after the wake line and the
+## requests, the walker is put at the table and the Desk is drawn there:
+## the idea's outline (branches.json "slots"; scraps.json's blank outline
+## with no idea), the scraps as cards, the light draining from the Long
+## House window for desk.BLUE_HOUR seconds. 1 2 3 (4 5 6) picks a card,
+## A D moves the hand along the slots, E fits it (fit: a matching shape
+## fills the slot and uses the card; a wrong one costs five seconds, the
+## walker shakes: fumble). The Desk ends when the light goes, every slot
+## is filled, or the walker is DESK_RANGE px from the table (end_desk),
+## and DEVELOPS the idea as far as it is filled (develop): all slots,
+## full; more than half, weak; less, nothing but the scraps used. A
+## building (branches.json develops "building": Sixteen Stairs) is
+## claimed for its plot (state.claim: a scaffold today with its crossbars,
+## standing tomorrow with a lit window; weak, a small building, half the
+## height) and its owner moves out; the pill raises the limit for every
+## night after (state.develop_pill: +2 full, +1 weak) and a jar is kept by
+## the bunk; the lantern in full names every room on the wall
+## (state.lantern) and hangs lit by the Long House door (its light fades
+## in as a new window's does); weak, it names every room of one branch of
+## the player's choice (choose_branch, the picker). With no idea, three
+## scraps fitted to the blank outline reveal one more room on a branch of
+## the player's choice (state.reveal). Leftover cards are kept as scraps,
+## up to the state's cap. A development is said as two lines: the desk's
+## line (village.json "desk"), then the idea's own (ideas.json "line")
+## DEVELOP_GAP seconds later. Milestones go through acted: desk_full,
+## desk_weak, desk_reveal (and desk start / light / filled / walked, fit,
+## fumble as actions).
+##
+## THE FEEL, drawn only, every number a constant below: the lit window of
+## a building that stands this morning (lit_today, set by the controller)
+## fades in over WINDOW_FADE seconds, and so does the lantern's light the
+## morning it is developed; a scaffold's crossbars appear one every
+## CROSSBAR_EVERY seconds after the claim; the scraps lost at a sudden
+## waking float over the bunk and fade (fade_lost). Lines are said through
+## the shared text panel (the controller's, or one of its own when run
+## alone): say_for shows one for some seconds, queued behind the one
+## showing unless `now`. THE DEV BAR (devbar.gd, data/devbar.json): a
+## strip along the bottom listing ONLY what can be done now
+## (devbar_text()); Tab toggles it (state.devbar_visible, kept for the
+## session). LABELS (PinchLabel) sit on dark backings. Every word on screen
+## comes from data/village.json and data/characters.json, idea names from
+## data/ideas.json, room names from data/rooms.json; rewrite those.
+##
+## Gone with day B (the first loop's leftovers): breakfast and its faces,
+## want lines, claims, head drops and small things; the stove shed's
+## making and the pill at the bunk; the taller hat; the ideas on the table.
 
 signal slept
 signal acted(kind: String, detail: String)
@@ -90,52 +85,40 @@ const CHARACTERS_FILE := "res://prototypes/pinch/data/characters.json"
 const DEVBAR_FILE := "res://prototypes/pinch/data/devbar.json"
 const BRANCHES_FILE := "res://prototypes/pinch/data/branches.json"
 const SCRAPS_FILE := "res://prototypes/pinch/data/scraps.json"
+const ROOMS_FILE := "res://prototypes/pinch/data/rooms.json"
 const PANEL := preload("res://prototypes/_shared/text_panel.tscn")
 const DEVBAR := preload("res://prototypes/pinch/devbar.gd")
 const WALL_MAP := preload("res://prototypes/pinch/wall.gd")
+const DESK := preload("res://prototypes/pinch/desk.gd")
 const WALL_AT := Vector2(2124, 290)   # the map's top-left corner, on the Long House wall above the table
 const WALL_X := 2180.0                # px: where the walker stands to read the wall: at the table, under the map (clear of the bunk, the stove and Tove)
 const WALL_RANGE := 48.0              # px: this close to WALL_X, E chooses tonight's dream
 const TALLY_AT := Vector2(2400, 316)  # the tally's title, over the bunk; the marks one line under it
 const LOST_FADE := 6.0           # s the lost stack takes to fade over the bunk
-const PIECE := Vector2(32, 24)   # px: one idea as a rect, on the table or over the bunk
+const PIECE := Vector2(32, 24)   # px: one lost thing as a rect over the bunk
 const STREET_WIDTH := 4608.0   # px: four screens of 1152
 const STREET_HEIGHT := 648.0   # px: one screen; the camera never scrolls up or down
 const GROUND_Y := 540.0        # px: the ground line
 const BUNK_RANGE := 48.0       # px: this close to the bunk's middle, E sleeps
 const TALK_RANGE := 40.0       # px: this close to a character's feet, E talks
-const SEAT_RANGE := 30.0       # px: this close to a seat at breakfast, E offers
-const TABLE_RANGE := 140.0     # px from the table's middle: further, and breakfast is walked away from
-const STOVE_RANGE := 48.0      # px: this close to the stove shed's middle, E (held) makes the pills
-const BREAKFAST := 90.0        # s: three heads, one every HEAD_DROP
-const HEAD_DROP := 30.0        # s between heads dropping
-const MAKING := 3.0            # s E is held at the stove shed to make the pills
+const DESK_RANGE := 140.0      # px from the table's middle: further, and the Desk is walked away from
 const LINE_STAYS := 3.0        # s a line stays on screen
-const CLAIM_GAP := 1.5         # s the owner's claims line shows before the idea's own line follows it
+const DEVELOP_GAP := 1.5       # s the desk's line shows before the idea's own line follows it
 const REQUEST_STAYS := 6.0     # s a request line stays
-const WANT_STAYS := 4.0        # s the want line shows over a head after a talk
-const SEAT_GAP := 56.0         # px between the three seats at the table
-const DROPPED_TILT := 0.45     # rad a dropped head's capsule leans
-const DROPPED_WANT_ALPHA := 0.25
-const WINDOW_FADE := 1.5       # s a new building's lit window takes to fade in, the morning it stands
+const WINDOW_FADE := 1.5       # s a new building's lit window (and the lantern's light) takes to fade in
 const CROSSBAR_EVERY := 1.0    # s between a scaffold's crossbars appearing after the claim
-const NOD_PX := 6.0            # px a claiming face dips
-const NOD_FRAMES := 10         # frames the nod takes, down and back
-const SLIDE := 0.4             # s the claimed idea's rect takes to slide from the hand to the face
-const SLIDE_ABOVE := 30.0      # px above the claiming face where the slide ends
+const SMALL_HEIGHT := 0.5      # a weak building stands this share of its plot's height
 const CAPSULE := Vector2(26, 52)
-const WANT_WIDTH := 480.0        # px: a want line's box, one line at WANT_FONT
-const WANT_FONT := 14
-const WANT_ABOVE := 70.0         # px above the head's top where the lowest want line at the table sits
-const WANT_STEP := 22.0          # px between the three want lines at the table: the left face lowest, the right highest
-const WANT_END := 6.0            # px a want line's right end reaches past its face's middle at the table
-const LEADER_COLOR := Color(0.8, 0.8, 0.85, 0.8)
-const PIECE_LABEL_WIDTH := 240.0 # px: an idea's name over its rect (the table, the hand, the lost stack)
+const PIECE_LABEL_WIDTH := 240.0 # px: a lost thing's name over its rect
 const PIECE_LABEL_ROWS := 3      # neighbouring pieces' names at this many heights, so none share a line
 const PIECE_LABEL_STEP := 18.0
-const SMALL_LABEL_WIDTH := 160.0
+const THING_LABEL_WIDTH := 160.0
 const PLOT_LABEL_WIDTH := 220.0
 const WINDOW := Vector2(18, 22)
+const LANTERN_X := 2084.0        # px: the lantern just inside the Long House door, left of the table
+const LANTERN_POST := Vector2(8, 60)
+const LANTERN_LAMP := Vector2(20, 24)
+const PILLS_JAR := Vector2(10, 14)
 const WALL := Color(0.5, 0.5, 0.5)
 const MARKER := Color(0.72, 0.72, 0.72)
 const OUTLINE := Color(0.42, 0.42, 0.42)
@@ -143,7 +126,8 @@ const SCAFFOLD := Color(0.6, 0.6, 0.6)
 const PERSON := Color(0.66, 0.66, 0.68)
 const EYE := Color(0.12, 0.12, 0.14)
 const WINDOW_LIT := Color(1.0, 0.9, 0.45)
-const SMALL := Color(0.58, 0.58, 0.6)
+const THING := Color(0.58, 0.58, 0.6)
+const JAR := Color(0.82, 0.82, 0.86)
 
 # The street, left to right: [kind, id, x, width, height]; buildings stand, plots wait.
 const LAYOUT := [
@@ -154,13 +138,13 @@ const LAYOUT := [
 	["plot", "bos_loft", 2800.0, 200.0, 200.0],
 	["plot", "lantern_post", 3030.0, 30.0, 220.0],
 ]
-const TABLE := Rect2(2130, 490, 90, 50)   # inside the Long House, left
+const TABLE := Rect2(2130, 490, 90, 50)   # inside the Long House, left: the Desk by day
 const STOVE := Rect2(2290, 504, 40, 36)   # inside the Long House, the middle
 const BUNK := Rect2(2400, 500, 70, 40)    # inside the Long House, right
 const DOOR_X := 2056.0                    # outside the Long House's left wall: where Jorun stands
-const SMALL_SLOTS := [2748.0, 2542.0, 1766.0, 2046.0]   # x of the gaps between buildings where small things go
 
 @onready var walker: CharacterBody2D = $Walker
+@onready var walker_body: ColorRect = $Walker/Body
 @onready var prompt_label: Label = $Walker/Prompt
 @onready var day_label: Label = $Hud/DayLabel
 @onready var mask_left: ColorRect = $Mask/Left
@@ -174,43 +158,34 @@ var lit_today: Array[String] = []   # set by the controller before add_child: th
 var words: Dictionary = {}    # village.json
 var ideas: Array = []         # ideas.json
 var characters: Array = []    # characters.json "characters", in order
-var want_line := "{name}: {want}"
-var tally_wall: Label = null  # the marks on the Long House wall, one per sudden waking
-var wall: Node2D = null       # the map on the wall (wall.gd)
 var branches: Array = []      # branches.json "branches", in order
 var scrap_shapes: Array = []  # scraps.json "shapes"
+var scrap_outline: Dictionary = {}   # scraps.json "outline": the blank outline for scraps alone
+var room_names := {}          # room id -> name, from rooms.json (the wall names them)
+var tally_wall: Label = null  # the marks on the Long House wall, one per sudden waking
+var wall: Node2D = null       # the map on the wall (wall.gd)
+var desk: Node2D = null       # the Desk at the table (desk.gd), while it is on
+var desk_on := false
 var picking_target := false   # the wall's picker is up: the keys are its
-var table_label: Label = null # the table's word, hidden while breakfast is on
+var picking_branch := false   # the Desk's branch picker is up
+var table_label: Label = null # the table's word, hidden while the Desk is on
 var devbar: CanvasLayer = null     # the dev bar: what can be done now
 var devbar_words: Dictionary = {}  # devbar.json
 var devbar_visible := true         # Tab toggles it; mirrored in state.devbar_visible
-var table_ideas: Node2D = null   # the kept ideas on the table, one labelled rect each
-var lost_stack: Node2D = null    # the ideas lost at waking, fading over the bunk; null when none
+var lost_stack: Node2D = null    # the scraps lost at waking, fading over the bunk; null when none
 var plots: Node2D = null         # the plots as they stand today: outline, scaffold or building
-var small_things: Node2D = null  # the small things on the street
+var things: Node2D = null        # the developed things on the street: the pills' jar, the lantern
 var people_node: Node2D = null   # the characters on the street
-var seats_node: Node2D = null    # the faces at the table while breakfast is on
-var hand: Node2D = null          # the idea in the hand at breakfast, over the walker's head
 var people := {}                 # who -> Node2D (a capsule on the street)
-var seats := {}                  # who -> Node2D (a capsule at the table), while breakfast is on
-var seat_state := {}             # who -> "awake" | "closed" | "dropped"
 var plot_nodes := {}             # plot id -> Node2D drawn for it
-var breakfast_on := false
-var breakfast_time := 0.0        # s since breakfast began
-var heads_dropped := 0
-var hand_index := 0              # which kept idea is in the hand
-var making := 0.0                # s E has been held at the stove shed
 var _slept := false
 var _lost_left := 0.0
 var _lines: Array = []           # [text, seconds] waiting behind the line showing
 var _line_left := 0.0            # s the line showing has left; 0: nothing showing
-var _want_left := {}             # who -> s the want line over a street head has left
 var _day_time := 0.0             # s since this morning began
-var _claimed_at := {}            # plot id -> _day_time of its claim at breakfast (the crossbars count from it)
-var _nods := {}                  # who -> [the seat's Face, frames of the nod left]
-var _slides: Array = []          # [piece, from, to, seconds left] of idea rects sliding to a face
-var slides_node: Node2D = null   # the sliding rects
-var _seats_retiring := false     # breakfast ended on a claim: the faces stay until the nod and the slide are done
+var _claimed_at := {}            # plot id -> _day_time of its claim at the Desk (the crossbars count from it)
+var _lantern_lit_at := -1.0      # _day_time the lantern was developed this morning; -1 when not this morning
+var _body_x := 0.0               # the walker's body rect x when still (the fumble's shake moves it)
 
 
 func _ready() -> void:
@@ -223,16 +198,21 @@ func _ready() -> void:
 	loaded = PinchState.load_json(CHARACTERS_FILE)
 	var people_json: Dictionary = loaded if loaded is Dictionary else {}
 	characters = people_json.get("characters", [])
-	want_line = str(people_json.get("want_line", want_line))
 	loaded = PinchState.load_json(DEVBAR_FILE)
 	devbar_words = loaded if loaded is Dictionary else {}
 	loaded = PinchState.load_json(BRANCHES_FILE)
 	branches = (loaded as Dictionary).get("branches", []) if loaded is Dictionary else []
 	loaded = PinchState.load_json(SCRAPS_FILE)
-	scrap_shapes = (loaded as Dictionary).get("shapes", []) if loaded is Dictionary else []
+	var scraps_json: Dictionary = loaded if loaded is Dictionary else {}
+	scrap_shapes = scraps_json.get("shapes", [])
+	scrap_outline = scraps_json.get("outline", {})
+	loaded = PinchState.load_json(ROOMS_FILE)
+	for entry in (loaded as Dictionary).get("rooms", []) if loaded is Dictionary else []:
+		room_names[str(entry.get("id", ""))] = str(entry.get("name", entry.get("id", "")))
 	if panel == null:
 		panel = PANEL.instantiate()
 		add_child(panel)
+	_body_x = walker_body.position.x
 	_build_street()
 	_build_wall()
 	_build_people()
@@ -259,88 +239,75 @@ func _process(delta: float) -> void:
 			lost_stack = null
 		else:
 			lost_stack.modulate.a = _lost_left / LOST_FADE
-	for who in _want_left.keys():
-		_want_left[who] -= delta
-		if _want_left[who] <= 0.0:
-			_want_left.erase(who)
-			_want_label(people[who]).visible = false
-	if breakfast_on:
-		breakfast_time += delta
-		_apply_drops()
-		if breakfast_on and absf(walker.position.x - TABLE.get_center().x) > TABLE_RANGE:
-			end_breakfast("skipped")
-	if can_make() and Input.is_action_pressed("interact"):
-		making += delta
-		walker.frozen = true
-		if making >= MAKING:
-			make_pills()
-	else:
-		making = 0.0
-		walker.frozen = false
+	if desk_on:
+		desk.tick(delta)
+		walker_body.position.x = _body_x + desk.shake_offset()
+		if desk.light_gone():
+			end_desk("light")
+		elif absf(walker.position.x - TABLE.get_center().x) > DESK_RANGE:
+			end_desk("walked")
 	_update_prompt()
 	devbar.set_actions(devbar_text())
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if picking_target:
-		return   # the wall's picker is up: the number keys are the panel's
-	if event.is_action_pressed("interact"):
-		if breakfast_on:
-			offer()
-		elif bunk_in_range():
+	if picking_target or picking_branch:
+		return   # a picker is up: the number keys are the panel's
+	if event.is_action_pressed("devbar_toggle"):
+		toggle_devbar()
+	elif desk_on:
+		if event.is_action_pressed("interact"):
+			fit()
+		elif event.is_action_pressed("move_left"):
+			desk.move(-1)
+		elif event.is_action_pressed("move_right"):
+			desk.move(1)
+		else:
+			var index := _card_key(event)
+			if index >= 0:
+				pick_card(index)
+	elif event.is_action_pressed("interact"):
+		if bunk_in_range():
 			go_to_sleep()
-		elif can_make():
-			pass   # the hold is read in _process
 		elif wall_in_range():
 			choose_dream()
 		else:
 			var who := character_in_reach()
 			if who != "":
 				talk(who)
-	elif event.is_action_pressed("devbar_toggle"):
-		toggle_devbar()
-	elif breakfast_on:
-		for i in 3:
-			if event.is_action_pressed("choice_%d" % (i + 1)):
-				set_hand(i)
-	elif event.is_action_pressed("choice_1") and bunk_in_range():
-		take_pill()
+
+
+## The card a key picks: 1 2 3 are the panel's choice actions, 4 5 6 the keys themselves; -1 for any other event.
+func _card_key(event: InputEvent) -> int:
+	for i in 3:
+		if event.is_action_pressed("choice_%d" % (i + 1)):
+			return i
+	if event is InputEventKey and event.pressed and not event.echo:
+		var keys := [KEY_4, KEY_5, KEY_6]
+		var index := keys.find(event.physical_keycode)
+		if index < 0:
+			index = keys.find(event.keycode)
+		if index >= 0:
+			return 3 + index
+	return -1
 
 
 # --- the street ----------------------------------------------------------------
 
-## Re-reads the state: the day label, the tally wall, the ideas on the
-## table, the plots, the small things, where the people stand, the dark at
-## each end.
+## Re-reads the state: the day label, the tally wall, the plots, the
+## things, where the people stand, the wall, the dark at each end.
 func refresh() -> void:
 	day_label.text = str(words.get("day_label", "{day}")).format({"day": state.day})
 	PinchLabel.set_text(tally_wall, str(words.get("tally_mark", "|")).repeat(state.tally))
-	for piece in table_ideas.get_children():
-		table_ideas.remove_child(piece)
-		piece.queue_free()
-	for i in state.ideas_kept.size():
-		_add_piece(table_ideas, state.ideas_kept[i], Vector2(TABLE.position.x + 8 + i * (PIECE.x + 6), TABLE.position.y - PIECE.y), i)
-	_show_table_words()
 	_draw_plots()
-	_draw_small_things()
+	_draw_things()
 	_place_people()
-	for who in people:
-		PinchLabel.set_text(_want_label(people[who]), want_text(who))
 	wall.refresh(state)
-	_update_hand()
 	var lit := lit_extent()
 	mask_left.position = Vector2.ZERO
 	mask_left.size = Vector2(STREET_WIDTH / 2.0 - lit, STREET_HEIGHT)
 	mask_right.position = Vector2(STREET_WIDTH / 2.0 + lit, 0)
 	mask_right.size = Vector2(STREET_WIDTH / 2.0 - lit, STREET_HEIGHT)
-
-
-## The table's word and the names of the pieces on it show between meals and
-## hide while breakfast is on (the hand's name is the one that matters then).
-func _show_table_words() -> void:
-	table_label.visible = not breakfast_on
-	for piece in table_ideas.get_children():
-		piece.get_node("Name").visible = not breakfast_on
 
 
 func lit_tiles() -> int:
@@ -365,10 +332,6 @@ func wall_in_range() -> bool:
 	return absf(walker.position.x - WALL_X) <= WALL_RANGE
 
 
-func stove_in_range() -> bool:
-	return absf(walker.position.x - plot_rect("stove_shed").get_center().x) <= STOVE_RANGE
-
-
 ## The name of an idea, from ideas.json.
 func idea_name(id: String) -> String:
 	return str(idea_entry(id).get("name", id))
@@ -382,27 +345,40 @@ func idea_entry(id: String) -> Dictionary:
 	return {}
 
 
+## The branches.json entry whose idea this is; {} if none.
+func branch_for_idea(id: String) -> Dictionary:
+	for branch in branches:
+		if str(branch.get("idea", "")) == id:
+			return branch
+	return {}
+
+
+## A villager's branch from branches.json; {} when they have none.
+func branch_of(who: String) -> Dictionary:
+	for branch in branches:
+		if str(branch.get("who", "")) == who:
+			return branch
+	return {}
+
+
 ## The name of a scrap's shape, from scraps.json.
 func scrap_name(shape: String) -> String:
+	return str(scrap_names().get(shape, shape))
+
+
+## shape id -> name, from scraps.json.
+func scrap_names() -> Dictionary:
+	var names := {}
 	for entry in scrap_shapes:
-		if str(entry.get("id", "")) == shape:
-			return str(entry.get("name", shape))
-	return shape
+		names[str(entry.get("id", ""))] = str(entry.get("name", entry.get("id", "")))
+	return names
 
 
-## The name of a thing carried up from the dream: an idea's, or a scrap's ("scrap:<shape>").
+## The name of a thing carried up from the dream: a scrap's ("scrap:<shape>"), or an idea's.
 func thing_name(id: String) -> String:
 	if id.begins_with("scrap:"):
 		return scrap_name(id.substr(6))
 	return idea_name(id)
-
-
-## The ideas kept, as drawn on the table, in order.
-func table_idea_ids() -> Array[String]:
-	var ids: Array[String] = []
-	for piece in table_ideas.get_children():
-		ids.append(str(piece.get_meta("id")))
-	return ids
 
 
 ## The rect of a plot or a building of the LAYOUT, on the street.
@@ -413,10 +389,11 @@ func plot_rect(id: String) -> Rect2:
 	return Rect2()
 
 
-## What stands on a plot today: "empty", "scaffold" (claimed at breakfast) or "built".
+## What stands on a plot today: "empty", "scaffold" (claimed at the Desk),
+## "built" or "small_building" (developed weak, standing).
 func plot_state(plot: String) -> String:
 	if state.ideas_built.has(plot):
-		return "built"
+		return "small_building" if state.weak_buildings.has(plot) else "built"
 	if state.ideas_claimed.has(plot):
 		return "scaffold"
 	return "empty"
@@ -428,16 +405,13 @@ func plot_node(plot: String) -> Node2D:
 	return plot_nodes.get(plot, null)
 
 
-## The small things on the street, as drawn, in order: their idea ids.
-func small_thing_ids() -> Array[String]:
-	var ids: Array[String] = []
-	for thing in small_things.get_children():
-		ids.append(str(thing.get_meta("id")))
-	return ids
+## The node drawn for a developed thing on the street ("pills", "lantern"), or null.
+func thing_node(id: String) -> Node2D:
+	return things.get_node_or_null("Thing_%s" % id) as Node2D
 
 
-## The ideas lost at a sudden waking: a stack over the bunk, one rect per
-## idea, fading away over LOST_FADE seconds.
+## The scraps lost at a sudden waking: a stack over the bunk, one rect per
+## thing, fading away over LOST_FADE seconds.
 func fade_lost(ids: Array) -> void:
 	if lost_stack != null:
 		street.remove_child(lost_stack)
@@ -459,7 +433,7 @@ func lost_alpha() -> float:
 ## Lie down: emits slept once; the controller takes it from there. Without
 ## a target while a branch exists (SPEC-2) the bunk refuses: choose first.
 func go_to_sleep() -> void:
-	if _slept:
+	if _slept or desk_on:
 		return
 	if not sleep_allowed():
 		say_for(str(words.get("wall", {}).get("choose_first", "")), LINE_STAYS, true)
@@ -476,7 +450,7 @@ func sleep_allowed() -> bool:
 
 # --- the wall --------------------------------------------------------------------
 
-## The branches the wall shows and the picker offers: the talked-to
+## The branches the wall shows and the pickers offer: the talked-to
 ## villagers' (flag talked:<who>), in branches.json order.
 func available_branches() -> Array[String]:
 	var whos: Array[String] = []
@@ -490,7 +464,7 @@ func available_branches() -> Array[String]:
 ## E at the wall: the picker over the available branches (1 2 3, or a
 ## click); the choice is tonight's target. With no branch yet, the note.
 func choose_dream() -> void:
-	if picking_target or _slept or breakfast_on:
+	if picking_target or picking_branch or _slept or desk_on:
 		return
 	var whos := available_branches()
 	if whos.is_empty():
@@ -530,19 +504,160 @@ func _build_wall() -> void:
 	wall = WALL_MAP.new()
 	wall.name = "Wall"
 	wall.position = WALL_AT
-	wall.setup(words.get("wall", {}), branches, villager_names, idea_names)
+	wall.setup(words.get("wall", {}), branches, villager_names, idea_names, room_names)
 	street.add_child(wall)
 
 
-## 1 at the bunk with pills in the house: one for tonight. The limit grows
-## by the pill's bonus this night only; the game never says who it is for.
-func take_pill() -> bool:
-	if not state.has_pills or state.pill_tonight or _slept:
+# --- the Desk --------------------------------------------------------------------
+
+## Whether this morning has a Desk: something reached last night, or scraps enough, and not yet today.
+func desk_due() -> bool:
+	return state.desk_done_day != state.day and (not state.ideas_kept.is_empty() or state.scraps.size() >= DESK.MIN_CARDS)
+
+
+## The idea on the desk this morning ("" for scraps alone) and its outline's slots.
+func desk_outline() -> Dictionary:
+	if not state.ideas_kept.is_empty():
+		var idea: String = state.ideas_kept[0]
+		var branch := branch_for_idea(idea)
+		return {"idea": idea, "name": idea_name(idea), "slots": branch.get("slots", [])}
+	return {"idea": "", "name": str(scrap_outline.get("name", "")), "slots": scrap_outline.get("slots", ["any", "any", "any"])}
+
+
+## The walker at the table, the outline, the cards, the light: the blue hour begins.
+func start_desk() -> void:
+	if desk_on or _slept or not desk_due():
+		return
+	var outline := desk_outline()
+	desk_on = true
+	walker.position.x = TABLE.get_center().x
+	walker.velocity = Vector2.ZERO
+	desk = DESK.new()
+	desk.name = "Desk"
+	desk.position = TABLE.position
+	desk.setup(str(outline.idea), str(outline.name), outline.slots, state.scraps, words.get("desk", {}), scrap_names())
+	street.add_child(desk)
+	table_label.visible = false
+	var key := "begin" if outline.idea != "" else "begin_blank"
+	say_for(str(words.get("desk", {}).get(key, "")).format({"name": str(outline.name)}), LINE_STAYS)
+	acted.emit("desk", "start")
+
+
+## 1 2 3 (4 5 6): a card in the hand.
+func pick_card(index: int) -> bool:
+	if not desk_on or not desk.pick_card(index):
 		return false
-	state.pill_tonight = true
-	say_for(str(words.get("pill_taken", "")), LINE_STAYS, true)
-	acted.emit("pill", "")
+	acted.emit("pick", str(desk.cards[index]))
 	return true
+
+
+## E at the Desk: the picked card into the slot under the hand (desk.fit);
+## a fumble is said and shakes the walker; the last slot filled ends the Desk.
+func fit() -> String:
+	if not desk_on:
+		return ""
+	var result: String = desk.fit()
+	if result == "fit":
+		acted.emit("fit", desk.filled[desk.hand])
+		if desk.complete():
+			end_desk("filled")
+	elif result == "fumble":
+		say_for(str(words.get("desk", {}).get("fumble", "")), LINE_STAYS, true)
+		acted.emit("fumble", desk.picked_shape())
+	return result
+
+
+## The Desk is over, for `reason` ("light": the blue hour ended; "filled":
+## every slot; "walked": the walker left the table): the idea is developed
+## as far as it is filled, or the scraps alone reveal a room; the leftover
+## cards are kept as scraps, up to the state's cap.
+func end_desk(reason: String) -> void:
+	if not desk_on:
+		return
+	desk_on = false
+	state.desk_done_day = state.day
+	var idea: String = desk.idea
+	var filled: int = desk.filled_count()
+	var total: int = desk.slots.size()
+	var leftovers: Array[String] = desk.cards_left()
+	state.scraps.assign(leftovers.slice(0, PinchState.KEEP_SCRAPS))
+	state.ideas_kept.clear()
+	walker_body.position.x = _body_x
+	var node := desk
+	desk = null
+	street.remove_child(node)
+	node.queue_free()
+	table_label.visible = true
+	acted.emit("desk", reason)
+	if reason == "walked":
+		say_for(str(words.get("desk", {}).get("walked", "")), LINE_STAYS, true)
+	if idea != "":
+		var grade := "full" if filled == total else ("weak" if filled * 2 > total else "none")
+		await develop(idea, grade)
+	elif filled >= total:
+		var who := await choose_branch()
+		if who != "":
+			state.reveal(who, branch_of(who).get("rooms", []).size())
+			say_for(str(words.get("desk", {}).get("reveal", "")).format({"name": str(character(who).get("name", who))}), LINE_STAYS, true)
+			acted.emit("desk_reveal", who)
+	else:
+		say_for(str(words.get("desk", {}).get("reveal_none", "")), LINE_STAYS, true)
+	refresh()
+
+
+## The idea developed as far as the outline was filled: "full", "weak" or "none".
+func develop(idea: String, grade: String) -> void:
+	var desk_words: Dictionary = words.get("desk", {})
+	var entry := idea_entry(idea)
+	var shown := idea_name(idea)
+	if grade == "none":
+		say_for(str(desk_words.get("none", "")).format({"name": shown}), LINE_STAYS, true)
+		acted.emit("desk_none", idea)
+		return
+	var weak := grade == "weak"
+	var kind := str(branch_for_idea(idea).get("develops", ""))
+	match kind:
+		"building":
+			var plot := str(entry.get("becomes", ""))
+			if plot_rect(plot).size != Vector2.ZERO:
+				state.claim(plot, idea, weak)
+				_claimed_at[plot] = _day_time
+		"pill":
+			state.develop_pill(weak)
+		"lantern":
+			if weak:
+				var who := await choose_branch()
+				if who != "":
+					state.reveal_all(who, branch_of(who).get("rooms", []).size())
+			else:
+				state.lantern = true
+				_lantern_lit_at = _day_time
+	state.set_flag(("developed_weak:%s" if weak else "developed:%s") % idea)
+	say_for(str(desk_words.get(grade, "")).format({"name": shown}), DEVELOP_GAP if not weak else LINE_STAYS, true)   # the desk's line first...
+	if not weak:
+		say_for(str(entry.get("line", "")), LINE_STAYS)   # ...then the idea's own line, DEVELOP_GAP later
+	acted.emit("desk_weak" if weak else "desk_full", idea)
+
+
+## The picker over the branches on the wall: which one grows a room (the
+## reveal, the weak lantern). Returns the villager chosen, "" with no branch.
+func choose_branch() -> String:
+	var whos := available_branches()
+	if whos.is_empty():
+		return ""
+	picking_branch = true
+	_lines = []
+	_line_left = 0.0
+	panel.say(str(words.get("desk", {}).get("choose_branch", "")))
+	panel.prompt(str(words.get("desk", {}).get("pick", "")))
+	var options: Array[String] = []
+	for who in whos:
+		options.append(str(character(who).get("name", who)))
+	panel.choices(options)
+	var index: int = await panel.chosen
+	picking_branch = false
+	panel.prompt("")
+	return whos[index]
 
 
 # --- the feel --------------------------------------------------------------------
@@ -555,6 +670,16 @@ func window_alpha(plot: String) -> float:
 	return clampf(_day_time / WINDOW_FADE, 0.0, 1.0)
 
 
+## The lantern's light: fading in over WINDOW_FADE seconds from the moment
+## it was developed this morning; 1 on every morning after; 0 without it.
+func lantern_alpha() -> float:
+	if not state.lantern:
+		return 0.0
+	if _lantern_lit_at < 0.0:
+		return 1.0
+	return clampf((_day_time - _lantern_lit_at) / WINDOW_FADE, 0.0, 1.0)
+
+
 ## How many of a scaffold's crossbars show: one more every CROSSBAR_EVERY
 ## seconds since the claim; all of them for a scaffold claimed before this
 ## morning (none is: claims stand the next day).
@@ -565,24 +690,6 @@ func crossbars_shown(plot: String) -> int:
 	return mini(int((_day_time - float(_claimed_at[plot])) / CROSSBAR_EVERY), _count_bars(node))
 
 
-## px a face at the table is dipped by its nod now; 0 when still.
-func face_dip(who: String) -> float:
-	if not _nods.has(who):
-		return 0.0
-	var left: int = _nods[who][1]
-	return NOD_PX * sin(PI * (NOD_FRAMES - left + 1) / float(NOD_FRAMES + 1))
-
-
-## True while a nod or a slide is being drawn.
-func feel_in_flight() -> bool:
-	return not _nods.is_empty() or not _slides.is_empty()
-
-
-## The idea rects sliding to a face right now.
-func slides_in_flight() -> int:
-	return _slides.size()
-
-
 func _count_bars(node: Node2D) -> int:
 	var n := 0
 	for child in node.get_children():
@@ -591,13 +698,15 @@ func _count_bars(node: Node2D) -> int:
 	return n
 
 
-## Every drawn frame: the new windows fade in, the crossbars appear, the
-## nods dip and come back, the slides move and are gone at the face.
-func _draw_feel(delta: float) -> void:
+## Every drawn frame: the new windows and the lantern fade in, the crossbars appear.
+func _draw_feel(_delta: float) -> void:
 	for plot in lit_today:
 		var node := plot_node(plot)
 		if node != null and node.has_node("Window"):
 			node.get_node("Window").modulate.a = window_alpha(plot)
+	var lantern := thing_node("lantern")
+	if lantern != null and lantern.has_node("Lamp"):
+		lantern.get_node("Lamp").modulate.a = lantern_alpha()
 	for plot in _claimed_at:
 		var node := plot_node(plot)
 		if node == null:
@@ -606,39 +715,6 @@ func _draw_feel(delta: float) -> void:
 		for child in node.get_children():
 			if child.has_meta("bar"):
 				child.visible = int(child.get_meta("bar")) < shown
-	for who in _nods.keys():
-		var face: Node2D = _nods[who][0]
-		if is_instance_valid(face):
-			face.position.y = face_dip(who)
-		_nods[who][1] -= 1
-		if _nods[who][1] <= 0:
-			_nods.erase(who)
-			if is_instance_valid(face):
-				face.position.y = 0.0
-	var done: Array = []
-	for slide in _slides:
-		slide[3] -= delta
-		var piece: Node2D = slide[0]
-		if slide[3] <= 0.0:
-			done.append(slide)
-			slides_node.remove_child(piece)
-			piece.queue_free()
-		else:
-			piece.position = (slide[1] as Vector2).lerp(slide[2], 1.0 - slide[3] / SLIDE)
-	for slide in done:
-		_slides.erase(slide)
-	if _seats_retiring and not feel_in_flight():
-		_seats_retiring = false
-		_clear_seats()
-
-
-## A claim: the face nods and the idea's rect slides from the hand to it.
-func _claim_feel(who: String, id: String) -> void:
-	_nods[who] = [seats[who].get_node("Face"), NOD_FRAMES]
-	var from: Vector2 = walker.position + hand.position + Vector2(-PIECE.x / 2.0, -PIECE.y)
-	var to: Vector2 = seats[who].position + Vector2(-PIECE.x / 2.0, -CAPSULE.y - SLIDE_ABOVE)
-	var piece := _add_piece(slides_node, id, from, 0)
-	_slides.append([piece, from, to, SLIDE])
 
 
 # --- lines ---------------------------------------------------------------------
@@ -677,7 +753,7 @@ func lines_waiting() -> Array[String]:
 
 # --- the morning ---------------------------------------------------------------
 
-## The requests whose time has come, then breakfast if there is anything on the table.
+## The requests whose time has come, then the Desk if there is anything to work on.
 func _morning() -> void:
 	for c in characters:
 		var request: Dictionary = c.get("request", {})
@@ -687,18 +763,10 @@ func _morning() -> void:
 		if state.has_flag("asked:%s" % id) or not state.holds(request.get("when", [])):
 			continue
 		state.set_flag("asked:%s" % id)
-		_apply_request(id)
 		say_for(str(request.get("text", "")), REQUEST_STAYS)
 		acted.emit("request", id)
-	if not state.ideas_kept.is_empty() and state.breakfast_done_day != state.day:
-		start_breakfast()
-
-
-## What a request does the moment it is asked: the hat is handed over at once; the
-## pills wait for the stove shed (can_make).
-func _apply_request(id: String) -> void:
-	if id == "hat":
-		state.carry_limit = PinchState.HAT_CARRY
+	if desk_due():
+		start_desk()
 
 
 # --- the people ----------------------------------------------------------------
@@ -727,7 +795,7 @@ func stand_x(who: String) -> float:
 	return TABLE.get_center().x
 
 
-## The character (standing on the street, not at the table) nearest the walker within TALK_RANGE.
+## The character nearest the walker within TALK_RANGE.
 func character_in_reach() -> String:
 	var best := ""
 	var best_distance := TALK_RANGE
@@ -755,19 +823,7 @@ func line_for(who: String) -> Dictionary:
 	return {"id": "greeting", "text": str(c.get("greeting", ""))}
 
 
-## A character's want line as shown over their head: "{name}: {want}", or
-## their "moved" line in its place once their plot stands (the want is met).
-func want_text(who: String) -> String:
-	var c := character(who)
-	var plot := str(c.get("plot", ""))
-	var want := str(c.get("want", ""))
-	if plot != "" and state.ideas_built.has(plot) and c.has("moved"):
-		want = str(c.get("moved", ""))
-	return want_line.format({"name": str(c.get("name", who)), "want": want})
-
-
-## E next to a character: the line, the want over the head, the memory
-## (talked:<who> puts their branch on the wall).
+## E next to a character: the line, the memory (talked:<who> puts their branch on the wall).
 func talk(who: String) -> String:
 	var c := character(who)
 	if c.is_empty():
@@ -778,8 +834,6 @@ func talk(who: String) -> String:
 	state.set_flag("talked:%s" % who)
 	wall.refresh(state)
 	say_for(str(line.get("text", "")), LINE_STAYS, true)
-	_want_label(people[who]).visible = true
-	_want_left[who] = WANT_STAYS
 	acted.emit("talk", who)
 	return str(line.get("text", ""))
 
@@ -788,218 +842,14 @@ func _said_flag(who: String, line: Dictionary) -> String:
 	return "said:%s:%s" % [who, str(line.get("id", ""))]
 
 
-## The stove shed is open for making once Tove has asked and until the pills are made.
-func can_make() -> bool:
-	return state.has_flag("asked:pills") and not state.has_pills and not breakfast_on and not _slept and stove_in_range()
-
-
-## E held MAKING seconds at the stove shed: the pills are in the house.
-func make_pills() -> void:
-	if state.has_pills:
-		return
-	state.has_pills = true
-	state.set_flag("made:pills")
-	making = 0.0
-	walker.frozen = false
-	say_for(str(words.get("made", "")), LINE_STAYS, true)
-	acted.emit("made", "pills")
-
-
-# --- breakfast -----------------------------------------------------------------
-
-## The walker at the table, the three faces behind it with their wants, the
-## top kept idea in the hand, the clock at zero.
-func start_breakfast() -> void:
-	if breakfast_on or state.ideas_kept.is_empty():
-		return
-	breakfast_on = true
-	breakfast_time = 0.0
-	heads_dropped = 0
-	hand_index = 0
-	walker.position.x = TABLE.get_center().x
-	walker.velocity = Vector2.ZERO
-	seats = {}
-	seat_state = {}
-	for i in characters.size():
-		var c: Dictionary = characters[i]
-		var who := str(c.get("id", ""))
-		var seat := _capsule(c, Vector2(TABLE.get_center().x + (i - (characters.size() - 1) / 2.0) * SEAT_GAP, GROUND_Y), true, i)
-		seats_node.add_child(seat)
-		seats[who] = seat
-		seat_state[who] = "awake"
-		people[who].visible = false
-	_show_table_words()
-	_update_hand()
-	acted.emit("breakfast", "start")
-
-
-## Breakfast over, for `reason` ("told": every idea placed; "dropped": the last
-## head; "asleep": no face left awake; "skipped": walked away): what is left
-## on the table becomes a small thing, the faces go, the people are back.
-func end_breakfast(reason: String) -> void:
-	if not breakfast_on:
-		return
-	breakfast_on = false
-	for id in state.ideas_kept:
-		state.small_things.append(id)
-		acted.emit("small_thing", id)
-	state.ideas_kept.clear()
-	state.breakfast_done_day = state.day
-	seats = {}
-	if feel_in_flight():
-		_seats_retiring = true   # the last claim's nod and slide are still being drawn: the faces go after them
-	else:
-		_clear_seats()
-	for who in people:
-		people[who].visible = true
-	panel.prompt("")
-	say_for(str(words.get("breakfast", {}).get("over", "")), LINE_STAYS)
-	acted.emit("breakfast", reason)
-	refresh()
-
-
-## The faces leave the table.
-func _clear_seats() -> void:
-	for seat in seats_node.get_children():
-		seats_node.remove_child(seat)
-		seat.queue_free()
-
-
-## The clock moved on by hand (tests, the designer): the heads that should have dropped, drop.
-func step_breakfast(seconds: float) -> void:
-	if not breakfast_on:
-		return
-	breakfast_time += seconds
-	_apply_drops()
-
-
-## The drop order of the faces: by "drops" in characters.json, lowest first.
-func drop_order() -> Array[String]:
-	var order: Array = characters.duplicate()
-	order.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a.get("drops", 0)) < int(b.get("drops", 0)))
-	var ids: Array[String] = []
-	for c in order:
-		ids.append(str(c.get("id", "")))
-	return ids
-
-
-func _apply_drops() -> void:
-	var order := drop_order()
-	while breakfast_on and heads_dropped < order.size() and heads_dropped < int(breakfast_time / HEAD_DROP):
-		_drop_head(order[heads_dropped])
-		heads_dropped += 1
-	if breakfast_on and heads_dropped >= order.size():
-		end_breakfast("dropped")
-
-
-## A head drops: the capsule tilts, the want line fades, the face is out.
-func _drop_head(who: String) -> void:
-	seat_state[who] = "dropped"
-	var seat: Node2D = seats[who]
-	seat.rotation = DROPPED_TILT
-	_set_eyes(seat, false)
-	_want_label(seat).modulate.a = DROPPED_WANT_ALPHA
-	acted.emit("dropped", who)
-
-
-## The seat nearest the walker within SEAT_RANGE; "" when none.
-func seat_in_reach() -> String:
-	var best := ""
-	var best_distance := SEAT_RANGE
-	for who in seats:
-		var distance: float = absf(seats[who].position.x - walker.position.x)
-		if distance <= best_distance:
-			best = who
-			best_distance = distance
-	return best
-
-
-## The idea in the hand at breakfast; "" when none.
-func hand_idea() -> String:
-	if not breakfast_on or state.ideas_kept.is_empty():
-		return ""
-	return state.ideas_kept[clampi(hand_index, 0, state.ideas_kept.size() - 1)]
-
-
-## 1, 2, 3: which kept idea is in the hand.
-func set_hand(index: int) -> bool:
-	if not breakfast_on or index < 0 or index >= state.ideas_kept.size():
-		return false
-	hand_index = index
-	_update_hand()
-	return true
-
-
-## E at a face: the idea in the hand is offered. Its owner claims it; a wrong
-## face says no and shuts its eyes; a dropped or shut face says nothing.
-func offer() -> bool:
-	var who := seat_in_reach()
-	var id := hand_idea()
-	if who == "" or id == "":
-		return false
-	var c := character(who)
-	if seat_state[who] != "awake":
-		say_for(str(words.get("breakfast", {}).get("asleep", "")).format({"name": str(c.get("name", who))}), LINE_STAYS, true)
-		return false
-	var idea := idea_entry(id)
-	if str(idea.get("whose", "")) == who:
-		state.ideas_kept.erase(id)
-		var becomes := str(idea.get("becomes", ""))
-		if plot_rect(becomes).size != Vector2.ZERO and becomes != "lantern_post":
-			state.ideas_claimed[becomes] = id
-			_claimed_at[becomes] = _day_time
-		else:
-			state.small_things.append(id)
-			acted.emit("small_thing", id)
-		say_for(str(c.get("claims", "")), CLAIM_GAP, true)   # the owner's short line first...
-		say_for(str(idea.get("line", "")), LINE_STAYS)       # ...then the idea's own line, CLAIM_GAP later
-		acted.emit("told", "%s:%s" % [id, who])
-		_claim_feel(who, id)
-		hand_index = clampi(hand_index, 0, maxi(0, state.ideas_kept.size() - 1))
-		refresh()
-		if state.ideas_kept.is_empty():
-			end_breakfast("told")
-		return true
-	seat_state[who] = "closed"
-	_set_eyes(seats[who], false)
-	state.set_flag("told_wrong")
-	say_for(str(c.get("not_mine", "")), LINE_STAYS, true)
-	acted.emit("told_wrong", "%s:%s" % [id, who])
-	if not seat_state.values().has("awake"):
-		end_breakfast("asleep")
-	return false
-
-
-## Whether a seat's eyes are open (awake), for the designer's eye and the tests.
-func seat_eyes_open(who: String) -> bool:
-	return seats.has(who) and seats[who].get_node("Face/EyeL").size.y > 1.5
-
-
-func _update_hand() -> void:
-	for piece in hand.get_children():
-		hand.remove_child(piece)
-		piece.queue_free()
-	var id := hand_idea()
-	if id == "":
-		if breakfast_on:
-			panel.prompt("")
-		return
-	_add_piece(hand, id, Vector2(-PIECE.x / 2.0, -PIECE.y), 0)
-	var breakfast_words: Dictionary = words.get("breakfast", {})
-	var key := "offer_many" if state.ideas_kept.size() > 1 else "offer"
-	panel.prompt(str(breakfast_words.get(key, "")).format({"idea": idea_name(id)}))
-
-
 # --- the prompt over the walker --------------------------------------------------
 
 func _update_prompt() -> void:
 	var text := ""
-	if _slept or breakfast_on:
+	if _slept or desk_on or picking_target or picking_branch:
 		pass
 	elif bunk_in_range():
-		text = str(words.get("sleep_prompt_pills" if state.has_pills and not state.pill_tonight else "sleep_prompt", ""))
-	elif can_make():
-		text = str(words.get("making" if making > 0.0 else "make_prompt", ""))
+		text = str(words.get("sleep_prompt", ""))
 	elif wall_in_range():
 		text = str(words.get("wall_prompt", ""))
 	elif character_in_reach() != "":
@@ -1010,30 +860,25 @@ func _update_prompt() -> void:
 
 # --- the dev bar -----------------------------------------------------------------
 
-## ONLY what can be done right now, in devbar.json's words: at breakfast,
-## offer the idea in the hand (and change it when there are several), or
-## walk away; else walk, and sleep at the bunk (a pill first when there
-## are pills), make at the stove shed once asked, or talk by a character.
-## Nothing once asleep.
+## ONLY what can be done right now, in devbar.json's words: at the Desk,
+## pick a card, or move the hand and fit the picked one, and walk away;
+## at a picker, the numbers; else walk, and sleep at the bunk, choose at
+## the wall, or talk by a character. Nothing once asleep.
 func devbar_text() -> String:
 	if _slept:
 		return ""
 	var w: Dictionary = devbar_words.get("street", {})
-	if breakfast_on:
-		var id := hand_idea()
-		if id == "":
-			return ""
-		var key := "breakfast" if state.ideas_kept.size() > 1 else "breakfast_one"
-		return str(w.get(key, "")).format({"idea": idea_name(id)})
 	if picking_target:
 		return str(w.get("wall_pick", ""))
+	if picking_branch:
+		return str(w.get("desk_branch", ""))
+	if desk_on:
+		if desk.picked_shape() == "":
+			return str(w.get("desk_pick", ""))
+		return str(w.get("desk", "")).format({"card": desk.picked_name()})
 	var parts: Array[String] = [str(w.get("walk", ""))]
 	if bunk_in_range():
 		parts.append(str(w.get("sleep" if sleep_allowed() else "sleep_refused", "")))
-		if state.has_pills and not state.pill_tonight:
-			parts.append(str(w.get("pill", "")))
-	elif can_make():
-		parts.append(str(w.get("make", "")))
 	elif wall_in_range():
 		parts.append(str(w.get("wall", "")))
 	elif character_in_reach() != "":
@@ -1078,15 +923,8 @@ func _build_street() -> void:
 	_add_label(str(words.get("tally_title", "")), TALLY_AT, 130.0, HORIZONTAL_ALIGNMENT_LEFT)
 	tally_wall = _add_label("", TALLY_AT + Vector2(0, 24), 130.0, HORIZONTAL_ALIGNMENT_LEFT)
 	plots = _holder("Plots")
-	small_things = _holder("SmallThings")
-	table_ideas = _holder("TableIdeas")
+	things = _holder("Things")
 	people_node = _holder("People")
-	seats_node = _holder("Seats")
-	slides_node = _holder("Slides")
-	hand = Node2D.new()
-	hand.name = "Hand"
-	hand.position = Vector2(0, -58)
-	walker.add_child(hand)
 
 
 func _holder(holder_name: String) -> Node2D:
@@ -1104,7 +942,7 @@ func _inside(rect: Rect2) -> Vector2:
 func _build_people() -> void:
 	for c in characters:
 		var who := str(c.get("id", ""))
-		var person := _capsule(c, Vector2(stand_x(who), GROUND_Y), false)
+		var person := _capsule(c, Vector2(stand_x(who), GROUND_Y))
 		people_node.add_child(person)
 		people[who] = person
 
@@ -1115,9 +953,9 @@ func _place_people() -> void:
 
 
 ## The plots as they stand: an outline and the plot's name; a scaffold (the
-## outline, two crossbars, a diagonal, "scaffold"); or the building (a
-## filled rect, a lit window, the idea's name). The lantern post plot holds
-## the lantern once a spoon has become one.
+## outline, two crossbars, a diagonal, "scaffold"); the building (a filled
+## rect, a lit window, the idea's name); or, developed weak, the small
+## building (half the height, a lit window, the idea's name).
 func _draw_plots() -> void:
 	for plot in plots.get_children():
 		plots.remove_child(plot)
@@ -1138,12 +976,14 @@ func _draw_plots() -> void:
 		var what := plot_state(id)
 		node.set_meta("state", what)
 		var label_at := Vector2((rect.size.x - PLOT_LABEL_WIDTH) / 2.0, -26)
-		if what == "built":
-			_rect_under(node, local, WALL)
-			var window := _rect_under(node, Rect2(Vector2(rect.size.x / 2.0 - WINDOW.x / 2.0, rect.size.y * 0.3), WINDOW), WINDOW_LIT)
+		if what == "built" or what == "small_building":
+			var height := rect.size.y * (SMALL_HEIGHT if what == "small_building" else 1.0)
+			var body := Rect2(Vector2(0, rect.size.y - height), Vector2(rect.size.x, height))
+			_rect_under(node, body, WALL)
+			var window := _rect_under(node, Rect2(Vector2(rect.size.x / 2.0 - WINDOW.x / 2.0, body.position.y + height * 0.3), WINDOW), WINDOW_LIT)
 			window.name = "Window"
 			window.modulate.a = window_alpha(id)
-			_label_under(node, idea_name(str(state.ideas_built[id])), label_at, PLOT_LABEL_WIDTH).name = "Name"
+			_label_under(node, idea_name(str(state.ideas_built[id])), label_at + Vector2(0, body.position.y), PLOT_LABEL_WIDTH).name = "Name"
 		elif what == "scaffold":
 			_outline_under(node, local, OUTLINE)
 			var bars: Array[ColorRect] = []
@@ -1156,11 +996,6 @@ func _draw_plots() -> void:
 				bars[i].set_meta("bar", i)   # shown one by one, CROSSBAR_EVERY apart, from the claim (_draw_feel)
 				bars[i].visible = not _claimed_at.has(id)
 			_label_under(node, str(markers.get("scaffold", "")), label_at, PLOT_LABEL_WIDTH).name = "Name"
-		elif id == "lantern_post" and _small_thing_for("lantern_post") != "":
-			_rect_under(node, Rect2(rect.size.x / 2.0 - 4, 40, 8, rect.size.y - 40), SMALL)
-			_rect_under(node, Rect2(rect.size.x / 2.0 - 12, 16, 24, 28), WINDOW_LIT)
-			node.set_meta("state", "small_thing")
-			_label_under(node, str(words.get("small_things", {}).get("lantern_post", "")), label_at, PLOT_LABEL_WIDTH).name = "Name"
 		else:
 			_outline_under(node, local, OUTLINE)
 			_label_under(node, str(plot_names.get(id, id)), label_at, PLOT_LABEL_WIDTH).name = "Name"
@@ -1168,59 +1003,43 @@ func _draw_plots() -> void:
 		plot_nodes[id] = node
 
 
-## The small things on the street: a bench or a sign in the gaps between
-## the buildings, labelled from village.json by what the idea becomes; the
-## lantern is drawn and labelled on its post by _draw_plots (once).
-func _draw_small_things() -> void:
-	for thing in small_things.get_children():
-		small_things.remove_child(thing)
+## The developed things on the street: the pills' jar by the bunk once a
+## pill is developed; the lantern by the Long House door once the lantern
+## is developed in full (its lamp fades in, lantern_alpha), just inside
+## the door, left of the table. Labelled from
+## village.json "things".
+func _draw_things() -> void:
+	for thing in things.get_children():
+		things.remove_child(thing)
 		thing.queue_free()
-	var names: Dictionary = words.get("small_things", {})
-	var slot := 0
-	for id in state.small_things:
-		var becomes := str(idea_entry(id).get("becomes", "bench"))
-		var node := Node2D.new()
-		node.name = "Small_%s" % id
-		node.set_meta("id", id)
-		node.set_meta("becomes", becomes)
-		if becomes == "lantern_post":
-			node.position = Vector2(plot_rect("lantern_post").get_center().x, GROUND_Y)
-		else:
-			node.position = Vector2(SMALL_SLOTS[slot % SMALL_SLOTS.size()], GROUND_Y)
-			slot += 1
-			if becomes == "sign":
-				_rect_under(node, Rect2(-3, -44, 6, 44), SMALL)
-				_rect_under(node, Rect2(-18, -62, 36, 18), SMALL)
-			else:
-				_rect_under(node, Rect2(-20, -14, 40, 6), SMALL)
-				_rect_under(node, Rect2(-16, -8, 4, 8), SMALL)
-				_rect_under(node, Rect2(12, -8, 4, 8), SMALL)
-			var label := str(names.get(becomes, names.get("default", "{name}"))).replace("{name}", str(idea_entry(id).get("name", id)))
-			_label_under(node, label, Vector2(-SMALL_LABEL_WIDTH / 2.0, -88), SMALL_LABEL_WIDTH).name = "Name"
-		small_things.add_child(node)
+	var names: Dictionary = words.get("things", {})
+	if state.pill_bonus > 0:
+		var jar := Node2D.new()
+		jar.name = "Thing_pills"
+		jar.position = Vector2(BUNK.position.x + 4.0, BUNK.position.y)
+		_rect_under(jar, Rect2(Vector2(0, -PILLS_JAR.y), PILLS_JAR), JAR)
+		_label_under(jar, str(names.get("pills", "")), Vector2(PILLS_JAR.x / 2.0 - THING_LABEL_WIDTH / 2.0, -PILLS_JAR.y - 24.0), THING_LABEL_WIDTH).name = "Name"
+		things.add_child(jar)
+	if state.lantern:
+		var lantern := Node2D.new()
+		lantern.name = "Thing_lantern"
+		lantern.position = Vector2(LANTERN_X, GROUND_Y)
+		_rect_under(lantern, Rect2(Vector2(-LANTERN_POST.x / 2.0, -LANTERN_POST.y), LANTERN_POST), THING)
+		var lamp := _rect_under(lantern, Rect2(Vector2(-LANTERN_LAMP.x / 2.0, -LANTERN_POST.y - LANTERN_LAMP.y), LANTERN_LAMP), WINDOW_LIT)
+		lamp.name = "Lamp"
+		lamp.modulate.a = lantern_alpha()
+		_label_under(lantern, str(names.get("lantern", "")), Vector2(-THING_LABEL_WIDTH / 2.0, -LANTERN_POST.y - LANTERN_LAMP.y - 26.0), THING_LABEL_WIDTH).name = "Name"
+		things.add_child(lantern)
 
 
-## The idea that became this kind of small thing, if any.
-func _small_thing_for(becomes: String) -> String:
-	for id in state.small_things:
-		if str(idea_entry(id).get("becomes", "")) == becomes:
-			return id
-	return ""
-
-
-## A person: a grey capsule standing at `at` (its feet), two eyes, the name
-## (over the head on the street; on the body at the table, where the table's
-## things sit over the heads) and the want line (shown at the table; on the
-## street only after a talk, centred over the head). At the table the want
-## is the `seat`-th from the left: right-aligned to the face's middle,
-## WANT_ABOVE + seat * WANT_STEP px above the head, with a leader down to it.
-func _capsule(c: Dictionary, at: Vector2, at_table: bool, seat := 0) -> Node2D:
+## A person: a grey capsule standing at `at` (its feet), two eyes, the name over the head.
+func _capsule(c: Dictionary, at: Vector2) -> Node2D:
 	var who := str(c.get("id", ""))
 	var node := Node2D.new()
-	node.name = "%s_%s" % ["Seat" if at_table else "Person", who]
+	node.name = "Person_%s" % who
 	node.position = at
 	node.set_meta("id", who)
-	var face := Node2D.new()   # the body and the eyes: what nods
+	var face := Node2D.new()   # the body and the eyes
 	face.name = "Face"
 	node.add_child(face)
 	var body := Polygon2D.new()
@@ -1233,34 +1052,13 @@ func _capsule(c: Dictionary, at: Vector2, at_table: bool, seat := 0) -> Node2D:
 		var eye := ColorRect.new()
 		eye.name = "EyeL" if i == 0 else "EyeR"
 		eye.color = EYE
+		eye.size = Vector2(4, 4)
+		eye.position = Vector2(-9 + i * 10, -CAPSULE.y + 14)
 		face.add_child(eye)
-	_set_eyes(node, true)
-	var name_at := Vector2(-60, -CAPSULE.y + 20) if at_table else Vector2(-60, -CAPSULE.y - 26)
-	var name_label := PinchLabel.make(str(c.get("name", who)), name_at, 120)
+	var name_label := PinchLabel.make(str(c.get("name", who)), Vector2(-60, -CAPSULE.y - 26), 120)
 	name_label.name = "Name"
 	node.add_child(name_label)
-	var want: Label
-	if at_table:
-		var top := -CAPSULE.y - WANT_ABOVE - PinchLabel.LINE - seat * WANT_STEP
-		want = PinchLabel.make(want_text(who), Vector2(WANT_END - WANT_WIDTH, top), WANT_WIDTH, HORIZONTAL_ALIGNMENT_RIGHT, WANT_FONT)
-		var leader := ColorRect.new()
-		leader.name = "Leader"
-		leader.color = LEADER_COLOR
-		leader.position = Vector2(-0.5, top + PinchLabel.LINE)
-		leader.size = Vector2(1, -CAPSULE.y - (top + PinchLabel.LINE))
-		node.add_child(leader)
-	else:
-		want = PinchLabel.make(want_text(who), Vector2(-WANT_WIDTH / 2.0, -CAPSULE.y - 48), WANT_WIDTH, HORIZONTAL_ALIGNMENT_CENTER, WANT_FONT)
-	want.name = "Want"
-	want.visible = at_table
-	node.add_child(want)
 	return node
-
-
-## A want line's box on the street, for the designer's eye and the tests.
-func want_rect(node: Node2D) -> Rect2:
-	var want := _want_label(node)
-	return Rect2(node.position + want.position, Vector2(WANT_WIDTH, PinchLabel.LINE))
 
 
 ## The points of a capsule (a stadium) `size` big, its top-left at the origin.
@@ -1277,24 +1075,12 @@ func _stadium(size: Vector2) -> PackedVector2Array:
 	return points
 
 
-## Open eyes are 4 x 4 squares; shut eyes are 6 x 1 lines a little lower.
-func _set_eyes(node: Node2D, open: bool) -> void:
-	for i in 2:
-		var eye: ColorRect = node.get_node("Face/EyeL" if i == 0 else "Face/EyeR")
-		eye.size = Vector2(4, 4) if open else Vector2(6, 1)
-		eye.position = Vector2(-9 + i * 10, -CAPSULE.y + 14) if open else Vector2(-10 + i * 10, -CAPSULE.y + 17)
-
-
-func _want_label(node: Node2D) -> Label:
-	return node.get_node("Want") as Label
-
-
-## One idea as a white rect with a black edge and its name above (the
-## dream's look, small), under `holder`; the `index`-th of a row has its
-## name at one of PIECE_LABEL_ROWS heights, so neighbours' never share a line.
+## One lost thing as a white rect with a black edge and its name above
+## (the dream's look, small), under `holder`; the `index`-th of a row has
+## its name at one of PIECE_LABEL_ROWS heights, so neighbours' never share a line.
 func _add_piece(holder: Node2D, id: String, at: Vector2, index: int) -> Node2D:
 	var piece := Node2D.new()
-	piece.name = "Idea_%s" % id
+	piece.name = "Piece_%s" % id.replace(":", "_")
 	piece.position = at
 	piece.set_meta("id", id)
 	var edge := ColorRect.new()

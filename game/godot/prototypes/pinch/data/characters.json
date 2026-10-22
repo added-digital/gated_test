@@ -1,41 +1,57 @@
 {
-  "want_line": "{name}: {want}",
   "characters": [
     {
       "id": "tove",
       "name": "Tove",
       "where": "stove",
       "plot": "",
-      "drops": 1,
-      "want": "wants everyone back in their own house before the thaw",
       "greeting": "We sleep together so we dream together. Don't touch anything.",
-      "claims": "I dreamed that. Of course I did. Sit down and eat something.",
-      "not_mine": "That's not mine. Whose is it? Put it in front of them, not me.",
       "request": {
         "id": "pills",
         "when": [
           "day>=3"
         ],
-        "text": "Jorun doesn't sleep. The stove shed has the herbs; make her something."
+        "text": "Jorun doesn't sleep. Bo keeps something bitter in a jar, down in his dream. Go and get it; the wall knows the way."
       },
       "lines": [
+        {
+          "id": "developed",
+          "if": [
+            "developed:lantern"
+          ],
+          "text": "It's lit. From the inside, like I said. Every door down there has a name on it now; don't read them all at once."
+        },
+        {
+          "id": "developed_weak",
+          "if": [
+            "developed_weak:lantern"
+          ],
+          "text": "It's lit, just. Enough for one hall. Next time bring more thoughts and fewer excuses."
+        },
+        {
+          "id": "reached",
+          "if": [
+            "reached:tove"
+          ],
+          "text": "You were in my head last night. Wipe your feet. And put that lantern on the desk before the light goes."
+        },
         {
           "id": "pills_again",
           "if": [
             "asked:pills"
           ],
           "unless": [
-            "has_pills"
+            "reached:bo"
           ],
           "repeat": true,
-          "text": "The herbs are on the shelf in the stove shed. Stand at the stove and hold still; it takes a while to come right."
+          "text": "Bo's dream. Choose it on the wall, go down, and don't come up without the jar."
         },
         {
-          "id": "pills_made",
+          "id": "pills_developed",
           "if": [
-            "has_pills"
+            "developed:pills"
           ],
-          "text": "You made them. Good. Don't tell me what's in them, and don't tell Jorun either."
+          "text": "Jorun slept through. Whatever is in that jar, keep it by the bunk and don't tell me."
         },
         {
           "id": "built_stairs",
@@ -43,20 +59,6 @@
             "built:sixteen_stairs"
           ],
           "text": "One more window lit. One fewer bunk to bank the stove for. Jorun snores, you know. Did you know?"
-        },
-        {
-          "id": "built_loft",
-          "if": [
-            "built:bos_loft"
-          ],
-          "text": "Bo is up a ladder with a window of his own. That is two. Nine to go, and the thaw does not wait."
-        },
-        {
-          "id": "told_wrong",
-          "if": [
-            "told_wrong"
-          ],
-          "text": "You put a dream in front of the wrong face this morning. It happens. The face remembers, though."
         }
       ]
     },
@@ -65,26 +67,35 @@
       "name": "Jorun",
       "where": "door",
       "plot": "sixteen_stairs",
-      "drops": 3,
-      "want": "wants to get down to the lake without the ladder",
-      "moved": "lives at the top of the stairs now, and nobody needs the ladder",
       "greeting": "You're going to sleep to help me. Bold. I've been doing that for years and the ice never once fixed itself.",
-      "claims": "I dreamed that. Don't look so pleased with yourself.",
-      "not_mine": "That's not mine. I'd know. Nothing of mine has ever been that cheerful.",
       "lines": [
+        {
+          "id": "developed",
+          "if": [
+            "developed:sixteen_stairs"
+          ],
+          "text": "Sixteen steps, all of them. Jorun has seen the scaffold. Jorun does not look pleased. Jorun is pleased."
+        },
+        {
+          "id": "developed_weak",
+          "if": [
+            "developed_weak:sixteen_stairs"
+          ],
+          "text": "Eight steps. Half a staircase. I'll take it; the fish won't know the difference."
+        },
+        {
+          "id": "reached",
+          "if": [
+            "reached:jorun"
+          ],
+          "text": "You were in my head last night. Wipe your feet. If you saw the stairs, you saw them right: sixteen, not fifteen."
+        },
         {
           "id": "moved",
           "if": [
             "built:sixteen_stairs"
           ],
-          "text": "Sixteen steps. I counted them twice. I live at the top now, and the fish live at the bottom, and nobody needs the ladder. Don't touch the railing."
-        },
-        {
-          "id": "pills",
-          "if": [
-            "has_pills"
-          ],
-          "text": "Tove says you made me something. It's bitter. I slept until the stove went out. Keep the rest in the Long House, by the bunk, where I won't find them."
+          "text": "I counted them twice. I live at the top now, and the fish live at the bottom, and nobody needs the ladder. Don't touch the railing."
         },
         {
           "id": "tally_4",
@@ -113,20 +124,6 @@
             "tally:1"
           ],
           "text": "You woke up shouting. Once. Everyone does once. Do it again and I start counting."
-        },
-        {
-          "id": "spoon",
-          "if": [
-            "kept:spoon"
-          ],
-          "text": "You woke up screaming and chose a spoon. Out of everything. I've told the fish."
-        },
-        {
-          "id": "told_wrong",
-          "if": [
-            "told_wrong"
-          ],
-          "text": "You offered somebody else's dream to the wrong face this morning. I saw. The face is still sulking."
         }
       ]
     },
@@ -134,48 +131,29 @@
       "id": "bo",
       "name": "Bo",
       "where": "plot:bos_loft",
-      "plot": "bos_loft",
-      "drops": 2,
-      "want": "wants a place above the ground to sew",
-      "moved": "sews in the loft now, above the snow, by a window",
+      "plot": "",
       "greeting": "Bo. Hats, mostly. Don't ask about the needle, I'm not ready to talk about the needle.",
-      "claims": "I dreamed that. Give it here, I know exactly what it's for.",
-      "not_mine": "That's not mine. I'd have knitted a cosy for it by now if it were.",
-      "request": {
-        "id": "hat",
-        "when": [
-          "built:bos_loft"
-        ],
-        "text": "Hold still."
-      },
       "lines": [
         {
-          "id": "moved",
+          "id": "developed",
           "if": [
-            "built:bos_loft"
+            "developed:pills"
           ],
-          "text": "A loft. Up a ladder, above the snow, with a window. I'm sewing something ridiculous first and something useful after, if there's wool."
+          "text": "You brought the jar up whole. One of those and Jorun will sleep through the thaw. Don't tell her what's in them. I don't know either."
         },
         {
-          "id": "hat_given",
+          "id": "developed_weak",
           "if": [
-            "asked:hat"
+            "developed_weak:pills"
           ],
-          "text": "That hat is taller than the old one. Things will stay under it. Don't thank me, I needed the practice."
+          "text": "Half a jar. It'll do for a night or two of quiet. Next time don't rush the desk."
         },
         {
-          "id": "told_wrong",
+          "id": "reached",
           "if": [
-            "told_wrong"
+            "reached:bo"
           ],
-          "text": "You offered me somebody else's dream. At breakfast. In front of everyone. I'm still thinking about it."
-        },
-        {
-          "id": "spoon",
-          "if": [
-            "kept:spoon"
-          ],
-          "text": "Jorun told me about the spoon. I think a spoon is fine. A spoon is a small thing that works."
+          "text": "You were in my head last night. Wipe your feet. Did you touch the jar? Don't answer. Put it on the desk."
         }
       ]
     }

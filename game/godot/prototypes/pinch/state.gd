@@ -1,55 +1,63 @@
 class_name PinchState
 extends Resource
-## The one state of toy 4, PINCH (rung 3): what day it is, the limits, which
-## ideas are carried, kept, claimed, built or small things, the tally of
-## sudden wakings, the pills, and the memory flags. One instance lives in
-## the controller (pinch.gd) and is handed to the village and the dream
-## before they enter the tree; nothing else holds state. Nothing is saved.
+## The one state of toy 4b, PINCH (rung 3, the second loop): what day it
+## is, the limits, whose dream tonight is, which ideas have been reached,
+## developed, built, the scraps brought home, the tally of sudden wakings
+## and the memory flags. One instance lives in the controller (pinch.gd)
+## and is handed to the village and the dream before they enter the tree;
+## nothing else holds state. Nothing is saved.
 ##
-## An idea's day (day 4): kept at waking (ideas_kept, on the table) -> told
-## at breakfast: claimed by its owner (ideas_claimed, plot -> idea: a
-## scaffold today) -> standing the next morning (ideas_built, new_day), or
-## nobody's (small_things: a bench, a sign, a lantern post the same day).
+## A night (SPEC-2): `target` is whose dream tonight is (set at the wall,
+## or by the hub's other exit; it stays until changed, and the wall shows
+## it); `reached` remembers whose idea has been reached (who -> true: the
+## wall names it; a reached branch gives its idea no second time); the
+## idea reached comes home as ideas_kept (on the desk the next morning)
+## and the scraps as `scraps` (shape ids, the Desk's cards, at most
+## KEEP_SCRAPS); scraps_carried are the ones in the dream now, at most
+## CARRY_SCRAPS.
 ##
-## Flags (memory, name -> true): told_wrong, built:<plot>, kept:<idea>,
-## talked:<who>, asked:<request>, said:<who>:<line>, made:pills. Conditions
-## on a line or a request (an "if" list in data/characters.json) are flag
-## names, or tally:N, tally>=N, day:N, day>=N, has_pills (holds()).
-## gauge_visible (day 5) is the one setting: H in the dream toggles the
-## sleep gauge and the choice holds for the rest of the session.
+## A morning (day B, the Desk): the idea is developed as far as the
+## outline is filled. A building idea claimed in full goes to
+## ideas_claimed (plot -> idea: a scaffold today) and stands the next
+## morning (ideas_built, new_day); developed weak it is a small building
+## (weak_buildings[plot]). The pill is `pill_bonus` (+2 full, +1 weak,
+## for every night after: night_limit()). The lantern is `lantern` (every
+## room on the wall is named) or, weak, names every room of one branch
+## (`revealed`, who -> rooms named from the branch's start: also what
+## three scraps alone reveal, one more room at a time).
 ##
-## The second loop (SPEC-2, day A): `target` is whose dream tonight is (set
-## at the wall, or by the hub's other exit; it stays until changed, and the
-## wall shows it); `reached` remembers whose idea has been reached (who ->
-## true: the wall names it); `scraps` are the half thoughts brought home
-## (shape ids, the Desk's cards on day B) and `scraps_carried` the ones in
-## the dream now, at most CARRY_SCRAPS.
+## Flags (memory, name -> true): built:<plot>, kept:<idea>, talked:<who>,
+## reached:<who>, developed:<idea>, developed_weak:<idea>, asked:<request>,
+## said:<who>:<line>, revealed:<who>. Conditions on a line or a request
+## (an "if" list in data/characters.json) are flag names, or tally:N,
+## tally>=N, day:N, day>=N. gauge_visible and devbar_visible are the two
+## settings (H and Tab in the dream; the choice holds for the session).
 
 const TILE := 256.0          # px: one tile of street; the dark recedes one tile per building
 const BASE_LIT_TILES := 3    # tiles lit on each side of the Long House before anything stands
-const PILL_BONUS := 2        # the lucidity limit tonight is this much higher with a pill
-const HAT_CARRY := 3         # ideas under the taller hat (Bo's request)
 const CARRY_SCRAPS := 3      # scraps carried in the dream at once (SPEC-2: carry 3)
+const KEEP_SCRAPS := 6       # scraps kept for the Desk at most (SPEC-2: leftovers up to six)
+const FULL_PILL := 2         # the limit grows this much for every night after a pill developed in full
+const WEAK_PILL := 1         # ... and this much for a weak one
 
 var day := 1
 var target := ""                        # whose dream tonight (a villager id), "" before the wall is read
 var reached := {}                       # who -> true: their idea has been reached (the wall names it)
-var scraps: Array[String] = []          # scrap shapes brought home, in order
+var scraps: Array[String] = []          # scrap shapes brought home, in order: the Desk's cards
 var scraps_carried: Array[String] = []  # scrap shapes at the hip, in the dream now
 var carry_scraps := CARRY_SCRAPS
-var lucidity_limit := 8      # the limit without a pill; night_limit() is tonight's
-var carry_limit := 2         # 3 with the taller hat (day 4: Bo's request, the morning his loft stands)
-var ideas_carried: Array[String] = []   # under the hat, in the dream now
-var ideas_kept: Array[String] = []      # carried up and kept at waking, not yet told: on the table
-var ideas_claimed := {}                 # plot id -> idea id, claimed at breakfast today: a scaffold
+var lucidity_limit := 8                 # the limit without a pill; night_limit() is tonight's
+var pill_bonus := 0                     # the pill developed at the Desk: FULL_PILL or WEAK_PILL more, every night after
+var lantern := false                    # the lantern developed in full: the wall names every room
+var revealed := {}                      # who -> rooms of their branch the wall names, from its start (the reveal, the weak lantern)
+var ideas_kept: Array[String] = []      # reached last night: on the desk this morning
+var ideas_claimed := {}                 # plot id -> idea id, developed at the Desk today: a scaffold
 var ideas_built := {}                   # plot id -> idea id, standing on the street
-var small_things: Array[String] = []    # idea ids nobody claimed: a bench, a sign, a lantern post
+var weak_buildings := {}                # plot id -> true: developed weak, a small building (claimed, then built)
 var tally := 0                          # nights woken suddenly: one mark each on the wall
 var flags := {}                         # memory: name -> true
-var has_pills := false                  # made at the stove shed after Tove's request
-var pill_tonight := false               # a pill taken at the bunk: the limit is PILL_BONUS higher this night only
-var breakfast_done_day := 0             # the last day breakfast happened (or was walked away from)
-var gauge_visible := true               # the sleep gauge is shown; H toggles it and the session remembers (day 5)
+var desk_done_day := 0                  # the last day the Desk ran (or was walked away from)
+var gauge_visible := true               # the sleep gauge is shown; H toggles it and the session remembers
 var devbar_visible := true              # the dev bar (what can be done now) is shown; Tab toggles it and the session remembers
 
 
@@ -58,21 +66,25 @@ func lit_tiles() -> int:
 	return BASE_LIT_TILES + ideas_built.size()
 
 
-## The lucidity limit tonight: the limit, plus the pill's bonus if one was taken.
+## The lucidity limit tonight: the limit, plus the pill's bonus once one is developed (permanent).
 func night_limit() -> int:
-	return lucidity_limit + (PILL_BONUS if pill_tonight else 0)
+	return lucidity_limit + pill_bonus
 
 
-## An idea kept at waking: on the table, and remembered.
+## An idea kept at waking: on the desk, and remembered.
 func keep(id: String) -> void:
 	ideas_kept.append(id)
 	set_flag("kept:%s" % id)
 
 
-## A scrap brought home at waking (SPEC-2): kept for the Desk, and remembered.
-func keep_scrap(shape: String) -> void:
+## A scrap brought home at waking (SPEC-2): kept for the Desk, and
+## remembered; false (and dropped) past KEEP_SCRAPS of them.
+func keep_scrap(shape: String) -> bool:
+	if scraps.size() >= KEEP_SCRAPS:
+		return false
 	scraps.append(shape)
 	set_flag("kept_scrap:%s" % shape)
+	return true
 
 
 ## An idea reached in its goal room (SPEC-2): the wall names it from now on.
@@ -82,11 +94,41 @@ func reach(who: String, idea: String) -> void:
 	keep(idea)
 
 
-## The next morning: the day counter, the pill worn off, and every idea
-## claimed yesterday standing on its plot. Returns the plots raised, in order.
+## A building idea developed at the Desk: a scaffold on its plot today
+## (standing tomorrow), a small one when developed weak.
+func claim(plot: String, idea: String, weak: bool) -> void:
+	ideas_claimed[plot] = idea
+	if weak:
+		weak_buildings[plot] = true
+
+
+## The pill developed: the limit is higher for every night after, for good.
+func develop_pill(weak: bool) -> void:
+	pill_bonus += WEAK_PILL if weak else FULL_PILL
+
+
+## One more room of a branch is known on the wall (three scraps at the Desk). Returns how many are.
+func reveal(who: String, branch_rooms: int) -> int:
+	revealed[who] = mini(int(revealed.get(who, 0)) + 1, branch_rooms)
+	set_flag("revealed:%s" % who)
+	return revealed[who]
+
+
+## Every room of one branch is known (the weak lantern).
+func reveal_all(who: String, branch_rooms: int) -> void:
+	revealed[who] = branch_rooms
+	set_flag("revealed:%s" % who)
+
+
+## Whether the wall names the `index`-th room of a branch: with the lantern, every one; else as far as revealed.
+func room_known(who: String, index: int) -> bool:
+	return lantern or index < int(revealed.get(who, 0))
+
+
+## The next morning: the day counter, and every idea developed yesterday
+## standing on its plot. Returns the plots raised, in order.
 func new_day() -> Array[String]:
 	day += 1
-	pill_tonight = false
 	var raised: Array[String] = []
 	for plot in ideas_claimed.keys():
 		ideas_built[plot] = ideas_claimed[plot]
@@ -120,7 +162,7 @@ func holds_any(conditions: Array) -> bool:
 	return false
 
 
-## One condition: a flag name, or tally:N, tally>=N, day:N, day>=N, has_pills.
+## One condition: a flag name, or tally:N, tally>=N, day:N, day>=N.
 func condition_holds(condition: String) -> bool:
 	if condition.begins_with("tally>="):
 		return tally >= int(condition.substr(7))
@@ -130,8 +172,6 @@ func condition_holds(condition: String) -> bool:
 		return day >= int(condition.substr(5))
 	if condition.begins_with("day:"):
 		return day == int(condition.substr(4))
-	if condition == "has_pills":
-		return has_pills
 	return flags.has(condition)
 
 

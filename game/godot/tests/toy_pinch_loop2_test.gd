@@ -19,17 +19,21 @@ extends Node2D
 ## one down as a 24 x 16 standable step (+1), re-grabbable; (D) the goal
 ## room: the villager asleep (a capsule twice the dreamer, named, snoring),
 ## the idea beside them that cannot be grabbed, one wonder spot, no exit;
-## E at the idea while pinched emits reached and woke(false) at once; (E)
-## in pinch.tscn: reaching ends the night gently with the idea in
-## ideas_kept and the scraps in state.scraps, milestones reached:bo and
-## woke_gentle, the tally untouched; the next morning the wall names Bo's
-## idea and still shows Jorun's question mark; (F) the self-pinch: the
-## frame flickers from 1.0 s into the hold, 2.9 s still does nothing,
+## E at the idea while pinched emits reached and woke(false, the scraps)
+## at once; (E) in pinch.tscn: reaching ends the night gently with the
+## idea in ideas_kept and the scraps in state.scraps, milestones
+## reached:bo and woke_gentle, the tally untouched; the next morning the
+## wall names Bo's idea and still shows Jorun's question mark, and the
+## Desk is on with the idea and the scraps (day B); (F) the self-pinch:
+## the frame flickers from 1.0 s into the hold, 2.9 s still does nothing,
 ## moving at 2.0 s resets the hold, 3.0 s wakes gently with every scrap
 ## and no idea, milestone self_pinch, not on the tally; (G) forced waking
 ## with three scraps shows the picker and keeps one; the rest fade over
-## the bunk. Prints PASS/FAIL per check and quits with 0 only if every
-## check passes.
+## the bunk. Day B: woke's second argument is the scraps carried (ideas
+## are never carried, so the hat and grab() are gone: the checks that
+## read them now read the hip and the absence of a grab); the morning
+## after a reach runs the Desk where breakfast ran on day A. Prints
+## PASS/FAIL per check and quits with 0 only if every check passes.
 
 const TOY := preload("res://prototypes/pinch/pinch.tscn")
 const DREAM := preload("res://prototypes/pinch/dream.tscn")
@@ -140,7 +144,7 @@ func _ready() -> void:
 	check(dream.scraps_dealt() == 6 and dealt.has("hub") and dealt.has("f") and dealt.has("d") and not dealt.has("goal_bo"), "six scraps dealt over the hub, f and d, none in the goal room: %s" % [dealt])
 	check(dealt.hub == ["round", "square"] and dealt.f == ["long", "round"] and dealt.d == ["square", "long"], "the shapes cycle round, square, long across them")
 	check(dealt == dream.deal_scraps(["hub", "f", "d", "goal_bo"] as Array[String], 6) and dream.deal_scraps(["hub"] as Array[String], 6).hub.size() == 6, "deal_scraps is pure; the hub alone takes all six")
-	check(dream.scraps_in_room() == ["round", "square"] and dream.ideas_in_room().is_empty() and dream.tonight_ideas.is_empty(), "the hub holds its two scraps and no idea (the dealer lays none now)")
+	check(dream.scraps_in_room() == ["round", "square"] and dream.ideas_in_room().is_empty(), "the hub holds its two scraps and no idea (the dealer lays none)")
 	var scrap: StaticBody2D = dream.scraps_node.get_child(0)
 	var spots: Array = dream.room.idea_spots() + dream.room.scrap_spots()
 	check(scrap.is_in_group("scrap") and scrap.is_in_group("crisp") and scrap.collision_layer == 2 and scrap.rect().size == Vector2(24, 16) and scrap.has_node("Mark"), "a scrap is a crisp 24 x 16 StaticBody2D on layer 2 with its shape drawn")
@@ -175,8 +179,8 @@ func _ready() -> void:
 	check(dream.devbar_text() == sep.join([str(dw.pinched), str(dw.scrap), hold_line(), signs_line]), "the dev bar: '%s'" % dream.devbar_text())
 	var first_x: float = first_scrap.position.x
 	await press_key(KEY_E)
-	check(dream.scraps_carried == ["round"] and dream.lucidity == 1 and dream.effective() == 2 and dream.carried.is_empty() and not dream.in_hand(), "E took it: +1 (not +2), lucidity 1, effective 1 + 1 carried = 2, nothing on the hat")
-	check(dreamer.hip_count() == 1 and dreamer.hat_count() == 0 and dreamer.hip.get_child(0).size == dreamer.HIP_PIECE, "one piece at the hip, none on the hat")
+	check(dream.scraps_carried == ["round"] and dream.lucidity == 1 and dream.effective() == 2, "E took it: +1 (not +2), lucidity 1, effective 1 + 1 carried = 2")
+	check(dreamer.hip_count() == 1 and dreamer.hip.get_child(0).size == dreamer.HIP_PIECE and not dreamer.has_node("Hat"), "one piece at the hip; there is no hat (day B)")
 	check(state.scraps_carried == ["round"] and acts.has(["grab_scrap", "round"]) and dream.scraps_in_room() == ["square"], "the state knows; acted grab_scrap:round; one scrap left in the room")
 	check(dream.devbar_text() == sep.join([str(dw.pinched), str(dw.set_down_scrap), hold_line(), signs_line]), "a scrap carried, on the floor: '%s'" % dream.devbar_text())
 	# Carry 3: two more by hand, then a fourth is refused.
@@ -229,10 +233,10 @@ func _ready() -> void:
 	frames = await hold_until("move_right", func() -> bool: return dream.idea_in_reach() != null, 600)
 	check(frames < 600 and dream.idea_in_reach() == goal_idea_node and dreamer.is_on_floor(), "walked to the idea in %d frames" % frames)
 	var lucidity_at_idea: int = dream.lucidity
-	check(not dream.grab() and dream.carried.is_empty() and dream.ideas_in_room() == ["pills"] and dream.lucidity == lucidity_at_idea and dreamer.hat_count() == 0, "grab() refuses the goal idea: it is reached, never carried")
-	check(dream.can_reach() and dream.devbar_text().contains(str(dw.reach)) and not dream.devbar_text().contains(str(dw.grab)), "the dev bar offers the reach: '%s'" % dream.devbar_text())
+	check(not dream.has_method("grab") and dream.ideas_in_room() == ["pills"] and dream.lucidity == lucidity_at_idea and not dream.grab_scrap(), "there is no grab for an idea (day B): it is reached, never carried; grab_scrap finds nothing")
+	check(dream.can_reach() and dream.devbar_text().contains(str(dw.reach)) and not dw.has("grab"), "the dev bar offers the reach: '%s'" % dream.devbar_text())
 	await press_key(KEY_E)
-	check(reaches == [["bo", "pills"]] and wakes.size() == 1 and wakes[0][0] == false and wakes[0][1].is_empty(), "E: reached(bo, pills), then woke(false, no idea carried) at once")
+	check(reaches == [["bo", "pills"]] and wakes.size() == 1 and wakes[0][0] == false and wakes[0][1] == ["round", "square", "long"], "E: reached(bo, pills), then woke(false, the three scraps) at once")
 	check(dream.woken and dream.scraps_carried == ["round", "square", "long"] and acts.has(["reach", "pills"]), "the night is over with the three scraps still at the hip; acted reach:pills")
 	Input.action_release("pinch")
 	Input.action_release("move_right")
@@ -265,7 +269,7 @@ func _ready() -> void:
 	await press_key(KEY_E)
 	await settle()
 	check(wakes.size() == 1 and wakes[0][0] == false and reaches == [["bo", "pills"]] and toy.dream == null and not toy.picking, "E: the night ended gently, no picker")
-	check(state.ideas_kept == ["pills"] and state.scraps == ["round", "square"] and state.ideas_carried.is_empty() and state.scraps_carried.is_empty(), "the idea is in ideas_kept and the scraps in state.scraps: %s, %s" % [state.ideas_kept, state.scraps])
+	check(state.ideas_kept == ["pills"] and state.scraps == ["round", "square"] and state.scraps_carried.is_empty(), "the idea is in ideas_kept and the scraps in state.scraps: %s, %s" % [state.ideas_kept, state.scraps])
 	check(state.reached.get("bo", false) and state.has_flag("reached:bo") and state.has_flag("kept:pills") and state.tally == 0 and state.day == 2, "reached:bo; the tally untouched; day 2")
 	var summary: String = toy.harness.summary()
 	check(summary.contains("  reached:bo") and summary.contains("  woke_gentle") and summary.contains("  kept:pills") and summary.contains("grabbed_scrap") and not summary.contains("woke_sudden"), "milestones reached:bo, woke_gentle, kept:pills, grabbed_scrap")
@@ -276,7 +280,7 @@ func _ready() -> void:
 	check(village != null and toy.panel.say_label.text == str(village_json.wake_reached).format({"name": "The Pills"}), "the morning: '%s'" % toy.panel.say_label.text)
 	check(wall.shown_branches() == ["jorun", "bo"] and wall.goal_text("bo") == "The Pills" and wall.goal_text("jorun") == str(wall_words.unknown), "the second night's wall names Bo's idea ('%s') and shows Jorun's '%s'" % [wall.goal_text("bo"), wall.goal_text("jorun")])
 	check(wall.tonight_text() == tonight_line and state.target == "bo", "the target stays until changed: '%s'" % wall.tonight_text())
-	check(village.breakfast_on and village.hand_idea() == "pills", "(day A: breakfast still runs on the idea reached; it goes on day B)")
+	check(village.desk_on and village.desk.idea == "pills" and village.desk.cards == ["round", "square"], "day B: the Desk runs on the idea reached, the two thoughts as its cards")
 	Input.action_release("pinch")
 	Input.action_release("move_right")
 	await free_toy()
@@ -316,7 +320,7 @@ func _ready() -> void:
 	frames = await wait_until(func() -> bool: return dream.hold_seconds() >= 2.9 - 0.001, 200)
 	check(frames < 200 and not dream.woken and wakes.is_empty() and dream.hold_seconds() < 2.95, "2.9 s still: nothing yet (%.2f s)" % dream.hold_seconds())
 	frames = await wait_until(func() -> bool: return dream.woken, 12)
-	check(frames < 12 and wakes.size() == 1 and wakes[0][0] == false and wakes[0][1].is_empty() and dream.self_pinched(), "3.0 s: woke(false), no idea, by the self-pinch (%d frames on)" % frames)
+	check(frames < 12 and wakes.size() == 1 and wakes[0][0] == false and wakes[0][1] == ["round"] and dream.self_pinched(), "3.0 s: woke(false, the scrap), no idea, by the self-pinch (%d frames on)" % frames)
 	check(dream.scraps_carried == ["round"] and acts.has(["self_pinch", "3.0"]), "every scrap still carried; acted self_pinch")
 	Input.action_release("pinch")
 	await free_dream()

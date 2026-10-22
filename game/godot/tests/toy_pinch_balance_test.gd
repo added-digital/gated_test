@@ -3,12 +3,14 @@ extends Node2D
 ## The driver (tests/pinch_driver.gd) plays dream.tscn alone, with a fresh
 ## state each night. Sections: (A) room f, the sixth room, played
 ## competently inside 20 s: the draft up through the soft room, the pinch
-## over the shelf, the idea, the quiet spot, the draft again and the pinch
-## over the perch; the perch 112 px above the shelf (one step too high);
-## its words from rooms.json; (B) the feel, drawn only: the body squashes
-## 1.2 x 0.8 for 6 frames after a pinched landing and is back after,
-## stretches at a jump, the hat stack bounces when an idea joins it, the
-## blink's three phases (shut in 4 frames, held until one second, reopened
+## over the shelf, the thoughts hung there, the draft again and the pinch
+## over the perch (its quiet spot sits inside the draft, which moves a
+## body asleep, so day B's rule, stillness asleep, leaves it no wonder); the perch 112 px above the
+## shelf (one step too high); its words from rooms.json; (B) the feel,
+## drawn only: the body squashes 1.2 x 0.8 for 6 frames after a pinched
+## landing and is back after, stretches at a jump, a thought taken sits
+## at the hip (day B: the hat and its bounce are gone), the blink's three
+## phases (shut in 4 frames, held until one second, reopened
 ## over 12 with the dreamer back at the door dropping in 8 px), the soft
 ## shapes dim within two steps of the limit, H's choice is remembered in
 ## the state; (C) a COMPETENT night and a CLUMSY night on nights 1, 2 and
@@ -23,8 +25,10 @@ extends Node2D
 ## nights of (C) are the three branches (night 1 Jorun's, 2 Bo's, 3
 ## Tove's: the hub, two rooms, the goal room, six scraps); the invariants
 ## read "reached" (the idea, with every scrap) where they read "bed". The
-## table has a scraps column. Prints the table, PASS/FAIL per check, and
-## quits with 0 only if every check passes.
+## table has a scraps column (day B: the grab column went with the hat;
+## room f is dealt with its scraps, and what the driver takes there is
+## read back; the quiet spot is taken asleep). Prints the table, PASS/FAIL
+## per check, and quits with 0 only if every check passes.
 
 const DREAM := preload("res://prototypes/pinch/dream.tscn")
 const DRIVER := preload("res://tests/pinch_driver.gd")
@@ -53,7 +57,7 @@ func _ready() -> void:
 
 	# ---------------------------------------------------------------- (A) room f
 	await fresh(1)
-	dream.redeal(["f", "bed"] as Array[String], false)   # SPEC-2: by hand, no scraps; the idea placed by hand below
+	dream.redeal(["f", "bed"] as Array[String])   # SPEC-2: by hand, with its scraps (all six land in f: the bed holds none)
 	var f_words: Dictionary = dream.room_words("f")
 	check(dream.current_room_id() == "f" and dream.room.id == "f" and f_words.get("name", "") != "" and f_words.get("hint", "") != "", "room f is dealt: '%s'" % f_words.get("name", ""))
 	check(dream.room_label.text == str(rooms_json.label).format({"name": f_words.name, "hint": f_words.hint}), "its label reads from rooms.json")
@@ -65,16 +69,18 @@ func _ready() -> void:
 	check(is_equal_approx(shelf.position.y - perch.position.y, 112.0) and perch.position.x >= shelf.position.x + shelf.size.x, "the perch is 112 px above the shelf (one step too high for a jump) and past its end")
 	check(shelf.label.text == str(rooms_json.words.shelf) and perch.label.text == str(rooms_json.words.perch) and draft.label.text == str(rooms_json.words.draft), "the shelf, the perch and the draft are labelled from rooms.json: '%s', '%s', '%s'" % [shelf.label.text, perch.label.text, draft.label.text])
 	check(draft.is_in_group("current") and draft.velocity.y < 0.0 and draft.velocity.x > 0.0 and chamber.soft and chamber.is_in_group("soft") and spot.kind == "spot" and spot.id == "f_spot", "a rising draft, a soft chamber, a quiet spot")
-	var f_idea: String = dream.ideas_pool()[0]
-	dream.place_idea(f_idea, dream.room.idea_spots()[0])
-	check(dream.ideas_in_room() == [f_idea] and dream.ideas_node.get_child(0).position.y < shelf.position.y, "its idea %s lies on the shelf (placed by hand on the room's spot)" % f_idea)
+	check(dream.scraps_in_room().size() == 6 and dream.ideas_in_room().is_empty() and dream.scraps_node.get_child(0).position.y < shelf.position.y, "six thoughts hang in it, two over the shelf; no idea (day B)")
+	var spot_rect := Rect2(spot.position, spot.size)   # read now: the room goes when the driver leaves it
+	var draft_rect := Rect2(draft.position, draft.size)
 	driver.attach(dream, "competent")
 	var started: int = Engine.get_physics_frames()
 	await driver.play_room("f")
 	var f_frames: int = Engine.get_physics_frames() - started
 	check(dream.current_room_id() == "bed" and dream.room_index == 1, "the driver left room f by the perch's exit: the bed room is in play (%s)" % [driver.did])
 	check(f_frames < SOLVE_FRAMES, "room f solved competently in %d frames (%.1f s)" % [f_frames, f_frames / 60.0])
-	check(dream.carried == [f_idea] and driver.acts.get("wonder", 0) == 1 and dream.lucidity == 1 and dream.effective() == 2, "took %s (+2), the quiet spot (-1): lucidity 1, effective 2 (%d, %d)" % [f_idea, dream.lucidity, dream.effective()])
+	var taken: int = dream.scraps_carried.size()
+	check(taken >= 1 and taken <= 3 and driver.acts.get("grab_scrap", 0) == taken and dream.lucidity == taken and dream.effective() == 2 * taken, "took %d thought(s) (+1 each): lucidity %d, effective %d" % [taken, dream.lucidity, dream.effective()])
+	check(driver.acts.get("wonder", 0) == 0 and draft_rect.encloses(spot_rect), "the quiet spot (%s) sits inside the draft (%s), which moves a body asleep: its wonder is not to be had (day B: a spot's wonder needs stillness asleep)" % [spot_rect, draft_rect])
 	check(dream.hard_falls == 0 and dream.blinks == 0 and driver.acts.get("fall", 0) == 0 and driver.acts.get("fail", 0) == 0, "no hard fall, no failed screen on the way")
 	# A jump from the shelf alone does not reach the perch; the draft does.
 	dream.redeal(["f", "bed"] as Array[String], false)
@@ -106,10 +112,10 @@ func _ready() -> void:
 	dream.fall()
 	check(dream.effective() == 6 and dream.thin() and pillar.modulate == dream.THIN, "effective 6, two steps from shut: the soft pillar dims to %s" % [pillar.modulate])
 	check(dream.wonder("thin_test", "spot") and dream.effective() == 5 and pillar.modulate == Color.WHITE, "a wonder: plain again")
-	# The squash, the stretch, the hat.
+	# The squash, the stretch, the hip.
 	await fresh(1)
 	dream.redeal(["tutorial", "bed"] as Array[String], false)
-	dream.place_idea(dream.ideas_pool()[0], Vector2(60, 588))   # the tutorial's idea, by hand, in reach of the door
+	dream.place_scrap("round", Vector2(60, 556))   # a thought by hand at hand height, in reach of the door
 	check(dreamer.body_scale() == Vector2.ONE and not dreamer.is_on_floor(), "at the door, hovering: the body is drawn 1 x 1")
 	Input.action_press("pinch")
 	var frames := await wait_until(func() -> bool: return dreamer.is_on_floor(), 60)
@@ -130,16 +136,11 @@ func _ready() -> void:
 	check(dreamer.body_scale() == Vector2.ONE and not dreamer.is_on_floor(), "6 frames on, in the air: 1 x 1 again")
 	frames = await wait_until(func() -> bool: return dreamer.is_on_floor(), 60)
 	check(frames < 60 and dreamer.body_scale() == dreamer.SQUASH and dream.lucidity == 0, "landed from the jump: the squash again, free")
-	# The hat's settle bounce.
+	# The hip (day B: no hat, no bounce).
 	await settle()
-	check(is_zero_approx(dreamer.hat_bounce()) and is_equal_approx(dreamer.hat.position.y, dreamer.body.position.y), "the empty hat sits on the head")
-	check(dream.idea_in_reach() != null and dream.grab(), "took the tutorial's idea")
-	check(dreamer.hat_bounce() > 0.0 and dreamer.hat.position.y > dreamer.body.position.y, "the stack dipped %.1f px the moment the idea joined it" % dreamer.hat_bounce())
-	var deepest := 0.0
-	for i in dreamer.HAT_BOUNCE_FRAMES + 1:
-		deepest = maxf(deepest, dreamer.hat_bounce())
-		await get_tree().physics_frame
-	check(deepest > dreamer.HAT_BOUNCE * 0.9 and is_zero_approx(dreamer.hat_bounce()) and is_equal_approx(dreamer.hat.position.y, dreamer.body.position.y), "it dipped %.1f px at most and settled %d frames on" % [deepest, dreamer.HAT_BOUNCE_FRAMES + 1])
+	check(dreamer.hip_count() == 0 and not dreamer.has_node("Hat"), "the hip is empty; there is no hat")
+	check(dream.scrap_in_reach() != null and dream.grab_scrap(), "took the thought")
+	check(dreamer.hip_count() == 1 and dreamer.hip.get_child(0).size == dreamer.HIP_PIECE, "one piece at the hip the moment it is taken")
 	# The blink's three phases.
 	var door: Vector2 = dream.room.door.position
 	var shown_before: float = dream.shown_aperture()
@@ -214,12 +215,11 @@ const TARGETS: Array[String] = ["jorun", "bo", "tove"]   # night 1, 2, 3: one br
 
 
 ## One night of dream.tscn alone on `day` (the target TARGETS[day - 1],
-## every villager talked to), the given limit and carry 2, played in
+## every villager talked to), the given limit, played in
 ## `play_mode`; the row for the table.
 func play_night(day: int, play_mode: String, limit: int) -> Dictionary:
 	await fresh(day, TARGETS[(day - 1) % TARGETS.size()])
 	state.lucidity_limit = limit
-	state.carry_limit = 2
 	driver.attach(dream, play_mode)
 	var row: Dictionary = await driver.play_night()
 	row["night"] = day
@@ -232,11 +232,11 @@ func play_night(day: int, play_mode: String, limit: int) -> Dictionary:
 
 ## The table: one row per night played.
 func print_table() -> void:
-	print("--- balance (dream.tscn alone, a fresh state each night, one branch per night, carry 2, scraps 3) ---")
-	print("%-5s %-9s %-5s %-24s %-5s %-6s %-4s %-6s %-5s %-5s %-7s %-9s %-5s %-8s" % ["night", "mode", "limit", "rooms", "grab", "scraps", "set", "force", "fall", "fail", "wonder", "lucidity", "eff", "end"] + " home  seconds")
+	print("--- balance (dream.tscn alone, a fresh state each night, one branch per night, carry 3 thoughts) ---")
+	print("%-5s %-9s %-5s %-24s %-6s %-4s %-6s %-5s %-5s %-7s %-9s %-5s %-8s" % ["night", "mode", "limit", "rooms", "scraps", "set", "force", "fall", "fail", "wonder", "lucidity", "eff", "end"] + " home  seconds")
 	for row in rows:
 		var a: Dictionary = row.acts
-		print("%-5d %-9s %-5d %-24s %-5d %-6d %-4d %-6d %-5d %-5d %-7d %-9d %-5d %-8s %-5d %.1f" % [row.night, row.mode, row.limit, ",".join(row.rooms), a.get("grab", 0), a.get("grab_scrap", 0), a.get("set_down", 0) + a.get("set_down_scrap", 0), a.get("force", 0), a.get("fall", 0), a.get("fail", 0), a.get("wonder", 0), row.lucidity, row.effective, row.end, row.kept, row.seconds])
+		print("%-5d %-9s %-5d %-24s %-6d %-4d %-6d %-5d %-5d %-7d %-9d %-5d %-8s %-5d %.1f" % [row.night, row.mode, row.limit, ",".join(row.rooms), a.get("grab_scrap", 0), a.get("set_down_scrap", 0), a.get("force", 0), a.get("fall", 0), a.get("fail", 0), a.get("wonder", 0), row.lucidity, row.effective, row.end, row.kept, row.seconds])
 	print("--- end ---")
 
 

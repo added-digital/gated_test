@@ -11,16 +11,16 @@ extends "res://prototypes/pinch/rooms/zone.gd"
 ## away from that edge). The wonder fires once per visit. The look (the
 ## readability pass, _draw_goat): a filled rect with two horn triangles on
 ## its top corners, and the word "goat" from rooms.json ABOVE the body and
-## to its left (LABEL_LEFT px short of the rider's hat, which sits over the
-## goat's middle), so the rider never covers it.
+## to its left (LABEL_LEFT px short of the rider, who sits over the goat's
+## middle), so the rider never covers it.
 
 const PULL := 6.0   # per s: the rider closes the gap to the goat's middle at this rate, never faster than the goat
 const BODY_COLOR := Color(0.62, 0.6, 0.55)
 const HORN_COLOR := Color(0.8, 0.78, 0.7)
 const HORN := Vector2(10, 12)       # px: a horn's base and height
 const HORN_IN := 4.0                # px a horn sits in from the top corner
-const LABEL_LEFT := 8.0             # px between the label's right end and the rider's hat (HAT_PIECE.x / 2 = 16 either side of the middle)
-const HAT_HALF := 16.0              # px: half a hat piece (dreamer.gd HAT_PIECE.x / 2)
+const LABEL_LEFT := 8.0             # px between the label's right end and the rider's clearance
+const RIDER_HALF := 16.0            # px either side of the goat's middle kept clear for the rider (the body is 28 wide, plus the hip stack)
 const LABEL_WIDTH_GOAT := 100.0
 
 @export var speed := 300.0
@@ -91,9 +91,9 @@ func _draw_goat() -> void:
 
 
 ## The word above the body and to the left of the rider: its right end
-## LABEL_LEFT px short of where the hat's left edge sits, above the horns.
+## LABEL_LEFT px short of the rider's clearance, above the horns.
 func _label_place() -> Vector2:
-	return Vector2(size.x / 2.0 - HAT_HALF - LABEL_LEFT - LABEL_WIDTH_GOAT, -HORN.y - 4.0 - PinchLabel.LINE)
+	return Vector2(size.x / 2.0 - RIDER_HALF - LABEL_LEFT - LABEL_WIDTH_GOAT, -HORN.y - 4.0 - PinchLabel.LINE)
 
 
 func _label_align() -> HorizontalAlignment:
@@ -114,8 +114,8 @@ func label_rect() -> Rect2:
 	return Rect2(label.position, Vector2(LABEL_WIDTH_GOAT, PinchLabel.LINE)) if label != null else Rect2()
 
 
-## Where a rider (a body BODY_SIZE tall with `hat_pieces` on its hat) sits on
-## the goat, relative to the goat's top-left corner: on the middle.
-func rider_rect(body_size: Vector2, hat_pieces: int, hat_piece: Vector2) -> Rect2:
-	var top := size.y / 2.0 - body_size.y / 2.0 - hat_pieces * hat_piece.y
-	return Rect2(size.x / 2.0 - maxf(body_size.x, hat_piece.x) / 2.0, top, maxf(body_size.x, hat_piece.x), body_size.y + hat_pieces * hat_piece.y)
+## Where a rider (a body `body_size` big) sits on the goat, relative to the
+## goat's top-left corner: on the middle, RIDER_HALF either side of it.
+func rider_rect(body_size: Vector2) -> Rect2:
+	var top := size.y / 2.0 - body_size.y / 2.0
+	return Rect2(size.x / 2.0 - RIDER_HALF, top, RIDER_HALF * 2.0, body_size.y)

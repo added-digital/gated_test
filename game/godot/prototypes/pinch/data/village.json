@@ -1,25 +1,16 @@
 {
   "day_label": "Day {day}",
   "sleep_prompt": "E to sleep",
-  "sleep_prompt_pills": "E to sleep · 1 to take a pill first",
-  "pill_taken": "Bitter. Jorun will not miss one.",
   "talk_prompt": "E to talk",
-  "make_prompt": "hold E at the stove",
-  "making": "making...",
-  "made": "Something for Jorun, from the herbs on the shelf. Bitter, by the smell of it.",
   "wake_sudden": "You woke. Keep one.",
-  "wake_sudden_one": "You woke. One idea stayed under your hat.",
-  "wake_sudden_none": "You woke with nothing under your hat.",
+  "wake_sudden_scrap": "You woke. One thought stayed with you.",
+  "wake_sudden_none": "You woke with nothing in your hands.",
   "wake_gentle": "You woke gently.",
+  "wake_reached": "You woke gently. {name} came up with you, and every thought.",
+  "wake_self": "You pinched yourself awake. Every thought came with you.",
   "keep_one": "1 or 2 to keep it",
   "tally_title": "Woke suddenly",
   "tally_mark": "|",
-  "breakfast": {
-    "offer": "E at a face to offer {idea}",
-    "offer_many": "E at a face to offer {idea} · 1, 2, 3 to change",
-    "asleep": "{name} is asleep. Try another face.",
-    "over": "The telling is done."
-  },
   "buildings": {
     "long_house": "Long House",
     "jorun_hut": "Jorun's hut",
@@ -36,18 +27,11 @@
     "bos_loft": "Bo's loft",
     "lantern_post": "lantern post"
   },
-  "small_things": {
-    "bench": "a bench",
-    "sign": "a sign",
-    "lantern_post": "a lantern on a post",
-    "default": "{name}, as a bench",
-    "pill": "a pill, kept",
+  "things": {
+    "pills": "the pills, kept",
     "lantern": "a lantern, lit"
   },
   "wall_prompt": "E to choose a dream",
-  "wake_reached": "You woke gently. {name} came up with you, and every thought.",
-  "wake_self": "You pinched yourself awake. Every thought came with you.",
-  "wake_sudden_scrap": "You woke. One thought stayed with you.",
   "wall": {
     "title": "The dream, as far as you know it",
     "hub": "the Long House",
@@ -58,5 +42,20 @@
     "tonight": "Tonight: {name}'s dream",
     "choose_first": "Choose a dream first. The map is on the wall.",
     "chosen": "Tonight, {name}'s dream."
+  },
+  "desk": {
+    "begin": "The blue hour. {name} is on the desk; the light is going.",
+    "begin_blank": "The blue hour. Nothing came up but thoughts; three of them fit the map.",
+    "light": "the light",
+    "cards": "thoughts",
+    "fumble": "Wrong shape. Five seconds gone.",
+    "full": "{name}, whole. Developed.",
+    "weak": "{name}, most of it. A weak thing, but a thing.",
+    "none": "The light went. {name} was not enough of anything.",
+    "reveal": "Three thoughts fit the map. {name}'s dream shows one more room.",
+    "reveal_none": "The light went. The map is as it was.",
+    "choose_branch": "Which dream grows a room?",
+    "pick": "1 2 3 to choose",
+    "walked": "You left the desk."
   }
 }

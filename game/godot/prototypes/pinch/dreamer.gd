@@ -17,20 +17,16 @@ extends CharacterBody2D
 ## room is reported as fell_out; the dream blinks and puts the body back
 ## at the door. E and Q are read by the dream, not here.
 ##
-## The hat (day 3): one white rect per idea carried, HAT_PIECE tall each,
-## piled above the head; the pile's height is the carry readout. Asleep
-## the pieces wobble, pinched they sit still; while the top one is "in
-## hand" (the two seconds after a grab, counted double by the dream) it
-## is offset to the side. `facing` is the last way the body was pushed,
-## for the dream's set-down. The hip stack (SPEC-2, day A): one small
-## white rect per scrap carried, HIP_PIECE each, piled beside the hip (not
-## on the hat; scraps are small); set_hip(count) draws it, hip_count()
-## reads it. Drawn only: nothing of the physics changes.
+## The hip stack (SPEC-2): one small white rect per scrap carried,
+## HIP_PIECE each, piled up the body's side opposite to where it faces;
+## set_hip(count) draws it, hip_count() reads it. The first loop's hat
+## stack of ideas is gone (day B: ideas are reached, never carried).
+## `facing` is the last way the body was pushed, for the dream's set-down.
+## Drawn only: nothing of the physics changes.
 ##
 ## The feel (day 5), drawn only, every number a constant below: the body
 ## rect squashes (SQUASH) for SQUASH_FRAMES after a pinched landing and
-## stretches (STRETCH) as long at a jump, scaled about the feet; the hat
-## stack dips HAT_BOUNCE px and settles when an idea joins it; at a
+## stretches (STRETCH) as long at a jump, scaled about the feet; at a
 ## respawn (a new room, or the door after a blink) the body drops in from
 ## DROP_IN px above over DROP_IN_FRAMES, so the reappearance reads.
 ##
@@ -61,10 +57,6 @@ const GRAVITY := 1400.0     # px/s² pinched
 const BODY_HEIGHT := 56.0   # px: a drop taller than this lands hard
 const ROOM_HEIGHT := 648.0  # px: below this the body has fallen out of the room
 const BOB := 4.0            # px: the asleep sway, drawn only; the body itself does not move
-const HAT_PIECE := Vector2(32, 24)   # px: one carried idea on the hat; the pile is count * 24 tall
-const HAT_GAP := 2.0                 # px between pieces
-const HAND_OFFSET := 20.0            # px the in-hand piece sits to the side
-const WOBBLE := 3.0                  # px the pieces sway asleep
 const BODY_SIZE := Vector2(28, 56)
 const HIP_PIECE := Vector2(12, 8)    # px: one scrap at the hip
 const HIP_GAP := 2.0
@@ -72,22 +64,18 @@ const HIP_SIDE := 6.0                # px between the body's side and the hip st
 const SQUASH := Vector2(1.2, 0.8)    # the body's scale for SQUASH_FRAMES after a pinched landing
 const STRETCH := Vector2(0.8, 1.2)   # ... and for as long at the start of a jump
 const SQUASH_FRAMES := 6
-const HAT_BOUNCE := 6.0              # px the hat stack dips when an idea joins it, then settles
-const HAT_BOUNCE_FRAMES := 8
 const DROP_IN := 8.0                 # px above its place the body appears at a respawn, drawn only
 const DROP_IN_FRAMES := 8
 const SOFT := Color(0.6, 0.6, 0.66)
 const CRISP := Color(0.88, 0.88, 0.88)
 
 @onready var body: ColorRect = $Body
-@onready var hat: Node2D = $Hat
 
 var hip: Node2D = null       # the scraps carried, one small rect each, beside the hip
 
 var pinched := false
 var frozen := false          # during the dream's blink: no physics, not drawn
 var facing := 1              # 1 right, -1 left: the last way the body was pushed
-var in_hand := false         # the top hat piece is in the hand (set_hat)
 var carried_by: Array = []   # the currents overlapping this frame (asleep only)
 var _drop_from := 0.0        # y where the current fall began
 var _settling := 0           # frames after a respawn during which no current is read (see respawn)
@@ -95,7 +83,6 @@ var _jump_held := false
 var _time := 0.0
 var _squash := Vector2.ONE   # the body's scale while _squash_left > 0
 var _squash_left := 0        # frames of squash or stretch left
-var _bounce_left := 0        # frames of the hat's settle bounce left
 var _drop_in_left := 0       # frames of the respawn drop-in left
 
 
@@ -151,7 +138,6 @@ func _physics_process(delta: float) -> void:
 					carried_by.append(area)
 					carry += area.carry(position)
 		velocity = Vector2(axis * DRIFT_SPEED, 0.0) + carry
-	_place_hat()
 	_place_hip()
 	var was_on_floor := is_on_floor()
 	var y_before := position.y
@@ -176,8 +162,6 @@ func _draw_feel() -> void:
 	body.scale = _squash if _squash_left > 0 else Vector2.ONE
 	if _squash_left > 0:
 		_squash_left -= 1
-	if _bounce_left > 0:
-		_bounce_left -= 1
 	if _drop_in_left > 0:
 		_drop_in_left -= 1
 
@@ -185,13 +169,6 @@ func _draw_feel() -> void:
 ## px the body is drawn above its place, settling from DROP_IN to 0 after a respawn.
 func drop_in() -> float:
 	return DROP_IN * _drop_in_left / float(DROP_IN_FRAMES)
-
-
-## px the hat stack is dipped by the settle bounce now; 0 when settled.
-func hat_bounce() -> float:
-	if _bounce_left <= 0:
-		return 0.0
-	return HAT_BOUNCE * sin(PI * (HAT_BOUNCE_FRAMES - _bounce_left + 1) / float(HAT_BOUNCE_FRAMES + 1))
 
 
 ## The body's scale now: SQUASH, STRETCH or one.
@@ -230,28 +207,6 @@ func rect() -> Rect2:
 	return Rect2(position - BODY_SIZE / 2.0, BODY_SIZE)
 
 
-## The hat stack: one rect per idea carried, piled above the head; the top
-## one to the side while it is in the hand.
-func set_hat(count: int, top_in_hand := false) -> void:
-	in_hand = top_in_hand and count > 0
-	if count > hat.get_child_count():
-		_bounce_left = HAT_BOUNCE_FRAMES   # an idea joined the pile: it settles with a bounce
-	for piece in hat.get_children():
-		hat.remove_child(piece)
-		piece.queue_free()
-	for i in count:
-		var piece := ColorRect.new()
-		piece.color = Color.WHITE
-		piece.size = HAT_PIECE
-		piece.position = Vector2(-HAT_PIECE.x / 2.0, -(i + 1) * HAT_PIECE.y - i * HAT_GAP)
-		hat.add_child(piece)
-	_place_hat()
-
-
-func hat_count() -> int:
-	return hat.get_child_count()
-
-
 ## The hip stack: one small rect per scrap carried, piled up the body's
 ## side opposite to where it faces (the hand is on the facing side).
 func set_hip(count: int) -> void:
@@ -271,33 +226,7 @@ func hip_count() -> int:
 	return hip.get_child_count()
 
 
-## px from the head to the top of the pile: 24 per idea carried.
-func hat_height() -> float:
-	return hat_count() * HAT_PIECE.y
-
-
-## The top piece's sideways offset: HAND_OFFSET in hand, the wobble asleep, 0 pinched.
-func hat_top_offset() -> float:
-	var count := hat_count()
-	return 0.0 if count == 0 else hat.get_child(count - 1).position.x + HAT_PIECE.x / 2.0
-
-
 ## The hip stack sits on the side the body does not face, following the bob.
 func _place_hip() -> void:
 	var side := -facing
 	hip.position = Vector2(side * (BODY_SIZE.x / 2.0 + HIP_SIDE) - (HIP_PIECE.x if side < 0 else 0.0), body.position.y + BODY_SIZE.y / 2.0)
-
-
-## The pile follows the head (the body bobs asleep); each piece sways asleep
-## and sits still pinched; the in-hand piece sits to the side the body faces.
-func _place_hat() -> void:
-	hat.position = Vector2(0.0, body.position.y + hat_bounce())
-	var count := hat.get_child_count()
-	for i in count:
-		var piece: ColorRect = hat.get_child(i)
-		var x := -HAT_PIECE.x / 2.0
-		if not pinched:
-			x += sin(_time * 3.0 + i * 0.9) * WOBBLE
-		if in_hand and i == count - 1:
-			x += HAND_OFFSET * facing
-		piece.position.x = x

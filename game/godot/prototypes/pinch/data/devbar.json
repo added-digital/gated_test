@@ -4,11 +4,9 @@
   "dream": {
     "asleep": "drift · hold Shift to pinch",
     "current": "let it carry you",
-    "wonder": "stay: wonder",
+    "wonder": "stay still, asleep: wonder",
     "pinched": "A D walk · Space jump · release Shift to drift",
     "falling": "release Shift to drift",
-    "grab": "E grab",
-    "set_down": "Q set down",
     "push": "E push",
     "exit": "walk in, pinched",
     "bed": "E lie down, keep everything",
@@ -22,12 +20,11 @@
     "walk": "A D walk",
     "talk": "E talk",
     "sleep": "E sleep",
-    "pill": "1 take a pill",
-    "make": "hold E 3 s make",
-    "breakfast": "E offer {idea} · 1 2 3 change · walk away ends",
-    "breakfast_one": "E offer {idea} · walk away ends",
     "wall": "E choose tonight's dream",
     "wall_pick": "1 2 3 choose · the dream for tonight",
-    "sleep_refused": "sleep: choose a dream at the wall first"
+    "sleep_refused": "sleep: choose a dream at the wall first",
+    "desk_pick": "1 2 3 pick a card · walk away ends the desk",
+    "desk": "A D move the hand · E fit {card} · 1 2 3 change the card · walk away ends the desk",
+    "desk_branch": "1 2 3 choose · the dream that grows a room"
   }
 }

@@ -4,5 +4,9 @@
     {"id": "round", "name": "a round thought"},
     {"id": "square", "name": "a square thought"},
     {"id": "long", "name": "a long thought"}
-  ]
+  ],
+  "outline": {
+    "name": "the map's blank outline",
+    "slots": ["any", "any", "any"]
+  }
 }

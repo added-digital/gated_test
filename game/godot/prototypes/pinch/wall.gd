@@ -9,12 +9,19 @@ extends Node2D
 ## yet, the note "talk to someone first" stands where the first row would.
 ## The target (state.target) is written beside the hub ("Tonight: Bo's
 ## dream"). Grey boxes and backed labels (PinchLabel); every word comes
-## from data/village.json "wall", the names from data/characters.json and
-## data/ideas.json, handed in by the village (setup). refresh(state)
-## redraws; the readers (shown_branches, goal_text, ...) are for the
-## designer's eye and the tests. `position` is the map's top-left corner.
+## from data/village.json "wall", the names from data/characters.json,
+## data/ideas.json and data/rooms.json, handed in by the village (setup).
+## refresh(state) redraws; the readers (shown_branches, goal_text,
+## row_room_names, ...) are for the designer's eye and the tests.
+## `position` is the map's top-left corner.
+##
+## Map knowledge (day B): a room box the state knows (state.room_known:
+## the lantern developed in full names every room; a weak lantern or three
+## scraps at the Desk name a branch's rooms from its start) is drawn wide
+## (NAMED_BOX) with the room's name inside; the rest stay blank boxes.
 
-const BOX := Vector2(22, 14)      # px: one room on the map
+const BOX := Vector2(22, 14)      # px: one room on the map, unknown
+const NAMED_BOX := Vector2(92, 14)   # px: a room the map names
 const GAP := 8.0                  # px between boxes
 const ROW := 24.0                 # px between rows
 const NAME_WIDTH := 56.0          # px: the villager's name at a row's left
@@ -23,8 +30,10 @@ const GOAL_WIDTH := 120.0         # px: the question mark or the idea's name aft
 const NOTE_WIDTH := 200.0
 const TONIGHT_WIDTH := 170.0
 const FONT := 11
+const ROOM_FONT := 10
 const STEM := 2.0                 # px: the line from the hub down to the rows
 const BOX_COLOR := Color(0.74, 0.74, 0.78)
+const NAMED_COLOR := Color(0.86, 0.86, 0.9)
 const HUB_COLOR := Color(0.86, 0.86, 0.88)
 const GOAL_COLOR := Color.WHITE
 const REACHED_COLOR := Color(1.0, 0.9, 0.45)
@@ -34,25 +43,28 @@ var words: Dictionary = {}        # village.json "wall"
 var branches: Array = []          # branches.json "branches", in order
 var names := {}                   # who -> name
 var idea_names := {}              # idea id -> name
+var room_names := {}              # room id -> name (rooms.json)
 var hub_box: ColorRect = null
 var hub_label: Label = null
 var tonight_label: Label = null
 var note_label: Label = null
 var rows := {}                    # who -> Node2D (the row drawn for that branch)
 var rows_node: Node2D = null
+var _width := 0.0                 # px: the widest row drawn
 
 
 ## Before add_child: the words and the names this map draws with.
-func setup(wall_words: Dictionary, branch_list: Array, villager_names: Dictionary, idea_name_map: Dictionary) -> void:
+func setup(wall_words: Dictionary, branch_list: Array, villager_names: Dictionary, idea_name_map: Dictionary, room_name_map: Dictionary = {}) -> void:
 	words = wall_words
 	branches = branch_list
 	names = villager_names
 	idea_names = idea_name_map
+	room_names = room_name_map
 
 
 func _ready() -> void:
 	var hub_x := NAME_WIDTH + GAP
-	hub_box = _box(self, Vector2(hub_x, (PinchLabel.LINE - BOX.y) / 2.0), HUB_COLOR)
+	hub_box = _box(self, Vector2(hub_x, (PinchLabel.LINE - BOX.y) / 2.0), BOX, HUB_COLOR)
 	hub_box.name = "Hub"
 	hub_label = PinchLabel.make(word("hub"), Vector2(hub_x + BOX.x + 6.0, 0.0), HUB_WIDTH, HORIZONTAL_ALIGNMENT_LEFT, FONT)
 	hub_label.name = "HubLabel"
@@ -73,13 +85,15 @@ func word(key: String) -> String:
 	return str(words.get(key, key))
 
 
-## Redrawn from the state: the rows of the talked-to villagers, the goal
-## boxes named or not, the note, tonight's target.
+## Redrawn from the state: the rows of the talked-to villagers, the room
+## boxes named as far as known, the goal boxes named or not, the note,
+## tonight's target.
 func refresh(state: PinchState) -> void:
 	for row in rows_node.get_children():
 		rows_node.remove_child(row)
 		row.queue_free()
 	rows = {}
+	_width = NAME_WIDTH + GAP + BOX.x + 6.0 + HUB_WIDTH + 8.0 + TONIGHT_WIDTH
 	var row_index := 0
 	for branch in branches:
 		var who := str(branch.get("who", ""))
@@ -97,12 +111,21 @@ func refresh(state: PinchState) -> void:
 		_rect(row, Rect2(x - GAP + 2.0, PinchLabel.LINE / 2.0 - STEM / 2.0, GAP - 2.0, STEM), LINE_COLOR)   # the tick from the stem
 		var room_ids: Array = branch.get("rooms", [])
 		for i in room_ids.size():
-			var box := _box(row, Vector2(x, (PinchLabel.LINE - BOX.y) / 2.0), BOX_COLOR)
+			var room_id := str(room_ids[i])
+			var known: bool = state.room_known(who, i)
+			var size := NAMED_BOX if known else BOX
+			var box := _box(row, Vector2(x, (PinchLabel.LINE - size.y) / 2.0), size, NAMED_COLOR if known else BOX_COLOR)
 			box.name = "Room%d" % (i + 1)
-			box.set_meta("room", str(room_ids[i]))
-			x += BOX.x + GAP
+			box.set_meta("room", room_id)
+			box.set_meta("known", known)
+			if known:
+				var room_label := PinchLabel.make(str(room_names.get(room_id, room_id)), Vector2(x, 0.0), size.x, HORIZONTAL_ALIGNMENT_CENTER, ROOM_FONT, false)
+				room_label.name = "RoomLabel%d" % (i + 1)
+				room_label.set_meta("room", room_id)
+				row.add_child(room_label)
+			x += size.x + GAP
 		var reached: bool = state.reached.get(who, false)
-		var goal := _box(row, Vector2(x, (PinchLabel.LINE - BOX.y) / 2.0), REACHED_COLOR if reached else GOAL_COLOR)
+		var goal := _box(row, Vector2(x, (PinchLabel.LINE - BOX.y) / 2.0), BOX, REACHED_COLOR if reached else GOAL_COLOR)
 		goal.name = "Goal"
 		var idea := str(branch.get("idea", ""))
 		var goal_text := str(idea_names.get(idea, idea)) if reached else word("unknown")
@@ -111,6 +134,7 @@ func refresh(state: PinchState) -> void:
 		row.add_child(goal_label)
 		rows_node.add_child(row)
 		rows[who] = row
+		_width = maxf(_width, x + BOX.x + 6.0 + GOAL_WIDTH)
 	note_label.visible = rows.is_empty()
 	var stem: ColorRect = get_node_or_null("Stem")
 	if stem != null:
@@ -153,9 +177,25 @@ func row_rooms(who: String) -> Array[String]:
 	var ids: Array[String] = []
 	if rows.has(who):
 		for child in rows[who].get_children():
-			if child.has_meta("room"):
+			if child.has_meta("room") and child is ColorRect:
 				ids.append(str(child.get_meta("room")))
 	return ids
+
+
+## What the room boxes of a branch say, in order: the room's name where
+## the map knows it, "" for a blank box.
+func row_room_names(who: String) -> Array[String]:
+	var texts: Array[String] = []
+	if not rows.has(who):
+		return texts
+	var row: Node2D = rows[who]
+	var i := 0
+	for child in row.get_children():
+		if child.has_meta("room") and child is ColorRect:
+			i += 1
+			var label: Label = row.get_node_or_null("RoomLabel%d" % i)
+			texts.append(label.text if label != null else "")
+	return texts
 
 
 ## The note shown when no branch is drawn yet ("" otherwise).
@@ -170,11 +210,11 @@ func tonight_text() -> String:
 
 ## The map's extent, from its top-left corner.
 func size() -> Vector2:
-	return Vector2(NAME_WIDTH + GAP + BOX.x + 6.0 + HUB_WIDTH + 8.0 + TONIGHT_WIDTH, ROW * (rows.size() + 1) + PinchLabel.LINE)
+	return Vector2(_width, ROW * (rows.size() + 1) + PinchLabel.LINE)
 
 
-func _box(holder: Node, at: Vector2, color: Color) -> ColorRect:
-	return _rect(holder, Rect2(at, BOX), color)
+func _box(holder: Node, at: Vector2, extent: Vector2, color: Color) -> ColorRect:
+	return _rect(holder, Rect2(at, extent), color)
 
 
 func _rect(holder: Node, rect: Rect2, color: Color) -> ColorRect:
