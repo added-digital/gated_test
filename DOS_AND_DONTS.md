@@ -46,7 +46,7 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 22. Don't let an idea that arrives mid-rung enter a spec until the designer has picked it.
 23. Don't add a second verb to a toy to rescue the first.
 24. Don't add systems nobody asked for; overbuilding is the documented agent failure.
-25. Don't build "might need" features; every plan passes the simplicity gate.
+25. Don't keep a retired toy's kill date running; when toys 1 to 3 retired into PINCH, their dates lapsed in writing.
 26. Don't grow the kit on speculation; a piece exists only because a scene or a toy names it.
 27. Don't reopen kit growth the designer skipped ("Skip the kit growth") unless they ask.
 28. Don't merge several concepts into one; each graft must survive the toy on its own.
@@ -56,7 +56,7 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 32. Don't copy a reference's nouns and verbs; take its structure only.
 33. Don't let the kit, the garden or a pretty picture pick the verb.
 34. Don't keep a toy because it was the most fun to build.
-35. Don't plan two years of content before one loop holds a person for twenty minutes.
+35. Don't add a fourth villager or a branch longer than two rooms before the fourth chosen night; `SPEC-2.md` lists both as out of scope.
 36. Don't stretch a box when more hours appear; more hours shrink the calendar, not the box.
 37. Don't let the parking lot turn into a backlog; it is dated lines, not tasks.
 38. Don't build a world the size of the island picture before a slice says what one hectare costs.
@@ -76,8 +76,8 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 49. Don't decide the designer's taste; the AI proposes and builds, the designer decides and judges.
 50. Don't paraphrase the designer in NOTES; quote them verbatim and mark AI drafts as drafts.
 51. Don't bury the answer at the end of a long message; lead with it.
-52. Don't use names invented during a session as if the designer knows them.
-53. Don't end a message with a closing offer or a repeat of what was just said.
+52. Don't present a judgement call the build made as settled; list it for the designer to decide on play, as day A's row did.
+53. Don't end a message with a closing offer ("want me to…?"); the last thing is the standalone recap of what was found, done and next.
 54. Don't hand the designer a path they cannot open from the Claude app.
 55. Don't guess pronouns; Jorun is she, and anyone whose pronouns are not stated is they.
 56. Don't send a menu of options when one recommendation will do.
@@ -106,7 +106,7 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 76. Don't deal scraps that can never complete an outline; the lantern never finished on the plain cycle.
 77. Don't place a wonder where it cannot be had; room f's spot sat inside the draft.
 78. Don't delete the first loop's spec; `SPEC.md` stays as the record and `SPEC-2.md` wins where they differ.
-79. Don't change a rule silently when the second loop replaces the first; say so in the test's header.
+79. Don't let a reached branch go dry; down it, two scraps still lie where its idea lay.
 80. Don't stack mini-games to fight repetition; vary what breaks the calm.
 
 ## 5. PINCH, the dream, the frame and the readouts
@@ -119,8 +119,8 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 86. Don't rely on the frame alone; the designer could not tell where they were, which is why the gauge exists.
 87. Don't let the gauge become the only readout without testing it; the toggle shows which one people look at.
 88. Don't let lucidity tick while pinch is held; it moves only on acts.
-89. Don't let wonder count while pinched; it needs stillness, asleep.
-90. Don't make a fall a waking; a fall blinks the screen and costs one step.
+89. Don't let wonder count while pinched; every wonder is had asleep, and a quiet spot's also needs three seconds of stillness.
+90. Don't make falling off the screen a waking; a failed screen blinks for one second, costs +1 lucidity and drops the dreamer at the door, and a hard fall costs +1 with no blink.
 91. Don't hide what the player can do; the dev bar says it, from the toy's state.
 92. Don't let instruction text run off the screen or sit behind the frame.
 93. Don't draw soft walls, wonder spots and currents alike; the eye must tell them apart without labels.
@@ -136,8 +136,8 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 
 101. Don't put player-facing words in code; every line lives in the data JSON.
 102. Don't let a character announce that they remember; show it by quoting, as Pim's fix did.
-103. Don't make memory heavy-handed; it should be subtle but unmistakable.
-104. Don't write long lines; the tutorial's 36-word hint ran off the screen.
+103. Don't run a request's clock while its ask is still on screen; Help's 58-word ask after a miss sat on a 30 s clock that also needed 15 s of walking.
+104. Don't write a hint of 18 words or more; the tutorial's 36-word hint ran off the screen.
 105. Don't run two lines together as one; a claim is the character's line, then the idea's own.
 106. Don't give every idea the same claim line.
 107. Don't keep showing a want after it is fulfilled.
@@ -158,10 +158,10 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 ## 7. Look, art and the kit
 
 121. Don't add art before the loop passes its gate.
-122. Don't polish a toy; a pretty prototype is harder to throw away.
+122. Don't polish a toy past feel: no sprites, palettes, particles or music before the gate; a pretty prototype is harder to throw away.
 123. Don't confuse feel with art; squash, easing and timing are in scope, sprites are not.
 124. Don't treat an image-model picture as a plan; it had houses the size of hills and waterfalls from nothing.
-125. Don't build toward a picture; use pictures to collect ideas.
+125. Don't settle toon outlines on the kit inside a toy; IDEAS parks them as a whole-game look decision for Core or Slice.
 126. Don't pick the look by the AI's taste; the designer named it: pixel characters over blocky 3D, small pixels.
 127. Don't change a contract number without a row in `sakura-kit/breaks.md`.
 128. Don't write the palette as linear values into 8-bit pixels; they take sRGB bytes.
@@ -194,9 +194,9 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 152. Don't leave magic numbers in feel code; name every constant at the top of its file.
 153. Don't let one script grow into the whole toy.
 154. Don't load the same JSON in three scripts when the controller already has it.
-155. Don't let transient lists outlive the state that filled them.
+155. Don't reset a viewer's toggle each night; day 4 forgot the gauge's H every night until day 5 kept it for the session.
 156. Don't let a test drive past a bug by calling internals the player cannot reach, unless the test says so.
-157. Don't switch engines on a feeling; Godot stays until a written kill line says otherwise.
+157. Don't reshuffle a deal every night without checking coverage; the per-night shuffle never dealt room f on days 1 to 6.
 158. Don't pick Unity for this cloud loop without counting the cost: no licensed headless editor here.
 159. Don't add Job System or Burst-style optimisation before thousands of anything exist.
 160. Don't leave key bindings unstated; the hand-off said Shift while the screen said K.
@@ -214,7 +214,7 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 169. Don't mark a research claim verified when no page could be opened.
 170. Don't invent sources or quotes to fill a blocked fetch.
 171. Don't state a reference game's facts as certain when the record says "likely".
-172. Don't let a document contradict its own table.
+172. Don't let the PINCH README's prose contradict its Numbers section; the confidant reads both.
 173. Don't tune numbers by feel when a scripted player can measure them.
 174. Don't assert tuned values in tests; assert invariants.
 175. Don't leave the first loop's balance table in the second loop's README.
@@ -232,8 +232,8 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 184. Don't rewrite a paragraph in shared notes; append.
 185. Don't resolve a NOTES conflict by dropping a side; keep both lines.
 186. Don't push without fetching and rebasing first.
-187. Don't leave work in a working tree overnight.
-188. Don't push this repo's work to any branch but main.
+187. Don't end a day with work waiting in a working tree; size each unit to land verified and committed on main the same day, or drop it and say so in the hand-off.
+188. Don't push this repo's work to any branch but main, unless something is uncertain enough for a short-lived branch that is merged or deleted the same day.
 189. Don't push tags through the proxy; it refuses them, so leave tags to the designer.
 190. Don't report a push until git says main matches origin.
 191. Don't probe a private repo with unauthenticated requests first; the 404 lies.
@@ -260,7 +260,7 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 5. Pass, shrink or kill when a box runs out.
 6. Log every gate's evidence in NOTES: date, rung, question, evidence, and whether the kill date still holds.
 7. Judge every gate against the Goal: "The player feels accomplished."
-8. Write the second sentence, "the player [verb]s [object] to [outcome]", at the Toys gate.
+8. Have the designer write the second sentence, "the player [verb]s [object] to [outcome]", at the Toys gate; the AI lists verb candidates only when asked.
 9. Write hypotheses as "I believe [interaction] holds a confidant N minutes because [reason]; dead if not by [date]."
 10. Let the designer replace AI-drafted hypothesis lines with their own words at the gate.
 11. Have someone who is not the designer play every player gate.
@@ -279,9 +279,9 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 21. Park every mid-rung idea as one dated line in `IDEAS.md`.
 22. Quote the designer verbatim when an idea is theirs.
 23. Open the parking lot at a gate and on Fridays, rank the top three against the Goal and the verb, and close it.
-24. Use the escape hatch for an idea that will not let go: a throwaway folder, a hypothesis line, a four-hour stop.
+24. When the designer picks an idea that will not let go, use the escape hatch: a throwaway folder, a hypothesis line, a four-hour stop; the AI never opens it on its own.
 25. Cut a loop toy to Dave's first-slice shape: one zone, one clock, one upgrade track.
-26. Count loops, not rooms.
+26. Grow PINCH by whole loops, not rooms: `SPEC-2.md` reuses rooms a to f across three branches and adds only the hub and three goal rooms.
 27. Keep the structure the designer named: a surface and a separated underground.
 28. Take the structure, and change the fantasy, the verb and the second loop.
 29. Plan for discards; most loop prototypes die.
@@ -295,7 +295,7 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 37. Judge concepts through two lenses, designer and producer, and show where they disagree.
 38. Report convergence when proposers converge; it is a finding.
 39. Keep losing concepts in the repo; their best ideas become grafts.
-40. Say in every PINCH Log row whether the 10 November kill date still holds.
+40. Hold the day-half candidates in IDEAS (the dream journal, build where you point, the pills as Bo's request) for the gate, and try one only if the confidant's play shows the day starving.
 
 ## 3. Working with the designer
 
@@ -322,7 +322,7 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 
 ## 4. PINCH, the loop
 
-61. Start every night at the wall by choosing a villager's dream.
+61. Choose a villager's dream at the wall before the first night; the target holds from night to night until the player changes it at the wall or at the hub's other sign.
 62. Make the target a destination reached through rooms.
 63. Keep each villager's branch fixed and learnable.
 64. Let the hub's signs say whose dream lies each way.
@@ -338,8 +338,8 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 74. Let developed things change the dream: the pill lengthens every night after, the lantern names the map.
 75. Let developed things change the street: Jorun's stairs rise, a window lights, the dark recedes one tile.
 76. Put the accomplished beat at the return: the frame opening, the name rising, the morning's work completing.
-77. Keep the Dave director's line in mind: coziness is the moment of stability between bursts of tension.
-78. Measure balance with scripted competent and clumsy players before asking a person.
+77. Break the calm once a night and once a morning, then put it back: the closing frame in the dream, the draining 75 s window at the Desk, the street calm between.
+78. Show each waiting outline's progress on its branch row of the wall ("2 / 4").
 79. Report what one notch of a number changes, and leave the notch to the designer.
 80. Keep both loops' specs, and say which page wins.
 
@@ -361,10 +361,10 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 94. Put labels above what they name, on a backing.
 95. Thin the dream's soft shapes as the frame nears shut.
 96. Make the dream known as a dream from minute one, and let the question be whose it is.
-97. Let wonder pay for looking at strange things.
-98. Keep the goat in from the first room so that asleep is a verb.
+97. Let wonder pay −1 lucidity, once per wonder per visit, for drifting asleep through a soft wall, riding the goat, or staying still asleep 3 s on a quiet spot.
+98. Keep the goat in the toy so that asleep is a verb: it carries you in rooms b and e on Tove's branch, and the currents and soft walls do that work on the other branches.
 99. Keep rooms screen-sized and readable, hard but fair, with a one-second retry, as Celeste does.
-100. Keep the inputs kind and the puzzles strict.
+100. Keep the inputs kind (holding pinch is free, a 32 px drop is free, a failed screen retries at the door in one second) and the puzzles strict (room c's shelf only with a set-down step).
 
 ## 6. Characters, dialogue and tone
 
@@ -408,7 +408,7 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 135. Render previews with Cycles on the CPU, with the ground a millimetre below the piece's lowest point.
 136. Scale props by `PROP_SCALE` about the origin, and only props.
 137. Give first-person spaces game scale: a 90° horizontal view, a 0.30 m capsule, 0.8 m of clearance.
-138. Keep organic edges and koi as recorded kit gaps until a rung asks for them.
+138. Keep organic edges as a recorded kit gap, and koi with the garden's other motion and sound as a parked feel item, until a rung asks for them.
 139. Keep the kit on the shelf while PINCH is 2D; it is waiting, not wasted.
 140. Keep the gated page's map generated from the repo, so the picture never lies.
 
@@ -437,23 +437,23 @@ the kit · 8 Building in Godot · 9 Tests, verification and evidence ·
 
 ## 9. Tests, verification and evidence
 
-161. Build first, then have an independent agent verify from a clean import.
-162. Delete `.godot` before verifying.
+161. Build first, then have an independent agent verify from a clean import, with `.godot` deleted.
+162. Run each test to its own log and pass it only on exit 0, `RESULT: 0 failure(s)` and no ERROR, SCRIPT ERROR or WARNING lines.
 163. Read the verifier's deviations and fix the small ones before committing.
 164. Rerun every test after a fix, not only the one that failed.
 165. Name every test edit and its reason in the test's header.
-166. Write a test for every rule in the spec: the numbers, the thresholds, the timings.
+166. Write a test for every rule in the spec, and read its numbers (the limit, the 75 s blue hour, the 5 s fumble) from the toy's constants instead of typing them in, so a notch the designer moves breaks no check.
 167. Let the local session run each build windowed on the GPU and screenshot every change of the frame and the text.
 168. Treat the local session's screenshots as the checklist for the next pass.
 169. Run tests at 120 fps as well as 60.
 170. Write numbers, not adjectives, in evidence rows.
 171. Mark every research claim confirmed, likely or unverified, with its source.
 172. Say when the network policy blocked verification, and how to open it.
-173. Measure balance with scripted drivers and publish the table in the README.
+173. Measure balance with scripted competent and clumsy drivers before asking a person, and publish the table in the README.
 174. Assert invariants, not tuned values.
 175. Log a day's evidence in NOTES before moving on.
 176. Check a background workflow's journal timestamps when it has been quiet too long.
-177. Relaunch a run that died silently, and tell the designer.
+177. Mark every scripted-run evidence row "the bot's route, not a person's play", as the local session's Log rows do.
 178. Keep "a parse check is not a run" in every builder's brief.
 179. Check that every control in a README is bound and handled.
 180. Check that every claim in a README's Numbers section is true of the logs.
